@@ -1,0 +1,44 @@
+%{
+    namespace RedrawCode
+    {
+        enum Enum
+        {
+            put,
+            cursor_goto,
+            clear,
+            eol_clear,
+            highlight_set,
+            set_scroll_region,
+            scroll,
+            update_fg,
+            update_bg,
+            resize,
+            normal_mode,
+            insert_mode,
+            busy_start,
+            busy_stop,
+            bell
+        };
+    }
+%}
+struct RedrawAction
+{
+    const char *name;
+    RedrawCode::Enum code;
+};
+%%
+put,               RedrawCode::put
+cursor_goto,       RedrawCode::cursor_goto
+clear,             RedrawCode::clear
+eol_clear,         RedrawCode::eol_clear
+highlight_set,     RedrawCode::highlight_set
+set_scroll_region, RedrawCode::set_scroll_region
+scroll,            RedrawCode::scroll
+update_fg,         RedrawCode::update_fg
+update_bg,         RedrawCode::update_bg
+resize,            RedrawCode::resize
+normal_mode,       RedrawCode::normal_mode
+insert_mode,       RedrawCode::insert_mode
+busy_start,        RedrawCode::busy_start
+busy_stop,         RedrawCode::busy_stop
+bell,              RedrawCode::bell

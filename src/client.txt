@@ -1,0 +1,20 @@
+
+class Client
+
+    A MsgPack-RPC client for talking to another process on
+    the same machine through its stdin/stdout handles.
+
+    Client(Process &)
+        When creating the Client, pass the process you want to communicate with.
+
+    RPC *call(string, args)
+        Call an RPC with given name and arguments. Returns an RPC pointer.
+        When the RPC returns, the RPC pointer will be referenced in an Event
+        returned by Client::wait().
+
+        After that, the RPC pointer will not be used anymore and it is the
+        caller's responsibility to delete it.
+
+    Event wait()
+        Blocks until either an RPC returns, or a note is received. Fills out
+        and returns an Event structure detailing what happened.

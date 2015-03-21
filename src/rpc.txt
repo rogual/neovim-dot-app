@@ -1,0 +1,18 @@
+
+class RPC
+
+    Represents an RPC call that we've made to a Client.
+
+    Get one of these by calling Client::call(name, args).
+
+    is_resolved()
+        True if the RPC has returned; False if we're still waiting for
+        the other process to get back to us.
+
+    get_value()
+        The return value of this RPC. Nil if it hasn't returned or has
+        errored.
+
+    get_error()
+        If the RPC resulted in an error, this returns the error object.
+        Otherwise, it returns nil.
