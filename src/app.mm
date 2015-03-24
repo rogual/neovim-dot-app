@@ -49,9 +49,12 @@ NSWindow *window = 0;
     int width = 80;
     int height = 25;
 
+    NSString *vimDir = [[NSBundle mainBundle] resourcePath];
     NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
                                                         ofType:nil];
 
+
+    setenv("VIM", [vimDir UTF8String], 1);
     vim = new Vim([vimPath UTF8String]);
     vim->ui_attach(width, height, true);
 

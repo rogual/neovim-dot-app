@@ -17,9 +17,16 @@ if 0:
         CCFLAGS=['-O3', '-DNDEBUG'],
     )
 
+# Path to executable
 nvim = env['ENV'].get('NVIM')
 if not nvim:
     print('Please set NVIM to the path to a NeoVim executable.')
+    sys.exit(-1)
+
+# Path to runtime
+vim = env['ENV'].get('VIM')
+if not vim:
+    print("Please set VIM to NeoVim's $VIM directory.")
     sys.exit(-1)
 
 env.VariantDir('build', 'src', duplicate=False)
@@ -32,10 +39,12 @@ hashfile = env.Command(
 
 sources = env.Glob('build/*.cc') + env.Glob('build/*.mm')
 
-
+res = 'build/NeoVim.app/Contents/Resources'
 env.Program('build/NeoVim.app/Contents/MacOS/NeoVim', sources)
 env.Install('build/NeoVim.app/Contents', 'res/Info.plist')
-env.Install('build/NeoVim.app/Contents/Resources', nvim)
+env.Install(res, nvim)
+env.Install(res, 'res/vimrc')
+env.Install(res, vim + '/runtime')
 
 env.Command(
     'build/NeoVim.app/Contents/Resources/NeoVim.icns',
