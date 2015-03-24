@@ -40,32 +40,32 @@ NSWindow *window = 0;
 {
     [self initMenu];
 
-    NSRect frame = NSMakeRect(0, 0, 7 * 80, 17 * 25);
+    int width = 80;
+    int height = 25;
+
+    NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
+                                                        ofType:nil];
+
+    vim = new Vim([vimPath UTF8String]);
+    vim->ui_attach(width, height, true);
+
+    mainView = [[VimView alloc] initWithCellSize:CGSizeMake(width, height)
+                                             vim:vim];
 
     int style = NSTitledWindowMask |
                 NSClosableWindowMask |
                 NSMiniaturizableWindowMask |
                 NSResizableWindowMask;
 
-
-    window = [[[NSWindow alloc] initWithContentRect: frame
-                                         styleMask: style
-                                         backing: NSBackingStoreBuffered
-                                         defer: YES] retain];
-
-    NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
-                                                        ofType:nil];
-
-    vim = new Vim([vimPath UTF8String]);
-    vim->ui_attach(80, 25, true);
-
-    mainView = [[VimView alloc] initWithFrame:frame vim:vim];
+    window = [[[NSWindow alloc] initWithContentRect:[mainView frame]
+                                          styleMask:style
+                                            backing:NSBackingStoreBuffered
+                                              defer:YES] retain];
 
     [window setContentView:mainView];
     [window makeFirstResponder:mainView];
     [window setDelegate:[[WindowDelegate alloc] init]];
     [window makeKeyAndOrderFront:NSApp];
-    [mainView setFrameSize:frame.size];
 
     [NSThread detachNewThreadSelector:@selector(vimThread:)
                              toTarget:self

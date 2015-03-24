@@ -23,7 +23,7 @@ class Vim;
 
 - (void)requestResize:(CGSize)cellSize;
 
-- (id)initWithFrame:(NSRect)frame vim:(Vim *)vim;
+- (id)initWithCellSize:(CGSize)cellSize vim:(Vim *)vim;
 
 - (NSRect)viewRectFromCellRect:(NSRect)cellRect;
 - (CGSize)viewSizeFromCellSize:(CGSize)cellSize;

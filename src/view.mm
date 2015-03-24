@@ -31,6 +31,17 @@ extern int x,y;
     return self;
 }
 
+- (id)initWithCellSize:(CGSize)cellSize vim:(Vim *)vim
+{
+    NSRect frame = CGRectMake(0, 0, 100, 100);
+
+    if (self = [self initWithFrame:frame vim:vim]) {
+        frame.size = [self viewSizeFromCellSize:cellSize];
+        [self setFrame:frame];
+    }
+    return self;
+}
+
 - (void)drawRect:(NSRect)rect
 {
     [mBackgroundColor setFill];
