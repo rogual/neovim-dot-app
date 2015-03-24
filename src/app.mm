@@ -8,8 +8,6 @@ Vim *vim = 0;
 VimView *mainView = 0;
 NSWindow *window = 0;
 
-std::string bufname;
-
 @interface WindowDelegate : NSObject <NSWindowDelegate> {} @end
 @implementation WindowDelegate
 
@@ -66,7 +64,6 @@ std::string bufname;
     [window setContentView:mainView];
     [window makeFirstResponder:mainView];
     [window setDelegate:[[WindowDelegate alloc] init]];
-    [window setTitle:@"NeoVim"];
     [window makeKeyAndOrderFront:NSApp];
     [mainView setFrameSize:frame.size];
 
@@ -86,24 +83,39 @@ std::string bufname;
 
     if (note == "redraw") {
 
-        // Update the buffer name -- is there a more specific event for this? For now
-        // let's do it on redraw.
-        vim->vim_get_current_buffer().then([](Buffer buf) {
-            vim->buffer_get_name(buf).then([](std::string new_bufname) {
-                if (new_bufname.size() && new_bufname != bufname) {
-                    bufname = new_bufname;
-                    [window setTitleWithRepresentedFilename:[NSString stringWithUTF8String:bufname.c_str()]];
-                }
-            });
-        });
-
+        /* There must be a better way of finding out when the current buffer
+           has changed? Until we figure one out, update title every redraw. */
+        [self updateWindowTitle];
         [mainView redraw:update_o];
-
-
     }
     else {
         std::cout << "Unknown note " << note << "\n";
     }
+}
+
+/* Set the window's title and “represented file” icon. */
+- (void)updateWindowTitle
+{
+    vim->vim_get_current_buffer().then([](Buffer buf) {
+        vim->buffer_get_name(buf).then([](std::string bufname) {
+            if (bufname.empty()) {
+                [window setTitle:@"Untitled"];
+                [window setRepresentedFilename:@""];
+                return;
+            }
+
+            NSString *nsBufname =
+                [NSString stringWithUTF8String:bufname.c_str()];
+
+            if ([[NSFileManager defaultManager] fileExistsAtPath:nsBufname]) {
+                [window setTitleWithRepresentedFilename:nsBufname];
+            }
+            else {
+                [window setTitleWithRepresentedFilename:nsBufname];
+                [window setRepresentedFilename:@""];
+            }
+        });
+    });
 }
 
 
