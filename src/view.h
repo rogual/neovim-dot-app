@@ -19,6 +19,7 @@ class Vim;
     NSSize mCharSize;
     NSFont *mFont;
     CGRect mCellScrollRect;
+    NSPoint mCursorPos;
 }
 
 - (void)requestResize:(CGSize)cellSize;

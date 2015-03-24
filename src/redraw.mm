@@ -13,8 +13,6 @@
 
 static const bool debug = false;
 
-int x=0, y=0;
-
 #define RGBA(r,g,b,a) [NSColor colorWithCalibratedRed:r/255.f green:g/255.f blue:b/255.f alpha:a/255.f]
 #define NSColorFromRGB(rgbValue) [NSColor colorWithCalibratedRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
@@ -49,14 +47,15 @@ using msgpack::object;
 
         case RedrawCode::cursor_goto:
         {
-            y = argv[0].convert();
-            x = argv[1].convert();
+            mCursorPos.y = argv[0].convert();
+            mCursorPos.x = argv[1].convert();
             break;
         }
 
         case RedrawCode::clear:
         {
-            x = y = 0;
+            mCursorPos.x = 0;
+            mCursorPos.y = 0;
             [mBackgroundColor set];
             NSRectFill(viewFrame);
             break;
@@ -65,9 +64,9 @@ using msgpack::object;
         case RedrawCode::eol_clear:
         {
             NSRect rect;
-            rect.origin.x = x * mCharSize.width;
-            rect.origin.y = viewFrame.size.height - (y + 1) * mCharSize.height;
-            rect.size.width = viewFrame.size.width - x;
+            rect.origin.x = mCursorPos.x * mCharSize.width;
+            rect.origin.y = viewFrame.size.height - (mCursorPos.y + 1) * mCharSize.height;
+            rect.size.width = viewFrame.size.width - mCursorPos.x;
             rect.size.height = mCharSize.height;
             [mBackgroundColor set];
             NSRectFill( rect ) ;
@@ -198,12 +197,12 @@ using msgpack::object;
 
         int sz = [nsrun length];
 
-        NSRect cellRect = CGRectMake(x, y, sz, 1);
+        NSRect cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1);
         NSRect rect = [self viewRectFromCellRect:cellRect];
 
         [nsrun drawInRect:rect withAttributes:mTextAttrs];
 
-        x += sz;
+        mCursorPos.x += sz;
     }
     else for (int i=0; i<narglists; i++) {
         const object &arglist = arglists[i];

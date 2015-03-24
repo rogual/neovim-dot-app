@@ -6,8 +6,6 @@
 
 @implementation VimView
 
-extern int x,y;
-
 /* Translate NSEvent modifier flags to Vim's prefix notation and write them
    to the given ostream */
 static void addModifiers(std::ostream &os, NSEvent *event)
@@ -37,6 +35,8 @@ static void addModifiers(std::ostream &os, NSEvent *event)
 
         mCharSize.width = [mFont advancementForGlyph:' '].width;
         mCharSize.height = 17;
+
+        mCursorPos = CGPointZero;
     }
     return self;
 }
@@ -69,9 +69,9 @@ static void addModifiers(std::ostream &os, NSEvent *event)
     NSRect cellRect;
 
     if (mInsertMode)
-        cellRect = CGRectMake(x, y, .2, 1);
+        cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, .2, 1);
     else
-        cellRect = CGRectMake(x, y+1, 1, .3);
+        cellRect = CGRectMake(mCursorPos.x, mCursorPos.y+1, 1, .3);
 
     NSRect viewRect = [self viewRectFromCellRect:cellRect];
     [mForegroundColor set];
