@@ -80,6 +80,43 @@ extern int x,y;
     [self performSelector:@selector(sendKeys) withObject:nil afterDelay:0];
 }
 
+- (void)mouseEvent:(NSEvent *)event drag:(BOOL)drag type:(const char *)type
+{
+    NSPoint cellLoc = [self cellContainingEvent:event];
+
+    /* Only send drag events when we cross cell boundaries */
+    if (drag) {
+        static NSPoint lastCellLoc = CGPointMake(-1, -1);
+        if (CGPointEqualToPoint(lastCellLoc, cellLoc))
+            return;
+        lastCellLoc = cellLoc;
+    }
+
+    int mods = [event modifierFlags];
+
+    /* Add modifier flags and mouse position */
+    std::stringstream ss;
+    ss << "<";
+         if (mods & NSShiftKeyMask) ss << "S-";
+    else if (mods & NSControlKeyMask) ss << "C-";
+    else if (mods & NSCommandKeyMask) ss << "D-";
+    ss << type << "><" << cellLoc.x << "," << cellLoc.y << ">";
+
+    [self vimInput:ss.str()];
+}
+
+- (void)mouseDown:    (NSEvent *)event { [self mouseEvent:event drag:NO type:"LeftMouse"]; }
+- (void)mouseDragged: (NSEvent *)event { [self mouseEvent:event drag:YES type:"LeftDrag"]; }
+- (void)mouseUp:      (NSEvent *)event { [self mouseEvent:event drag:NO type:"LeftRelease"]; }
+
+- (void)rightMouseDown:    (NSEvent *)event { [self mouseEvent:event drag:NO type:"RightMouse"]; }
+- (void)rightMouseDragged: (NSEvent *)event { [self mouseEvent:event drag:YES type:"RightDrag"]; }
+- (void)rightMouseUp:      (NSEvent *)event { [self mouseEvent:event drag:NO type:"RightRelease"]; }
+
+- (void)otherMouseDown:    (NSEvent *)event { [self mouseEvent:event drag:NO type:"MiddleMouse"]; }
+- (void)otherMouseDragged: (NSEvent *)event { [self mouseEvent:event drag:YES type:"MiddleDrag"]; }
+- (void)otherMouseUp:      (NSEvent *)event { [self mouseEvent:event drag:NO type:"MiddleRelease"]; }
+
 /* If the user hasn't hit any new keys, send all the keypresses in the keyqueue
    to Vim */
 - (void)sendKeys
@@ -97,7 +134,7 @@ extern int x,y;
         int flags = [event modifierFlags] & NSDeviceIndependentModifierFlagsMask;
 
         if ([[event characters] isEqualToString:@"<"]) {
-            raw += "<Char-0x3c>";
+            raw += "<lt>";
         }
         else if ([self shouldPassThrough:event]) {
             raw += [[event characters] UTF8String];
@@ -204,6 +241,23 @@ extern int x,y;
     cellSize.width = int(viewSize.width / mCharSize.width);
     cellSize.height = int(viewSize.height / mCharSize.height);
     return cellSize;
+}
+
+- (NSPoint)cellContaining:(NSPoint)viewPoint
+{
+    CGFloat y = [self frame].size.height - viewPoint.y;
+    NSPoint cellPoint;
+    cellPoint.x = int(viewPoint.x / mCharSize.width);
+    cellPoint.y = int(y / mCharSize.height);
+    return cellPoint;
+}
+
+- (NSPoint)cellContainingEvent:(NSEvent *)event
+{
+    NSPoint winLoc = [event locationInWindow];
+    NSPoint viewLoc = [self convertPoint:winLoc fromView:nil];
+    NSPoint cellLoc = [self cellContaining:viewLoc];
+    return cellLoc;
 }
 
 @end

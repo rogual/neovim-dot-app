@@ -25,6 +25,7 @@ class Vim;
 
 - (id)initWithCellSize:(CGSize)cellSize vim:(Vim *)vim;
 
+- (NSPoint)cellContaining:(NSPoint)viewPoint;
 - (NSRect)viewRectFromCellRect:(NSRect)cellRect;
 - (CGSize)viewSizeFromCellSize:(CGSize)cellSize;
 - (CGSize)cellSizeInsideViewSize:(CGSize)viewSize;
