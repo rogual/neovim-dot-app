@@ -43,7 +43,7 @@ res = 'build/NeoVim.app/Contents/Resources'
 env.Program('build/NeoVim.app/Contents/MacOS/NeoVim', sources)
 env.Install('build/NeoVim.app/Contents', 'res/Info.plist')
 env.Install(res, nvim)
-env.Install(res, 'res/vimrc')
+env.Install(res, 'res/nvimrc')
 env.Install(res, vim + '/runtime')
 
 env.Command(
