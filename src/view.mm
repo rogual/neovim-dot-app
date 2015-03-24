@@ -20,7 +20,7 @@ static void addModifiers(std::ostream &os, NSEvent *event)
 {
     if (self = [super initWithFrame:frame]) {
         mVim = vim;
-        mCanvas = [[NSImage alloc] initWithSize:CGSizeMake(1000, 1000)];
+        mCanvas = [[NSImage alloc] initWithSize:CGSizeMake(1920, 1080)];
         mBackgroundColor = [[NSColor whiteColor] retain];
         mForegroundColor = [[NSColor blackColor] retain];
         mTextAttrs = [[NSMutableDictionary dictionaryWithObjectsAndKeys:

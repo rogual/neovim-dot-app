@@ -18,6 +18,12 @@
     mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
     [mi setSubmenu:fileMenu];
 
+    NSMenu *viewMenu = [[NSMenu alloc] initWithTitle:@"View"];
+    mi = [viewMenu addItemWithTitle:@"Toggle Full Screen" action:@selector(toggleFullScreen:) keyEquivalent:@"f"];
+    [mi setKeyEquivalentModifierMask: NSControlKeyMask | NSCommandKeyMask];
+    mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
+    [mi setSubmenu:viewMenu];
+
     NSMenu *windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
     [windowMenu addItemWithTitle:@"Show Previous Tab" action:@selector(prevTab) keyEquivalent:@"{"];
     [windowMenu addItemWithTitle:@"Show Next Tab" action:@selector(nextTab) keyEquivalent:@"}"];

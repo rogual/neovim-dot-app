@@ -27,6 +27,12 @@ NSWindow *window = 0;
     return frameRect.size;
 }
 
+/* OS X doesn't send us a willResize event when leaving fullscreen mode, so: */
+- (void)windowDidExitFullScreen:(NSNotification *)notification
+{
+    [self windowWillResize:window toSize:[window frame].size];
+}
+
 @end
 
 @implementation AppDelegate
@@ -66,6 +72,7 @@ NSWindow *window = 0;
     [window makeFirstResponder:mainView];
     [window setDelegate:[[WindowDelegate alloc] init]];
     [window makeKeyAndOrderFront:NSApp];
+    [window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
 
     [NSThread detachNewThreadSelector:@selector(vimThread:)
                              toTarget:self
