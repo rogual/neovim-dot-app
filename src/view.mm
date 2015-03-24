@@ -8,6 +8,16 @@
 
 extern int x,y;
 
+/* Translate NSEvent modifier flags to Vim's prefix notation and write them
+   to the given ostream */
+static void addModifiers(std::ostream &os, NSEvent *event)
+{
+    int mods = [event modifierFlags];
+         if (mods & NSShiftKeyMask) os << "S-";
+    else if (mods & NSControlKeyMask) os << "C-";
+    else if (mods & NSCommandKeyMask) os << "D-";
+}
+
 - (id)initWithFrame:(NSRect)frame vim:(Vim *)vim
 {
     if (self = [super initWithFrame:frame]) {
@@ -97,9 +107,7 @@ extern int x,y;
     /* Add modifier flags and mouse position */
     std::stringstream ss;
     ss << "<";
-         if (mods & NSShiftKeyMask) ss << "S-";
-    else if (mods & NSControlKeyMask) ss << "C-";
-    else if (mods & NSCommandKeyMask) ss << "D-";
+    addModifiers(ss, event);
     ss << type << "><" << cellLoc.x << "," << cellLoc.y << ">";
 
     [self vimInput:ss.str()];
@@ -116,6 +124,30 @@ extern int x,y;
 - (void)otherMouseDown:    (NSEvent *)event { [self mouseEvent:event drag:NO type:"MiddleMouse"]; }
 - (void)otherMouseDragged: (NSEvent *)event { [self mouseEvent:event drag:YES type:"MiddleDrag"]; }
 - (void)otherMouseUp:      (NSEvent *)event { [self mouseEvent:event drag:NO type:"MiddleRelease"]; }
+
+- (void)scrollWheel:(NSEvent *)event
+{
+    CGFloat x = [event deltaX], y = [event deltaY];
+
+    if (!x && !y)
+        return;
+
+    NSPoint cellLoc = [self cellContainingEvent:event];
+
+    std::stringstream ss;
+    ss << "<";
+    addModifiers(ss, event);
+
+         if (y > 0) ss << "ScrollWheelUp";
+    else if (y < 0) ss << "ScrollWheelDown";
+    else if (x > 0) ss << "ScrollWheelRight";
+    else if (x < 0) ss << "ScrollWheelLeft";
+    else assert(0);
+
+    ss << "><" << cellLoc.x << "," << cellLoc.y << ">";
+    [self vimInput:ss.str()];
+}
+
 
 /* If the user hasn't hit any new keys, send all the keypresses in the keyqueue
    to Vim */
