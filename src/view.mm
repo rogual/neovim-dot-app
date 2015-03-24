@@ -52,6 +52,34 @@ static void addModifiers(std::ostream &os, NSEvent *event)
     return self;
 }
 
+- (void)cutText
+{
+    if (!mInsertMode) {
+        mVim->vim_command("normal! \"+d");
+    }
+}
+
+- (void)copyText
+{
+    if (!mInsertMode) {
+        mVim->vim_command("normal! \"+y");
+    }
+}
+
+- (void)pasteText
+{
+    if (mInsertMode) {
+        NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+        NSString* string = [pasteboard stringForType:NSPasteboardTypeString];
+        string = [string stringByReplacingOccurrencesOfString:@"<"
+                                                   withString:@"<lt>"];
+        [self vimInput:[string UTF8String]];
+    }
+    else {
+        mVim->vim_command("normal! \"+p");
+    }
+}
+
 - (void)drawRect:(NSRect)rect
 {
     [mBackgroundColor setFill];

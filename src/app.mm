@@ -37,6 +37,10 @@ NSWindow *window = 0;
 
 @implementation AppDelegate
 
+- (void)copyText { [mainView copyText]; }
+- (void)cutText { [mainView cutText]; }
+- (void)pasteText { [mainView pasteText]; }
+
 - (void)newTab { vim->vim_command("tabnew"); }
 - (void)nextTab { vim->vim_command("tabnext"); }
 - (void)prevTab { vim->vim_command("tabprev"); }

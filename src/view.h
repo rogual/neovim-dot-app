@@ -22,6 +22,10 @@ class Vim;
     NSPoint mCursorPos;
 }
 
+- (void)cutText;
+- (void)copyText;
+- (void)pasteText;
+
 - (void)requestResize:(CGSize)cellSize;
 
 - (id)initWithCellSize:(CGSize)cellSize vim:(Vim *)vim;

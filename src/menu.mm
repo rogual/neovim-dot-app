@@ -5,30 +5,40 @@
 /* Create our anaemic menu bar. TODO: Ask Vim for its menus */
 - (void) initMenu
 {
-    NSMenu* appMenu = [[NSMenu alloc] initWithTitle:@"NeoVim"];
-    [appMenu addItemWithTitle:@"Quit" action:@selector(terminate:) keyEquivalent:@"q"];
+    NSMenu *menu, *sub;
+    NSMenuItem *mi;
 
-    NSMenu* menu = [[NSMenu alloc] initWithTitle: @""];
-    NSMenuItem* mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
-    [mi setSubmenu:appMenu];
+    menu = [[NSMenu alloc] initWithTitle: @""];
 
-    NSMenu *fileMenu = [[NSMenu alloc] initWithTitle:@"File"];
-    [fileMenu addItemWithTitle:@"New Tab" action:@selector(newTab) keyEquivalent:@"t"];
-    [fileMenu addItemWithTitle:@"Close Tab" action:@selector(closeTab) keyEquivalent:@"w"];
+    sub = [[NSMenu alloc] initWithTitle:@"NeoVim"];
+    [sub addItemWithTitle:@"Quit" action:@selector(terminate:) keyEquivalent:@"q"];
     mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
-    [mi setSubmenu:fileMenu];
+    [mi setSubmenu:sub];
 
-    NSMenu *viewMenu = [[NSMenu alloc] initWithTitle:@"View"];
-    mi = [viewMenu addItemWithTitle:@"Toggle Full Screen" action:@selector(toggleFullScreen:) keyEquivalent:@"f"];
+    sub = [[NSMenu alloc] initWithTitle:@"File"];
+    [sub addItemWithTitle:@"New Tab" action:@selector(newTab) keyEquivalent:@"t"];
+    [sub addItemWithTitle:@"Close Tab" action:@selector(closeTab) keyEquivalent:@"w"];
+    mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
+    [mi setSubmenu:sub];
+
+    sub = [[NSMenu alloc] initWithTitle:@"Edit"];
+    [sub addItemWithTitle:@"Cut" action:@selector(cutText) keyEquivalent:@"x"];
+    [sub addItemWithTitle:@"Copy" action:@selector(copyText) keyEquivalent:@"c"];
+    [sub addItemWithTitle:@"Paste" action:@selector(pasteText) keyEquivalent:@"v"];
+    mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
+    [mi setSubmenu:sub];
+
+    sub = [[NSMenu alloc] initWithTitle:@"View"];
+    mi = [sub addItemWithTitle:@"Toggle Full Screen" action:@selector(toggleFullScreen:) keyEquivalent:@"f"];
     [mi setKeyEquivalentModifierMask: NSControlKeyMask | NSCommandKeyMask];
     mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
-    [mi setSubmenu:viewMenu];
+    [mi setSubmenu:sub];
 
-    NSMenu *windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
-    [windowMenu addItemWithTitle:@"Show Previous Tab" action:@selector(prevTab) keyEquivalent:@"{"];
-    [windowMenu addItemWithTitle:@"Show Next Tab" action:@selector(nextTab) keyEquivalent:@"}"];
+    sub = [[NSMenu alloc] initWithTitle:@"Window"];
+    [sub addItemWithTitle:@"Show Previous Tab" action:@selector(prevTab) keyEquivalent:@"{"];
+    [sub addItemWithTitle:@"Show Next Tab" action:@selector(nextTab) keyEquivalent:@"}"];
     mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
-    [mi setSubmenu:windowMenu];
+    [mi setSubmenu:sub];
 
     [NSApp setMainMenu:menu];
 }
