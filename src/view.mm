@@ -23,18 +23,22 @@ static void addModifiers(std::ostream &os, NSEvent *event)
         mCanvas = [[NSImage alloc] initWithSize:CGSizeMake(1920, 1080)];
         mBackgroundColor = [[NSColor whiteColor] retain];
         mForegroundColor = [[NSColor blackColor] retain];
-        mTextAttrs = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
-            mForegroundColor, NSForegroundColorAttributeName,
-            mBackgroundColor, NSBackgroundColorAttributeName,
-            nil
-        ] retain];
         mWaitAck = 0;
 
         mFont = [NSFont fontWithName:@"Menlo" size:11.0];
         [mFont retain];
 
-        mCharSize.width = [mFont advancementForGlyph:' '].width;
-        mCharSize.height = 17;
+        mTextAttrs = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
+            mForegroundColor, NSForegroundColorAttributeName,
+            mBackgroundColor, NSBackgroundColorAttributeName,
+            mFont, NSFontAttributeName,
+            nil
+        ] retain];
+
+        [[NSFontManager sharedFontManager] setSelectedFont:mFont isMultiple:NO];
+        [[NSFontManager sharedFontManager] setDelegate:self];
+
+        [self updateCharSize];
 
         mCursorPos = mCursorDisplayPos = CGPointZero;
         mCursorOn = true;
@@ -51,6 +55,37 @@ static void addModifiers(std::ostream &os, NSEvent *event)
         [self setFrame:frame];
     }
     return self;
+}
+
+/* Ask the font panel not to show colors, effects, etc. It'll still show color
+   options in the cogwheel menu anyway because apple. */
+- (NSUInteger)validModesForFontPanel:(NSFontPanel *)fontPanel
+{
+    return NSFontPanelFaceModeMask |
+           NSFontPanelSizeModeMask |
+           NSFontPanelCollectionModeMask;
+}
+
+- (void)updateCharSize
+{
+    mCharSize = [@" " sizeWithAttributes:mTextAttrs];
+}
+
+- (void)changeFont:(id)sender
+{
+    mFont = [sender convertFont:mFont];
+    [mTextAttrs setValue:mFont forKey:NSFontAttributeName];
+    [self updateCharSize];
+
+    NSWindow *win = [self window];
+    NSRect frame = [win frame];
+    frame = [win contentRectForFrameRect:frame];
+    CGSize cellSize = {(float)mXCells, (float)mYCells};
+    frame.size = [self viewSizeFromCellSize:cellSize];
+    frame = [win frameRectForContentRect:frame];
+    [win setFrame:frame display:NO];
+
+    mVim->vim_command("redraw!");
 }
 
 - (void)cutText

@@ -3,6 +3,7 @@
 #import "app.h"
 #import "view.h"
 #import "redraw.h"
+#import "font.h"
 
 Vim *vim = 0;
 VimView *mainView = 0;
@@ -46,6 +47,11 @@ NSWindow *window = 0;
 - (void)prevTab { vim->vim_command("tabprev"); }
 - (void)closeTab { vim->vim_command("tabclose"); }
 
+- (void)applicationWillFinishLaunching:(NSNotification *)notification
+{
+    [NSFontManager setFontManagerFactory:[VimFontManager class]];
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
     [self initMenu];
@@ -56,7 +62,6 @@ NSWindow *window = 0;
     NSString *vimDir = [[NSBundle mainBundle] resourcePath];
     NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
                                                         ofType:nil];
-
 
     setenv("VIM", [vimDir UTF8String], 1);
     vim = new Vim([vimPath UTF8String]);

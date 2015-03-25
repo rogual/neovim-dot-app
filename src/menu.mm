@@ -1,5 +1,38 @@
 #include "app.h"
 
+/* The Cocoa font menu contains stuff we don't want, like color, ligatures,
+    etc., so make our own font menu (with texas hold 'em and loose women) and
+    add only the best menu items. */
+static NSMenu *makeFontMenu()
+{
+    NSFontManager *fontManager = [NSFontManager sharedFontManager];
+    NSMenu *cocoaFontMenu = [fontManager fontMenu:YES];
+    NSMenu *sub = [[NSMenu alloc] initWithTitle:@"Font"];
+    bool sep = false;
+    for (NSMenuItem *item in [cocoaFontMenu itemArray]) {
+        SEL action = [item action];
+        bool want = false;
+
+        if (action == @selector(modifyFont:)) want = true;
+        if (action == @selector(orderFrontFontPanel:)) want = true;
+
+        if (!action && !sep) {
+            sep = true;
+            want = true;
+        }
+
+        if (action)
+            sep = false;
+
+        if (want)
+        {
+            [cocoaFontMenu removeItem:item];
+            [sub addItem:item];
+        }
+    }
+    return sub;
+}
+
 @implementation AppDelegate (Menus)
 
 /* Create our anaemic menu bar. TODO: Ask Vim for its menus */
@@ -28,6 +61,10 @@
     mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
     [mi setSubmenu:sub];
 
+    mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
+    sub = makeFontMenu();
+    [mi setSubmenu:sub];
+
     sub = [[NSMenu alloc] initWithTitle:@"View"];
     mi = [sub addItemWithTitle:@"Toggle Full Screen" action:@selector(toggleFullScreen:) keyEquivalent:@"f"];
     [mi setKeyEquivalentModifierMask: NSControlKeyMask | NSCommandKeyMask];
@@ -39,6 +76,7 @@
     [sub addItemWithTitle:@"Show Next Tab" action:@selector(nextTab) keyEquivalent:@"}"];
     mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
     [mi setSubmenu:sub];
+
 
     [NSApp setMainMenu:menu];
 }

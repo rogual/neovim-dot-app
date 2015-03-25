@@ -221,7 +221,7 @@ using msgpack::object;
         NSRect cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1);
         NSRect rect = [self viewRectFromCellRect:cellRect];
 
-        [nsrun drawInRect:rect withAttributes:mTextAttrs];
+        [nsrun drawAtPoint:rect.origin withAttributes:mTextAttrs];
 
         mCursorPos.x += sz;
     }
