@@ -3,8 +3,14 @@
 #import <Cocoa/Cocoa.h>
 #import "app.h"
 
-int main()
+int g_argc;
+char **g_argv;
+
+int main(int argc, char **argv)
 {
+    g_argc = argc;
+    g_argv = argv;
+
     [NSApplication sharedApplication];
 
     AppDelegate *delegate = [[AppDelegate alloc] init];

@@ -28,6 +28,8 @@ class Vim;
 - (void)copyText;
 - (void)pasteText;
 
+- (void)openFile:(NSString *)filename;
+
 - (void)requestResize:(CGSize)cellSize;
 
 - (id)initWithCellSize:(CGSize)cellSize vim:(Vim *)vim;

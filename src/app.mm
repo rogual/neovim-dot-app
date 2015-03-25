@@ -5,6 +5,9 @@
 #import "redraw.h"
 #import "font.h"
 
+extern int g_argc;
+extern char **g_argv;
+
 Vim *vim = 0;
 VimView *mainView = 0;
 NSWindow *window = 0;
@@ -67,6 +70,7 @@ NSWindow *window = 0;
     vim = new Vim([vimPath UTF8String]);
     vim->ui_attach(width, height, true);
 
+
     mainView = [[VimView alloc] initWithCellSize:CGSizeMake(width, height)
                                              vim:vim];
 
@@ -89,6 +93,11 @@ NSWindow *window = 0;
     [NSThread detachNewThreadSelector:@selector(vimThread:)
                              toTarget:self
                            withObject:nil];
+
+    // Open files given on command-line
+    for (int i=1; i<g_argc; i++) {
+        [mainView openFile:[NSString stringWithUTF8String:g_argv[i]]];
+    }
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification 

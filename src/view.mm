@@ -126,6 +126,15 @@ static void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
     }
 }
 
+- (void)openFile:(NSString *)filename
+{
+    filename = [filename stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"];
+    filename = [filename stringByReplacingOccurrencesOfString:@" " withString:@"\\ "];
+    filename = [filename stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
+    filename = [@"e " stringByAppendingString:filename];
+    mVim->vim_command([filename UTF8String]);
+}
+
 - (void)drawRect:(NSRect)rect
 {
     [mBackgroundColor setFill];
