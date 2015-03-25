@@ -11,6 +11,7 @@ class Vim;
     int mXCells;
     int mYCells;
     bool mInsertMode;
+    bool mCursorOn;
     NSColor *mBackgroundColor;
     NSColor *mForegroundColor;
     NSMutableDictionary *mTextAttrs;
@@ -20,6 +21,7 @@ class Vim;
     NSFont *mFont;
     CGRect mCellScrollRect;
     NSPoint mCursorPos;
+    NSPoint mCursorDisplayPos;
 }
 
 - (void)cutText;

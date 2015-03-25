@@ -45,10 +45,27 @@ using msgpack::object;
             break;
         }
 
+        case RedrawCode::cursor_on:
+        {
+            mCursorOn = true;
+            mCursorDisplayPos = mCursorPos;
+            break;
+        }
+
+        case RedrawCode::cursor_off:
+        {
+            mCursorOn = false;
+            break;
+        }
+
         case RedrawCode::cursor_goto:
         {
             mCursorPos.y = argv[0].convert();
             mCursorPos.x = argv[1].convert();
+
+            if (mCursorOn)
+                mCursorDisplayPos = mCursorPos;
+
             break;
         }
 
@@ -56,6 +73,10 @@ using msgpack::object;
         {
             mCursorPos.x = 0;
             mCursorPos.y = 0;
+
+            if (mCursorOn)
+                mCursorDisplayPos = mCursorPos;
+
             [mBackgroundColor set];
             NSRectFill(viewFrame);
             break;
@@ -208,6 +229,9 @@ using msgpack::object;
         const object &arglist = arglists[i];
         [self doAction:code withArgc:arglist.via.array.size argv:arglist.via.array.ptr];
     }
+
+    if (mCursorOn)
+        mCursorDisplayPos = mCursorPos;
 }
 
 

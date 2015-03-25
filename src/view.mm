@@ -36,7 +36,8 @@ static void addModifiers(std::ostream &os, NSEvent *event)
         mCharSize.width = [mFont advancementForGlyph:' '].width;
         mCharSize.height = 17;
 
-        mCursorPos = CGPointZero;
+        mCursorPos = mCursorDisplayPos = CGPointZero;
+        mCursorOn = true;
     }
     return self;
 }
@@ -86,6 +87,7 @@ static void addModifiers(std::ostream &os, NSEvent *event)
     NSRectFill(rect);
 
     [mCanvas drawInRect:rect fromRect:rect operation:NSCompositeSourceOver fraction:1.0];
+
     [self drawCursor];
 }
 
@@ -96,10 +98,13 @@ static void addModifiers(std::ostream &os, NSEvent *event)
 {
     NSRect cellRect;
 
+    float x = mCursorDisplayPos.x;
+    float y = mCursorDisplayPos.y;
+
     if (mInsertMode)
-        cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, .2, 1);
+        cellRect = CGRectMake(x, y, .2, 1);
     else
-        cellRect = CGRectMake(mCursorPos.x, mCursorPos.y+1, 1, .3);
+        cellRect = CGRectMake(x, y+1, 1, .3);
 
     NSRect viewRect = [self viewRectFromCellRect:cellRect];
     [mForegroundColor set];

@@ -17,7 +17,9 @@
             insert_mode,
             busy_start,
             busy_stop,
-            bell
+            bell,
+            cursor_on,
+            cursor_off
         };
     }
 %}
@@ -42,3 +44,5 @@ insert_mode,       RedrawCode::insert_mode
 busy_start,        RedrawCode::busy_start
 busy_stop,         RedrawCode::busy_stop
 bell,              RedrawCode::bell
+cursor_on,         RedrawCode::cursor_on
+cursor_off,        RedrawCode::cursor_off
