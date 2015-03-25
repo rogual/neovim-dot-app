@@ -2,6 +2,7 @@
 #include "vim.h"
 
 #import <Cocoa/Cocoa.h>
+#import <Carbon/Carbon.h>
 #import "view.h"
 
 @implementation VimView
@@ -14,6 +15,15 @@ static void addModifiers(std::ostream &os, NSEvent *event)
          if (mods & NSShiftKeyMask) os << "S-";
     else if (mods & NSControlKeyMask) os << "C-";
     else if (mods & NSCommandKeyMask) os << "D-";
+}
+
+static void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
+{
+    os << "<";
+    addModifiers(os, event);
+    os << name;
+    os <<
+        ">";
 }
 
 - (id)initWithFrame:(NSRect)frame vim:(Vim *)vim
@@ -174,9 +184,8 @@ static void addModifiers(std::ostream &os, NSEvent *event)
 
     /* Add modifier flags and mouse position */
     std::stringstream ss;
-    ss << "<";
-    addModifiers(ss, event);
-    ss << type << "><" << cellLoc.x << "," << cellLoc.y << ">";
+    addModifiedName(ss, event, type);
+    ss << "<" << cellLoc.x << "," << cellLoc.y << ">";
 
     [self vimInput:ss.str()];
 }
@@ -203,16 +212,17 @@ static void addModifiers(std::ostream &os, NSEvent *event)
     NSPoint cellLoc = [self cellContainingEvent:event];
 
     std::stringstream ss;
-    ss << "<";
-    addModifiers(ss, event);
 
-         if (y > 0) ss << "ScrollWheelUp";
-    else if (y < 0) ss << "ScrollWheelDown";
-    else if (x > 0) ss << "ScrollWheelRight";
-    else if (x < 0) ss << "ScrollWheelLeft";
+    const char *type;
+         if (y > 0) type = "ScrollWheelUp";
+    else if (y < 0) type = "ScrollWheelDown";
+    else if (x > 0) type = "ScrollWheelRight";
+    else if (x < 0) type = "ScrollWheelLeft";
     else assert(0);
 
-    ss << "><" << cellLoc.x << "," << cellLoc.y << ">";
+    addModifiedName(ss, event, type);
+
+    ss << "<" << cellLoc.x << "," << cellLoc.y << ">";
     [self vimInput:ss.str()];
 }
 
@@ -229,15 +239,21 @@ static void addModifiers(std::ostream &os, NSEvent *event)
 
     NSMutableArray *array = [[NSMutableArray alloc] init];
 
-    std::string raw;
+    std::stringstream raw;
     for (NSEvent *event: mKeyQueue) {
         int flags = [event modifierFlags] & NSDeviceIndependentModifierFlagsMask;
 
-        if ([[event characters] isEqualToString:@"<"]) {
-            raw += "<lt>";
+        unsigned short keyCode = [event keyCode];
+
+             if (keyCode == kVK_LeftArrow) addModifiedName(raw, event, "Left");
+        else if (keyCode == kVK_RightArrow) addModifiedName(raw, event, "Right");
+        else if (keyCode == kVK_UpArrow) addModifiedName(raw, event, "Up");
+        else if (keyCode == kVK_DownArrow) addModifiedName(raw, event, "Down");
+        else if ([[event characters] isEqualToString:@"<"]) {
+            raw << "<lt>";
         }
         else if ([self shouldPassThrough:event]) {
-            raw += [[event characters] UTF8String];
+            raw << [[event characters] UTF8String];
         }
         else {
             [array addObject:event];
@@ -248,8 +264,9 @@ static void addModifiers(std::ostream &os, NSEvent *event)
     [self interpretKeyEvents:array];
     [array release];
 
-    if (raw.size())
-        [self vimInput:raw];
+    std::string raws = raw.str();
+    if (raws.size())
+        [self vimInput:raws];
 
     mKeyQueue.clear();
 }
@@ -291,7 +308,6 @@ static void addModifiers(std::ostream &os, NSEvent *event)
 - (void)insertNewline: (id)sender { [self vimInput:"\x0d"]; }
 - (void)insertTab:     (id)sender { [self vimInput:"\t"]; }
 - (void)insertBacktab: (id)sender { [self vimInput:"\x15"]; }
-
 
 
 /* -- Resizing -- */
