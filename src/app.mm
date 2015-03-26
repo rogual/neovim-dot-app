@@ -59,8 +59,14 @@ NSWindow *window = 0;
 {
     [self initMenu];
 
-    int width = 80;
-    int height = 25;
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults registerDefaults:@{@"width": @80,
+                                @"height": @25,
+                              @"fontName": @"Menlo",
+                              @"fontSize": @11.0}];
+
+    int width = [defaults integerForKey:@"width"];
+    int height = [defaults integerForKey:@"height"];
 
     NSString *vimDir = [[NSBundle mainBundle] resourcePath];
     NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
