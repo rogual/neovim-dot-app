@@ -21,7 +21,6 @@ Process::Process(const char *path, const char *argv[])
         dup2(pipe_stdout[1], STDOUT_FILENO);
         dup2(pipe_stderr[1], STDERR_FILENO);
 
-        const char *const argv[] = {"nvim", "--embed", 0};
         execve(
             path,
             const_cast<char **>(argv),
