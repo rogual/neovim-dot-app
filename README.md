@@ -35,6 +35,9 @@ Pull requests are welcome, and greatly appreciated!
 #### MsgPack-C
 https://github.com/msgpack/msgpack-c
 
+Homebrew's version is too old and won't work, so you'll need to compile your
+own. It's an easy compile though.
+
 #### A NeoVim binary
 https://github.com/neovim/neovim
 
