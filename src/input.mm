@@ -173,9 +173,9 @@ static void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
     [self vimInput:input];
 }
 
-- (void)deleteBackward:(id)sender { [self vimInput:"\x08"]; }
+- (void)deleteBackward:(id)sender { [self vimInput:"<BS>"]; }
 - (void)deleteForward: (id)sender { [self vimInput:"<Del>"]; }
-- (void)insertNewline: (id)sender { [self vimInput:"\x0d"]; }
+- (void)insertNewline: (id)sender { [self vimInput:"<CR>"]; }
 - (void)insertTab:     (id)sender { [self vimInput:"\t"]; }
 - (void)insertBacktab: (id)sender { [self vimInput:"\x15"]; }
 
