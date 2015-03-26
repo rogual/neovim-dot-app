@@ -20,6 +20,101 @@ using msgpack::object;
 
 @implementation VimView (Redraw)
 
+- (void) redraw:(const msgpack::object &)update_o
+{
+    bool didAnything = false;
+
+    [mTextAttrs setValue:mFont forKey:NSFontAttributeName];
+
+    NSGraphicsContext *context = [NSGraphicsContext
+        graphicsContextWithBitmapImageRep:mCanvasBitmap];
+
+    [NSGraphicsContext setCurrentContext:context];
+
+    try
+    {
+        assert([NSThread isMainThread]);
+
+        if (debug) std::cout << "-- " << update_o.via.array.size << "\n";
+
+        for(int i=0; i<update_o.via.array.size; i++) {
+
+
+            const object &item_o = update_o.via.array.ptr[i];
+
+            if (debug) std::cout << item_o << "\n";
+
+            assert(item_o.via.array.size >= 1);
+
+            const object &action_o = item_o.via.array.ptr[0];
+
+            const RedrawAction *action = RedrawHash::in_word_set(
+                action_o.via.str.ptr,
+                action_o.via.str.size
+            );
+
+            if (!action) {
+                std::cout << "?? " << item_o << "\n";
+                continue;
+            }
+
+            didAnything = true;
+
+            [self doAction:action->code withItem:item_o];
+        }
+    }
+    catch(std::exception &e) {
+        assert(0);
+        std::exit(-1);
+    }
+
+    if (didAnything) {
+        if (debug) std::cout << "--\n";
+        [self display];
+    }
+    else
+        if (debug) std::cout << "..\n";
+}
+
+- (void) doAction:(RedrawCode::Enum)code withItem:(const object &)item_o
+{
+    int item_sz = item_o.via.array.size;
+    object *arglists = item_o.via.array.ptr + 1;
+    int narglists = item_sz - 1;
+
+
+    if (code == RedrawCode::put) {
+        static std::string run;
+        run.clear();
+
+        for (int i=1; i<item_sz; i++) {
+            const object &arglist = item_o.via.array.ptr[i];
+
+            assert(arglist.via.array.size == 1);
+            const object &char_o = arglist.via.array.ptr[0];
+            run += char_o.as<std::string>();
+        }
+
+        NSString *nsrun = [NSString stringWithUTF8String:run.c_str()];
+
+        int sz = [nsrun length];
+
+        NSRect cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1);
+        NSRect rect = [self viewRectFromCellRect:cellRect];
+
+        [nsrun drawAtPoint:rect.origin withAttributes:mTextAttrs];
+
+        mCursorPos.x += sz;
+    }
+    else for (int i=0; i<narglists; i++) {
+        const object &arglist = arglists[i];
+        [self doAction:code withArgc:arglist.via.array.size argv:arglist.via.array.ptr];
+    }
+
+    if (mCursorOn)
+        mCursorDisplayPos = mCursorPos;
+}
+
 - (void) doAction:(RedrawCode::Enum)code withArgc:(int)argc argv:(const object *)argv
 {
     NSRect viewFrame = [self frame];
@@ -190,102 +285,6 @@ using msgpack::object;
             break;
         }
     }
-}
-
-- (void) doAction:(RedrawCode::Enum)code withItem:(const object &)item_o
-{
-    int item_sz = item_o.via.array.size;
-    object *arglists = item_o.via.array.ptr + 1;
-    int narglists = item_sz - 1;
-
-
-    if (code == RedrawCode::put) {
-        static std::string run;
-        run.clear();
-
-        for (int i=1; i<item_sz; i++) {
-            const object &arglist = item_o.via.array.ptr[i];
-
-            assert(arglist.via.array.size == 1);
-            const object &char_o = arglist.via.array.ptr[0];
-            run += char_o.as<std::string>();
-        }
-
-        NSString *nsrun = [NSString stringWithUTF8String:run.c_str()];
-
-        int sz = [nsrun length];
-
-        NSRect cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1);
-        NSRect rect = [self viewRectFromCellRect:cellRect];
-
-        [nsrun drawAtPoint:rect.origin withAttributes:mTextAttrs];
-
-        mCursorPos.x += sz;
-    }
-    else for (int i=0; i<narglists; i++) {
-        const object &arglist = arglists[i];
-        [self doAction:code withArgc:arglist.via.array.size argv:arglist.via.array.ptr];
-    }
-
-    if (mCursorOn)
-        mCursorDisplayPos = mCursorPos;
-}
-
-
-- (void) redraw:(const msgpack::object &)update_o
-{
-    bool didAnything = false;
-
-    [mTextAttrs setValue:mFont forKey:NSFontAttributeName];
-
-    NSGraphicsContext *context = [NSGraphicsContext
-        graphicsContextWithBitmapImageRep:mCanvasBitmap];
-
-    [NSGraphicsContext setCurrentContext:context];
-
-    try
-    {
-        assert([NSThread isMainThread]);
-
-        if (debug) std::cout << "-- " << update_o.via.array.size << "\n";
-
-        for(int i=0; i<update_o.via.array.size; i++) {
-
-
-            const object &item_o = update_o.via.array.ptr[i];
-
-            if (debug) std::cout << item_o << "\n";
-
-            assert(item_o.via.array.size >= 1);
-
-            const object &action_o = item_o.via.array.ptr[0];
-
-            const RedrawAction *action = RedrawHash::in_word_set(
-                action_o.via.str.ptr,
-                action_o.via.str.size
-            );
-
-            if (!action) {
-                std::cout << "?? " << item_o << "\n";
-                continue;
-            }
-
-            didAnything = true;
-
-            [self doAction:action->code withItem:item_o];
-        }
-    }
-    catch(std::exception &e) {
-        assert(0);
-        std::exit(-1);
-    }
-
-    if (didAnything) {
-        if (debug) std::cout << "--\n";
-        [self display];
-    }
-    else
-        if (debug) std::cout << "..\n";
 }
 
 @end
