@@ -50,3 +50,12 @@ an executable to use, just set the NVIM environment variable, e.g.:
 
     $ NVIM=/path/to/nvim make
 
+When the .app bundle is created, Vim's runtime files will be copied into it.
+By default, the build script asks Vim where its runtime files are, and Vim
+will probably say they're somewhere under `/usr`.
+
+If you're compiling your own Neovim, and you don't want to install the runtime
+files system-wide, the build script can copy the runtime files directly from
+your neovim checkout. Just set `VIM` when compiling, e.g.:
+
+    $ VIM=/path/to/your/neovim/checkout make
