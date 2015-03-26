@@ -19,7 +19,9 @@
             busy_stop,
             bell,
             cursor_on,
-            cursor_off
+            cursor_off,
+            mouse_on,
+            mouse_off
         };
     }
 %}
@@ -46,3 +48,5 @@ busy_stop,         RedrawCode::busy_stop
 bell,              RedrawCode::bell
 cursor_on,         RedrawCode::cursor_on
 cursor_off,        RedrawCode::cursor_off
+mouse_on,          RedrawCode::mouse_on
+mouse_off,         RedrawCode::mouse_off

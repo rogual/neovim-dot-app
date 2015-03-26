@@ -178,6 +178,8 @@ using msgpack::object;
         }
 
         // Ignore these for now
+        case RedrawCode::mouse_on:
+        case RedrawCode::mouse_off:
         case RedrawCode::busy_start:
         case RedrawCode::busy_stop:
             break;
