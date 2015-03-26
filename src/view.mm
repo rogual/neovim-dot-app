@@ -35,7 +35,9 @@ static void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
         mForegroundColor = [[NSColor blackColor] retain];
         mWaitAck = 0;
 
-        mFont = [NSFont fontWithName:@"Menlo" size:11.0];
+        NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+
+        mFont = [NSFont fontWithName:[defaults stringForKey:@"fontName"] size:[defaults floatForKey:@"fontSize"]];
         [mFont retain];
 
         mTextAttrs = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -84,6 +86,12 @@ static void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
 - (void)changeFont:(id)sender
 {
     mFont = [sender convertFont:mFont];
+
+    //update user defaults with new font
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:mFont.fontName forKey:@"fontName"];
+    [defaults setFloat:mFont.pointSize forKey:@"fontSize"];
+
     [mTextAttrs setValue:mFont forKey:NSFontAttributeName];
     [self updateCharSize];
 
@@ -323,6 +331,9 @@ static void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
 
 - (void)viewDidEndLiveResize
 {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setInteger: mXCells forKey:@"width"];
+    [defaults setInteger: mYCells forKey:@"height"];
     [self display];
 }
 
