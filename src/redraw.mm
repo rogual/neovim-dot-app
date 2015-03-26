@@ -159,8 +159,9 @@ using msgpack::object;
 
         case RedrawCode::resize:
         {
-            self->mXCells = argv[0].convert();
-            self->mYCells = argv[1].convert();
+            mXCells = argv[0].convert();
+            mYCells = argv[1].convert();
+            mCellScrollRect = CGRectMake(0, 0, mXCells, mYCells);
             break;
         }
 
