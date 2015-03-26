@@ -128,12 +128,6 @@ using msgpack::object;
 
         case RedrawCode::scroll:
         {
-            /* If we don't do this, full-screen scrolling breaks. Looks like drawInRect
-               uses an outdated cached copy of the image or something. flushGraphics
-               doesn't work -- must unlock/lock. */
-            [mCanvas unlockFocus];
-            [mCanvas lockFocus];
-
             int amt = argv[0].convert();
 
             NSRect dest = [self viewRectFromCellRect:mCellScrollRect];
@@ -242,7 +236,10 @@ using msgpack::object;
 
     [mTextAttrs setValue:mFont forKey:NSFontAttributeName];
 
-    [mCanvas lockFocus];
+    NSGraphicsContext *context = [NSGraphicsContext
+        graphicsContextWithBitmapImageRep:mCanvasBitmap];
+
+    [NSGraphicsContext setCurrentContext:context];
 
     try
     {
@@ -280,8 +277,6 @@ using msgpack::object;
         assert(0);
         std::exit(-1);
     }
-
-    [mCanvas unlockFocus];
 
     if (didAnything) {
         if (debug) std::cout << "--\n";

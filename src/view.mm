@@ -3,6 +3,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
+
 #import "view.h"
 
 @implementation VimView
@@ -30,10 +31,30 @@ static void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
 {
     if (self = [super initWithFrame:frame]) {
         mVim = vim;
-        mCanvas = [[NSImage alloc] initWithSize:CGSizeMake(1920, 1080)];
+
+        CGSize sizeInPoints = CGSizeMake(1920, 1080);
+        CGSize sizeInPixels = [self convertSizeToBacking:sizeInPoints];
+
+        mCanvas = [[NSImage alloc] initWithSize:sizeInPoints];
         mBackgroundColor = [[NSColor whiteColor] retain];
         mForegroundColor = [[NSColor blackColor] retain];
         mWaitAck = 0;
+
+        mCanvasBitmap = [[NSBitmapImageRep alloc]
+            initWithBitmapDataPlanes:0
+                          pixelsWide:sizeInPixels.width
+                          pixelsHigh:sizeInPixels.height
+                       bitsPerSample:8
+                     samplesPerPixel:4
+                            hasAlpha:YES
+                            isPlanar:NO
+                      colorSpaceName:NSDeviceRGBColorSpace
+                        bitmapFormat:NSAlphaFirstBitmapFormat
+                         bytesPerRow:0
+                        bitsPerPixel:0];
+
+        [mCanvasBitmap setSize:sizeInPoints];
+        [mCanvas addRepresentation:mCanvasBitmap];
 
         NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
 
@@ -143,13 +164,35 @@ static void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
     mVim->vim_command([filename UTF8String]);
 }
 
+/* Convert our internal bitmap to the given color space */
+- (void)setColorSpace:(NSColorSpace *)cs
+{
+    if (cs == [mCanvasBitmap colorSpace])
+        return;
+
+    /* We “retag” with the new color space. I think we should really *convert*
+       to it, but if we use bitmapImageByConvertingToColorSpace, Apple
+       chastises us for using the deprecated CGContextClear function. Um, it's
+       your code, Apple. */
+    [mCanvas removeRepresentation:mCanvasBitmap];
+    [mCanvasBitmap autorelease];
+    mCanvasBitmap = [mCanvasBitmap
+        bitmapImageRepByRetaggingWithColorSpace:cs];
+    [mCanvasBitmap retain];
+    [mCanvas addRepresentation:mCanvasBitmap];
+}
+
+/*  When drawing, it's important that our canvas image is in the same color
+    space as the destination, otherwise drawing will be very slow. */
+- (void)viewDidMoveToWindow
+{
+    NSColorSpace *cs = [[self window] colorSpace];
+    [self setColorSpace:cs];
+}
+
 - (void)drawRect:(NSRect)rect
 {
-    [mBackgroundColor setFill];
-    NSRectFill(rect);
-
-    [mCanvas drawInRect:rect fromRect:rect operation:NSCompositeSourceOver fraction:1.0];
-
+    [mCanvas drawInRect:rect fromRect:rect operation:NSCompositeCopy fraction:1.0];
     [self drawCursor];
 }
 
