@@ -187,7 +187,7 @@
     float x = mCursorDisplayPos.x;
     float y = mCursorDisplayPos.y;
 
-    if (mInsertMode)
+    if (mInsertMode || y + 1 == mYCells)
         cellRect = CGRectMake(x, y, .2, 1);
     else
         cellRect = CGRectMake(x, y+1, 1, .3);
