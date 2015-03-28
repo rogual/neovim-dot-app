@@ -37,6 +37,16 @@ NSWindow *window = 0;
     [self windowWillResize:window toSize:[window frame].size];
 }
 
+- (void)windowDidBecomeKey:(NSNotification *)notification
+{
+    vim->vim_command("doautoall FocusGained");
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification
+{
+    vim->vim_command("doautoall FocusLost");
+}
+
 @end
 
 @implementation AppDelegate
