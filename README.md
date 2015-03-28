@@ -56,3 +56,5 @@ files system-wide, the build script can copy the runtime files directly from
 your neovim checkout. Just set `VIM` when compiling, e.g.:
 
     $ VIM=/path/to/your/neovim/checkout make
+
+If you're setting one of these options, you'll most likely want to set both.

@@ -44,7 +44,18 @@ env.Program('build/NeoVim.app/Contents/MacOS/NeoVim', sources)
 env.Install('build/NeoVim.app/Contents', 'res/Info.plist')
 env.Install(res, nvim)
 env.Install(res, 'res/nvimrc')
-env.Install(res, vim + '/runtime')
+
+if not os.path.isdir(vim + '/runtime'):
+    print(
+        "Warning: Not installing runtime files: can't find them at %s" %
+        vim
+    )
+    print(
+        "Help will not be available. Re-run with VIM=/path/to/neovim/repo "
+        "to fix this."
+    )
+else:
+    env.Install(res, vim + '/runtime')
 
 env.Command(
     'build/NeoVim.app/Contents/Resources/NeoVim.icns',
