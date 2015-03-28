@@ -36,7 +36,7 @@ Pull requests are welcome, and greatly appreciated!
     $ brew install msgpack
 
 #### A NeoVim binary
-https://github.com/neovim/neovim
+    $ brew install --HEAD neovim
 
 ### To compile:
 
