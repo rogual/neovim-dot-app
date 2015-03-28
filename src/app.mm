@@ -72,7 +72,10 @@ NSWindow *window = 0;
     NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
                                                         ofType:nil];
 
+    /* Set both VIM and NVIM for now. TODO: Remove VIM when
+       https://github.com/neovim/neovim/pull/1927 is merged */
     setenv("VIM", [vimDir UTF8String], 1);
+    setenv("NVIM", [vimDir UTF8String], 1);
     vim = new Vim([vimPath UTF8String]);
     vim->ui_attach(width, height, true);
 
