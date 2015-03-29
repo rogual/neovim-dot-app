@@ -3,13 +3,13 @@
 <plist version="1.0">
     <dict>
         <key>CFBundleName</key>
-        <string>NeoVim</string>
+        <string>Neovim</string>
 
         <key>CFBundleDisplayName</key>
-        <string>NeoVim</string>
+        <string>Neovim</string>
 
         <key>CFBundleIdentifier</key>
-        <string>uk.foon.NeoVim</string>
+        <string>uk.foon.Neovim</string>
 
         <key>CFBundleVersion</key>
         <string>0.0.1</string>
@@ -18,7 +18,7 @@
         <string>APPL</string>
 
         <key>CFBundleExecutable</key>
-        <string>NeoVim</string>
+        <string>Neovim</string>
 
         <key>LSMinimumSystemVersion</key>
         <string>10.5</string>
@@ -27,7 +27,7 @@
         <true/>
 
         <key>CFBundleIconFile</key>
-        <string>NeoVim</string>
+        <string>Neovim</string>
 
     </dict>
 </plist>

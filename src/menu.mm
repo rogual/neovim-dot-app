@@ -43,7 +43,7 @@ static NSMenu *makeFontMenu()
 
     menu = [[NSMenu alloc] initWithTitle: @""];
 
-    sub = [[NSMenu alloc] initWithTitle:@"NeoVim"];
+    sub = [[NSMenu alloc] initWithTitle:@"Neovim"];
     [sub addItemWithTitle:@"Quit" action:@selector(terminate:) keyEquivalent:@"q"];
     mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
     [mi setSubmenu:sub];

@@ -1,4 +1,4 @@
-# OS X GUI for NeoVim
+# OS X GUI for Neovim
 
 ![](https://raw.githubusercontent.com/rogual/neovim-osx-gui/screenshots/1.png)
 
@@ -35,7 +35,7 @@ Pull requests are welcome, and greatly appreciated!
 #### MsgPack-C
     $ brew install msgpack
 
-#### A NeoVim binary
+#### A Neovim binary
     $ brew tap neovim/homebrew-neovim
     $ brew install --HEAD neovim
 
@@ -43,7 +43,7 @@ Pull requests are welcome, and greatly appreciated!
 
     $ make
 
-This will look for a NeoVim executable on your PATH. To specify
+This will look for a Neovim executable on your PATH. To specify
 an executable to use, just set the NVIM environment variable, e.g.:
 
     $ NVIM=/path/to/nvim make
