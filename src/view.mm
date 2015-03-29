@@ -177,9 +177,6 @@
     [self drawCursor];
 }
 
-/* Draw a shitty cursor. TODO: Either:
-    1) Figure out how to make Cocoa invert the display at the cursor pos
-    2) Start keeping a screen character buffer */
 - (void)drawCursor
 {
     NSRect cellRect;
@@ -190,11 +187,11 @@
     if (mInsertMode || y + 1 == mYCells)
         cellRect = CGRectMake(x, y, .2, 1);
     else
-        cellRect = CGRectMake(x, y+1, 1, .3);
+        cellRect = CGRectMake(x, y, 1, 1);
 
     NSRect viewRect = [self viewRectFromCellRect:cellRect];
-    [mForegroundColor set];
-    NSRectFill(viewRect);
+    [[NSColor whiteColor] set];
+    NSRectFillUsingOperation(viewRect, NSCompositeDifference);
 }
 
 
