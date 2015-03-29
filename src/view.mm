@@ -37,6 +37,9 @@
         [mCanvasBitmap setSize:sizeInPoints];
         [mCanvas addRepresentation:mCanvasBitmap];
 
+        mCanvasContext = [[NSGraphicsContext
+            graphicsContextWithBitmapImageRep:mCanvasBitmap] retain];
+
         NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
 
         mFont = [NSFont fontWithName:[defaults stringForKey:@"fontName"] size:[defaults floatForKey:@"fontSize"]];

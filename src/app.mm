@@ -87,11 +87,10 @@ NSWindow *window = 0;
     setenv("VIM", [vimDir UTF8String], 1);
     setenv("NVIM", [vimDir UTF8String], 1);
     vim = new Vim([vimPath UTF8String]);
-    vim->ui_attach(width, height, true);
-
 
     mainView = [[VimView alloc] initWithCellSize:CGSizeMake(width, height)
                                              vim:vim];
+
 
     int style = NSTitledWindowMask |
                 NSClosableWindowMask |
@@ -117,6 +116,8 @@ NSWindow *window = 0;
     for (int i=1; i<g_argc; i++) {
         [mainView openFile:[NSString stringWithUTF8String:g_argv[i]]];
     }
+
+    vim->ui_attach(width, height, true);
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification 
