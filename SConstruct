@@ -9,7 +9,7 @@ env.Append(
     CCFLAGS=['-std=c++11', '-g', '-Wno-deprecated-register'],
     CPPPATH=['build'],
     LIBS=['msgpack'],
-    FRAMEWORKS=['Cocoa']
+    FRAMEWORKS=['Cocoa', 'Carbon']
 )
 
 if 0:
@@ -44,6 +44,9 @@ env.Program('build/Neovim.app/Contents/MacOS/Neovim', sources)
 env.Install('build/Neovim.app/Contents', 'res/Info.plist')
 env.Install(res, nvim)
 env.Install(res, 'res/nvimrc')
+
+# Tests
+env.Program('build/test', env.Glob('build/tests/*.mm') + ['build/keys.mm'])
 
 if not os.path.isdir(vim + '/runtime'):
     print(
