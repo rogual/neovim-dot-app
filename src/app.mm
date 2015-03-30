@@ -63,10 +63,6 @@ NSWindow *window = 0;
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
     [NSFontManager setFontManagerFactory:[VimFontManager class]];
-}
-
-- (void)applicationDidFinishLaunching:(NSNotification *)notification
-{
     [self initMenu];
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -122,6 +118,12 @@ NSWindow *window = 0;
 
 - (void)applicationWillTerminate:(NSNotification *)notification 
 {
+}
+
+- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
+{
+    [mainView openFile:filename];
+    return YES;
 }
 
 /* This gets called on the main thread when Vim gives us a UI notification */
