@@ -59,3 +59,17 @@ your neovim checkout. Just set `VIM` when compiling, e.g.:
     $ VIM=/path/to/your/neovim/checkout make
 
 If you're setting one of these options, you'll most likely want to set both.
+
+### Problems Compiling?
+
+    error: no member named 'ext' in 'msgpack::object::union_type'
+
+This means your msgpack is out of date. Try:
+
+    brew uninstall msgpack
+    brew update
+    brew install msgpack
+
+## Running the Tests
+
+    $ build/test
