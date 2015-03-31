@@ -3,7 +3,7 @@ import sys
 
 from SCons.Script import Environment
 
-env = Environment(ENV=os.environ)
+env = Environment(ENV=os.environ, CXX='clang++')
 
 env.Append(
     CCFLAGS=['-std=c++11', '-g', '-Wno-deprecated-register'],
