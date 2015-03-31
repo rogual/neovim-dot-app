@@ -61,6 +61,11 @@ NSWindow *window = 0;
 - (void)closeTab { vim->vim_command("tabclose"); }
 - (void)saveBuffer { vim->vim_command("write"); }
 
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app
+{
+    return YES;
+}
+
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
     [NSFontManager setFontManagerFactory:[VimFontManager class]];
@@ -120,7 +125,7 @@ NSWindow *window = 0;
 {
 }
 
-- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
+- (BOOL)application:(NSApplication *)app openFile:(NSString *)filename
 {
     [mainView openFile:filename];
     return YES;
