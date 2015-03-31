@@ -9,7 +9,6 @@ class Vim;
     Vim *mVim;
     NSImage *mCanvas;
     NSBitmapImageRep *mCanvasBitmap;
-    NSGraphicsContext *mCanvasContext;
     int mXCells;
     int mYCells;
     bool mInsertMode;

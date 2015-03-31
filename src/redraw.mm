@@ -27,7 +27,11 @@ using msgpack::object;
     [mTextAttrs setValue:mFont forKey:NSFontAttributeName];
 
     [NSGraphicsContext saveGraphicsState];
-    [NSGraphicsContext setCurrentContext:mCanvasContext];
+
+    NSGraphicsContext *context = [NSGraphicsContext
+        graphicsContextWithBitmapImageRep:mCanvasBitmap];
+
+    [NSGraphicsContext setCurrentContext:context];
 
     try
     {
@@ -228,23 +232,6 @@ using msgpack::object;
             NSRect dest = [self viewRectFromCellRect:mCellScrollRect];
             NSRect src = dest;
             src.origin.y -= amt * mCharSize.height;
-
-            /* We're going to scroll by drawing the image into itself, offset
-               by the scroll amount.
-
-               When we do this, Cocoa will helpfully insist on using a stale
-               cache of the image until the end of this function call, making
-               scrolling more than once per update impossible.
-
-               To flush the cache, you might think
-               [mCanvasContext flushGraphics] or [mCanvas recache] would work.
-               But, those actually do nothing. We need to destroy and recreate
-               the entire context. */
-            [mCanvasContext release];
-            mCanvasContext = [[NSGraphicsContext
-                graphicsContextWithBitmapImageRep:mCanvasBitmap] retain];
-
-            [NSGraphicsContext setCurrentContext:mCanvasContext];
 
             [mCanvas drawInRect:dest fromRect:src operation:NSCompositeCopy fraction:1.0];
 
