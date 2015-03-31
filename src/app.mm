@@ -59,6 +59,7 @@ NSWindow *window = 0;
 - (void)nextTab { vim->vim_command("tabnext"); }
 - (void)prevTab { vim->vim_command("tabprev"); }
 - (void)closeTab { vim->vim_command("tabclose"); }
+- (void)saveBuffer { vim->vim_command("write"); }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
