@@ -26,6 +26,7 @@ using msgpack::object;
 
     [mTextAttrs setValue:mFont forKey:NSFontAttributeName];
 
+    [NSGraphicsContext saveGraphicsState];
     [NSGraphicsContext setCurrentContext:mCanvasContext];
 
     try
@@ -64,6 +65,8 @@ using msgpack::object;
         assert(0);
         std::exit(-1);
     }
+
+    [NSGraphicsContext restoreGraphicsState];
 
     if (didAnything) {
         if (debug) std::cout << "--\n";
