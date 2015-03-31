@@ -184,14 +184,32 @@
     float x = mCursorDisplayPos.x;
     float y = mCursorDisplayPos.y;
 
-    if (mInsertMode || y + 1 == mYCells)
-        cellRect = CGRectMake(x, y, .2, 1);
-    else
-        cellRect = CGRectMake(x, y, 1, 1);
+    /* Difference, which can invert, is only present in the 10.10 SDK, so
+       use the ugly cursor if the person compiling doesn't have that SDK.
+       This is all going away anyway once we get a character buffer. */
+    #if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10
 
-    NSRect viewRect = [self viewRectFromCellRect:cellRect];
-    [[NSColor whiteColor] set];
-    NSRectFillUsingOperation(viewRect, NSCompositeDifference);
+        if (mInsertMode || y + 1 == mYCells)
+            cellRect = CGRectMake(x, y, .2, 1);
+        else
+            cellRect = CGRectMake(x, y, 1, 1);
+
+        NSRect viewRect = [self viewRectFromCellRect:cellRect];
+        [[NSColor whiteColor] set];
+        NSRectFillUsingOperation(viewRect, NSCompositeDifference);
+
+    #else
+
+        if (mInsertMode || y + 1 == mYCells)
+            cellRect = CGRectMake(x, y, .2, 1);
+        else
+            cellRect = CGRectMake(x, y+1, 1, .3);
+
+        NSRect viewRect = [self viewRectFromCellRect:cellRect];
+        [mForegroundColor set];
+        NSRectFill(viewRect);
+
+    #endif
 }
 
 
