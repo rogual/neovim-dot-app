@@ -80,6 +80,11 @@ NSWindow *window = 0;
     int width = [defaults integerForKey:@"width"];
     int height = [defaults integerForKey:@"height"];
 
+    if (width <= 0 || height <= 0) {
+        width = 80;
+        height = 25;
+    }
+
     NSString *vimDir = [[NSBundle mainBundle] resourcePath];
     NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
                                                         ofType:nil];
