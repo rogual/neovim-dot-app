@@ -10,6 +10,7 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import "view.h"
+#import "graphics.h"
 
 static const bool debug = false;
 
@@ -28,10 +29,9 @@ using msgpack::object;
 
     [NSGraphicsContext saveGraphicsState];
 
-    NSGraphicsContext *context = [NSGraphicsContext
-        graphicsContextWithBitmapImageRep:mCanvasBitmap];
-
-    [NSGraphicsContext setCurrentContext:context];
+    [NSGraphicsContext setCurrentContext:[NSGraphicsContext
+        graphicsContextWithGraphicsPort:(void *)mCanvasContext
+        flipped:NO]];
 
     try
     {
@@ -74,7 +74,7 @@ using msgpack::object;
 
     if (didAnything) {
         if (debug) std::cout << "--\n";
-        [self display];
+        [self setNeedsDisplay:YES];
     }
     else
         if (debug) std::cout << "..\n";
@@ -225,26 +225,34 @@ using msgpack::object;
             break;
         }
 
+        /* Scroll by drawing our canvas context into itself,
+           offset and clipped. */
         case RedrawCode::scroll:
         {
             int amt = argv[0].convert();
 
-            NSRect dest = [self viewRectFromCellRect:mCellScrollRect];
-            NSRect src = dest;
-            src.origin.y -= amt * mCharSize.height;
+            NSRect destInPoints = [self viewRectFromCellRect:mCellScrollRect];
 
-            [mCanvas drawInRect:dest fromRect:src operation:NSCompositeCopy fraction:1.0];
+            CGSize sizeInPoints = bitmapContextSizeInPoints(self, mCanvasContext);
+            NSRect totalRect = {CGPointZero, sizeInPoints};
+
+            totalRect.origin.y += amt * mCharSize.height;
+
+            CGContextSaveGState(mCanvasContext);
+            CGContextClipToRect(mCanvasContext, destInPoints);
+            drawBitmapContext(mCanvasContext, mCanvasContext, totalRect);
+            CGContextRestoreGState(mCanvasContext);
 
             [mBackgroundColor set];
             if (amt > 0) {
-                dest.size.height = amt * mCharSize.height;
-                NSRectFill(dest);
+                destInPoints.size.height = amt * mCharSize.height;
+                NSRectFill(destInPoints);
             }
             if (amt < 0) {
                 int ny = (-amt) * mCharSize.height;
-                dest.origin.y += dest.size.height - ny;
-                dest.size.height = ny;
-                NSRectFill(dest);
+                destInPoints.origin.y += destInPoints.size.height - ny;
+                destInPoints.size.height = ny;
+                NSRectFill(destInPoints);
             }
 
             break;

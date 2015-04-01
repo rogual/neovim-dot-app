@@ -7,8 +7,10 @@ class Vim;
 
 @interface VimView : NSView {
     Vim *mVim;
-    NSImage *mCanvas;
-    NSBitmapImageRep *mCanvasBitmap;
+
+    CGContextRef mCanvasContext;
+    CGColorSpaceRef mColorSpace;
+
     int mXCells;
     int mYCells;
     bool mInsertMode;

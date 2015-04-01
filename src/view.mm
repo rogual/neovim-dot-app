@@ -5,6 +5,7 @@
 
 #import "view.h"
 #import "input.h"
+#import "graphics.h"
 
 @implementation VimView
 
@@ -16,30 +17,40 @@
         CGSize sizeInPoints = CGSizeMake(1920, 1080);
         CGSize sizeInPixels = [self convertSizeToBacking:sizeInPoints];
 
-        mCanvas = [[NSImage alloc] initWithSize:sizeInPoints];
         mBackgroundColor = [[NSColor whiteColor] retain];
         mForegroundColor = [[NSColor blackColor] retain];
         mWaitAck = 0;
 
-        mCanvasBitmap = [[NSBitmapImageRep alloc]
-            initWithBitmapDataPlanes:0
-                          pixelsWide:sizeInPixels.width
-                          pixelsHigh:sizeInPixels.height
-                       bitsPerSample:8
-                     samplesPerPixel:4
-                            hasAlpha:YES
-                            isPlanar:NO
-                      colorSpaceName:NSDeviceRGBColorSpace
-                        bitmapFormat:NSAlphaFirstBitmapFormat
-                         bytesPerRow:0
-                        bitsPerPixel:0];
+        /* Pick a color space, and store it as a property so we can set the
+           window's color space to be the same one, improving draw speed. */
+        mColorSpace = CGColorSpaceCreateWithName(
+            kCGColorSpaceGenericRGB
+        );
 
-        [mCanvasBitmap setSize:sizeInPoints];
-        [mCanvas addRepresentation:mCanvasBitmap];
+        /* A CGBitmapContext is basically a mutable buffer of bytes in a given
+           image format, that can be drawn into. It sort of conflates the ideas
+           of an image and a context. */
+        mCanvasContext = CGBitmapContextCreate(
+            0, // ask CG to allocate a buffer for us
+            sizeInPixels.width,
+            sizeInPixels.height,
+            8, // bitsPerComponent
+            0, // bytesPerRow (use default)
+            mColorSpace,
+            kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host
+        );
+        assert (mCanvasContext);
 
+        /* CGContext measures everything in pixels. If we want to auto-scale the
+           stuff we draw into it to take Retina displays into account (which we
+           do!) then we need to set a scaling factor ourselves: */
+        float scale = [[NSScreen mainScreen] backingScaleFactor];
+        CGContextScaleCTM(mCanvasContext, scale, scale);
+
+        /* Load font from saved settings */
         NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-
-        mFont = [NSFont fontWithName:[defaults stringForKey:@"fontName"] size:[defaults floatForKey:@"fontSize"]];
+        mFont = [NSFont fontWithName:[defaults stringForKey:@"fontName"]
+                                size:[defaults floatForKey:@"fontSize"]];
         [mFont retain];
 
         mTextAttrs = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -57,6 +68,7 @@
         mCursorPos = mCursorDisplayPos = CGPointZero;
         mCursorOn = true;
     }
+
     return self;
 }
 
@@ -145,35 +157,29 @@
     mVim->vim_command([filename UTF8String]);
 }
 
-/* Convert our internal bitmap to the given color space */
-- (void)setColorSpace:(NSColorSpace *)cs
-{
-    if (cs == [mCanvasBitmap colorSpace])
-        return;
-
-    /* We “retag” with the new color space. I think we should really *convert*
-       to it, but if we use bitmapImageByConvertingToColorSpace, Apple
-       chastises us for using the deprecated CGContextClear function. Um, it's
-       your code, Apple. */
-    [mCanvas removeRepresentation:mCanvasBitmap];
-    [mCanvasBitmap autorelease];
-    mCanvasBitmap = [mCanvasBitmap
-        bitmapImageRepByRetaggingWithColorSpace:cs];
-    [mCanvasBitmap retain];
-    [mCanvas addRepresentation:mCanvasBitmap];
-}
-
 /*  When drawing, it's important that our canvas image is in the same color
     space as the destination, otherwise drawing will be very slow. */
 - (void)viewDidMoveToWindow
 {
-    NSColorSpace *cs = [[self window] colorSpace];
-    [self setColorSpace:cs];
+    NSColorSpace *nsColorSpace =
+        [[[NSColorSpace alloc] initWithCGColorSpace:mColorSpace] autorelease];
+
+    [[self window] setColorSpace:nsColorSpace];
 }
 
 - (void)drawRect:(NSRect)rect
 {
-    [mCanvas drawInRect:rect fromRect:rect operation:NSCompositeCopy fraction:1.0];
+    CGSize sizeInPoints = bitmapContextSizeInPoints(self, mCanvasContext);
+
+    NSGraphicsContext *gc = [NSGraphicsContext currentContext];
+    CGContextRef cg = (CGContextRef)[gc graphicsPort];
+
+    NSRect totalRect;
+    totalRect.origin = CGPointZero;
+    totalRect.size = sizeInPoints;
+
+    drawBitmapContext(cg, mCanvasContext, totalRect);
+
     [self drawCursor];
 }
 
