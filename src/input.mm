@@ -33,11 +33,16 @@
 
     int mods = [event modifierFlags];
 
-    /* Add modifier flags and mouse position */
     std::stringstream ss;
     addModifiedName(ss, event, type);
+
+    /* Add modifier flags and mouse position */
     ss << "<" << cellLoc.x << "," << cellLoc.y << ">";
 
+    /* Check if double click */
+    if ([event clickCount] == 2){
+        ss << "<ESC>viw";
+    }
     [self vimInput:ss.str()];
 }
 
