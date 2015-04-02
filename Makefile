@@ -6,3 +6,6 @@ endif
 
 all:
 	VIM=$(VIM) NVIM=$(NVIM) scons -Q
+
+clean:
+	$(RM) -r build
