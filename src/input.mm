@@ -39,10 +39,6 @@
     /* Add modifier flags and mouse position */
     ss << "<" << cellLoc.x << "," << cellLoc.y << ">";
 
-    /* Check if double click */
-    if ([event clickCount] == 2){
-        ss << "<ESC>viw";
-    }
     [self vimInput:ss.str()];
 }
 
