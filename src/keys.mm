@@ -105,10 +105,12 @@ static void addModifiers(std::ostream &os, unsigned mods)
     if (mods & NSShiftKeyMask) os << "S-";
 }
 
-static void addModifiedName(std::ostream &os, unsigned flags, const char *name)
+static void addModifiedName(std::ostream &os, unsigned flags, int clickCount, const char *name)
 {
     os << "<";
     addModifiers(os, flags);
+    if (clickCount == 2)
+        os << "2-";
     os << name;
     os <<
         ">";
@@ -116,7 +118,7 @@ static void addModifiedName(std::ostream &os, unsigned flags, const char *name)
 
 void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
 {
-    addModifiedName(os, [event modifierFlags], name);
+    addModifiedName(os, [event modifierFlags], [event clickCount], name);
 }
 
 void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags)
@@ -180,7 +182,7 @@ void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags)
 
     /* Send named or modified keys inside <>, other keys on their own */
     if (name || sendflags) {
-        addModifiedName(os, sendflags, name ? name : [chars UTF8String]);
+        addModifiedName(os, sendflags, 1, name ? name : [chars UTF8String]);
     }
     else {
         os << [chars UTF8String];
