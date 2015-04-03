@@ -109,8 +109,10 @@ static void addModifiedName(std::ostream &os, unsigned flags, int clickCount, co
 {
     os << "<";
     addModifiers(os, flags);
-    if (clickCount == 2)
-        os << "2-";
+
+    if (2 <= clickCount && clickCount <= 4)
+        os << clickCount << "-";
+
     os << name;
     os <<
         ">";
