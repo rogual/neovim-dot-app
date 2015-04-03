@@ -33,10 +33,10 @@
 
     int mods = [event modifierFlags];
 
+    /* Add modifier flags and mouse position */
     std::stringstream ss;
     addModifiedName(ss, event, type);
 
-    /* Add modifier flags and mouse position */
     ss << "<" << cellLoc.x << "," << cellLoc.y << ">";
 
     [self vimInput:ss.str()];
