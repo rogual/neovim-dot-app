@@ -5,7 +5,7 @@ class Vim;
 
 @class NSImage;
 
-@interface VimView : NSView {
+@interface VimView : NSView<NSDraggingDestination> {
     Vim *mVim;
 
     CGContextRef mCanvasContext;
