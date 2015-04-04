@@ -120,7 +120,20 @@ static void addModifiedName(std::ostream &os, unsigned flags, int clickCount, co
 
 void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
 {
-    addModifiedName(os, [event modifierFlags], [event clickCount], name);
+    int clickCount = 1;
+
+    int eventType = [event type];
+
+    // get clickCount only for mouse events
+    if (eventType == NSLeftMouseDown || 
+        eventType == NSLeftMouseUp ||
+        eventType == NSRightMouseDown ||
+        eventType == NSRightMouseUp) {
+
+       clickCount = [event clickCount];
+    }
+
+    addModifiedName(os, [event modifierFlags], clickCount, name);
 }
 
 void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags)
