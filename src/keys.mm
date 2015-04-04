@@ -65,6 +65,15 @@ static NSString *stringFromModifiedKey(unsigned keyCode, unsigned modifiers)
         kTISPropertyUnicodeKeyLayoutData
     );
 
+    if(!layoutData) {
+        keyboard = TISCopyCurrentASCIICapableKeyboardLayoutInputSource();
+        layoutData = (CFDataRef)TISGetInputSourceProperty(keyboard, kTISPropertyUnicodeKeyLayoutData);
+    }
+
+    if (!layoutData) {
+        return nil;
+    }
+
     const UCKeyboardLayout *layout =
         (const UCKeyboardLayout *)CFDataGetBytePtr(layoutData);
 

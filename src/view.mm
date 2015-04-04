@@ -67,6 +67,8 @@
 
         mCursorPos = mCursorDisplayPos = CGPointZero;
         mCursorOn = true;
+        
+        [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
     }
 
     return self;
@@ -156,6 +158,58 @@
     filename = [@"e " stringByAppendingString:filename];
     mVim->vim_command([filename UTF8String]);
 }
+
+- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
+{
+    NSPasteboard *pboard;
+    NSDragOperation sourceDragMask;
+
+    sourceDragMask = [sender draggingSourceOperationMask];
+    pboard = [sender draggingPasteboard];
+
+    if ( [[pboard types] containsObject:NSFilenamesPboardType] )
+    {
+        return NSDragOperationCopy;
+    }
+    return NSDragOperationNone;
+}
+
+- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender
+{
+    NSPasteboard *pboard;
+    NSDragOperation sourceDragMask;
+
+    sourceDragMask = [sender draggingSourceOperationMask];
+    pboard = [sender draggingPasteboard];
+
+    if ( [[pboard types] containsObject:NSFilenamesPboardType] )
+    {
+        return NSDragOperationCopy;
+    }
+    return NSDragOperationNone;
+}
+
+- (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)sender
+{
+    return YES;
+}
+
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender
+{
+    NSPasteboard *pboard = [sender draggingPasteboard];
+    if ([[pboard types] containsObject:NSURLPboardType]) {
+        NSArray *urls = [pboard readObjectsForClasses:@[[NSURL class]] options:nil];
+        NSURL *firstURL = [urls objectAtIndex:0];
+        NSString *path = [[firstURL filePathURL] absoluteString];
+        [self openFile: path];
+    }
+    return YES;
+}
+
+- (void)concludeDragOperation:(id<NSDraggingInfo>)sender 
+{
+}
+
 
 /*  When drawing, it's important that our canvas image is in the same color
     space as the destination, otherwise drawing will be very slow. */
