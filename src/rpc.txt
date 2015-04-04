@@ -16,3 +16,24 @@ class RPC
     get_error()
         If the RPC resulted in an error, this returns the error object.
         Otherwise, it returns nil.
+
+    callback_t
+    callback
+    then(callback_t)
+        You can associate a callback function with an RPC. This will not be
+        automatically called by the Client/RPC system, so it should really be
+        a void *userData pointer or a template parameter. But, since we know
+        what type it'll be, let's just make it that type.
+
+        Callbacks are called in app.mm.
+
+
+TypedRPC<T>
+
+    Give it an RPC, and it'll give you an RPC with a nicer interface which
+    automatically converts between msgpack objects and your chosen type.
+
+
+VoidRPC
+
+    Use instead of TypedRPC<void>.

@@ -14,9 +14,6 @@
 
 static const bool debug = false;
 
-#define RGBA(r,g,b,a) [NSColor colorWithCalibratedRed:r/255.f green:g/255.f blue:b/255.f alpha:a/255.f]
-#define NSColorFromRGB(rgbValue) [NSColor colorWithCalibratedRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
-
 using msgpack::object;
 
 @implementation VimView (Redraw)
@@ -136,7 +133,8 @@ using msgpack::object;
             [*dest release];
 
             if (rgb == -1)
-                *dest = (code == RedrawCode::update_fg ? [NSColor blackColor] : [NSColor whiteColor]);
+                *dest = (code == RedrawCode::update_fg ? [NSColor blackColor] :
+                                                         [NSColor whiteColor]);
             else
                 *dest = NSColorFromRGB(rgb);
 
@@ -195,22 +193,21 @@ using msgpack::object;
 
         case RedrawCode::highlight_set:
         {
-            std::map<std::string, msgpack::object> j_m = argv[0].convert();
+            std::map<std::string, msgpack::object> attrs = argv[0].convert();
 
             NSColor *color;
             try {
-                unsigned fg = j_m.at("foreground").convert();
+                unsigned fg = attrs.at("foreground").convert();
                 color = NSColorFromRGB(fg);
             }
             catch(...) { color = mForegroundColor; }
             [mTextAttrs setValue:color forKey:NSForegroundColorAttributeName];
 
             try {
-                unsigned bg = j_m.at("background").convert();
+                unsigned bg = attrs.at("background").convert();
                 color = NSColorFromRGB(bg);
             }
             catch(...) { color = mBackgroundColor; }
-
             [mTextAttrs setValue:color forKey:NSBackgroundColorAttributeName];
 
             break;
@@ -231,28 +228,29 @@ using msgpack::object;
         {
             int amt = argv[0].convert();
 
-            NSRect destInPoints = [self viewRectFromCellRect:mCellScrollRect];
+            NSRect dest = [self viewRectFromCellRect:mCellScrollRect];
 
-            CGSize sizeInPoints = bitmapContextSizeInPoints(self, mCanvasContext);
-            NSRect totalRect = {CGPointZero, sizeInPoints};
+            CGSize size = bitmapContextSizeInPoints(self, mCanvasContext);
+            NSRect totalRect = {CGPointZero, size};
 
             totalRect.origin.y += amt * mCharSize.height;
 
             CGContextSaveGState(mCanvasContext);
-            CGContextClipToRect(mCanvasContext, destInPoints);
+            CGContextClipToRect(mCanvasContext, dest);
             drawBitmapContext(mCanvasContext, mCanvasContext, totalRect);
             CGContextRestoreGState(mCanvasContext);
 
+            /* Clear the newly-visible lines */
             [mBackgroundColor set];
             if (amt > 0) {
-                destInPoints.size.height = amt * mCharSize.height;
-                NSRectFill(destInPoints);
+                dest.size.height = amt * mCharSize.height;
+                NSRectFill(dest);
             }
             if (amt < 0) {
                 int ny = (-amt) * mCharSize.height;
-                destInPoints.origin.y += destInPoints.size.height - ny;
-                destInPoints.size.height = ny;
-                NSRectFill(destInPoints);
+                dest.origin.y += dest.size.height - ny;
+                dest.size.height = ny;
+                NSRectFill(dest);
             }
 
             break;

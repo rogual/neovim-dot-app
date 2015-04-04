@@ -83,7 +83,7 @@ static NSString *stringFromModifiedKey(unsigned keyCode, unsigned modifiers)
         LMGetKbdType(),
         kUCKeyTranslateNoDeadKeysBit,
         &deadKeyState,
-        4,
+        4, // maximum numChars
         &numChars,
         chars
     );
@@ -94,6 +94,7 @@ static NSString *stringFromModifiedKey(unsigned keyCode, unsigned modifiers)
 
     return [NSString stringWithFormat:@"%S", (const unichar *)chars];
 }
+
 /* Translate NSEvent modifier flags to Vim's prefix notation and write them
    to the given ostream */
 static void addModifiers(std::ostream &os, unsigned mods)
@@ -125,7 +126,7 @@ void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
     int eventType = [event type];
 
     // get clickCount only for mouse events
-    if (eventType == NSLeftMouseDown || 
+    if (eventType == NSLeftMouseDown ||
         eventType == NSLeftMouseUp ||
         eventType == NSRightMouseDown ||
         eventType == NSRightMouseUp) {

@@ -8,9 +8,9 @@
 extern int g_argc;
 extern char **g_argv;
 
-Vim *vim = 0;
-VimView *mainView = 0;
-NSWindow *window = 0;
+static Vim *vim = 0;
+static VimView *mainView = 0;
+static NSWindow *window = 0;
 
 @interface WindowDelegate : NSObject <NSWindowDelegate> {} @end
 @implementation WindowDelegate
@@ -124,10 +124,6 @@ NSWindow *window = 0;
     for (int i=1; i<g_argc; i++) {
         [mainView openFile:[NSString stringWithUTF8String:g_argv[i]]];
     }
-}
-
-- (void)applicationWillTerminate:(NSNotification *)notification 
-{
 }
 
 - (BOOL)application:(NSApplication *)app openFile:(NSString *)filename

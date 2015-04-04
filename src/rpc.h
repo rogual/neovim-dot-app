@@ -32,7 +32,6 @@ class RPC: NoCopy
         > response_t;
 
         RPC(Client &, int id);
-        RPC(Client &);
 
         Client &client;
         int id;

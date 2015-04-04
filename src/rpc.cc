@@ -3,13 +3,6 @@
 #include "rpc.h"
 #include "client.h"
 
-RPC::RPC(Client &client):
-    client(client),
-    id(-1),
-    resolved(false)
-{
-}
-
 RPC::RPC(Client &client, int id):
     client(client),
     id(id),

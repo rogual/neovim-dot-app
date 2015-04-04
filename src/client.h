@@ -56,7 +56,7 @@ RPC *Client::call(const std::string &name, Args args)
     int msgid = next_id++;
 
     call_t request(
-        0,
+        0, // 0=request, 1=response
         msgid,
         name,
         args
