@@ -9,3 +9,6 @@ all:
 
 clean:
 	$(RM) -r build
+
+install:
+	cp -fpRv "build/Neovim.app" "/Applications/Neovim.app"
