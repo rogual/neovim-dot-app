@@ -210,8 +210,8 @@
     if ([[pboard types] containsObject:NSURLPboardType]) {
         NSArray *urls = [pboard readObjectsForClasses:@[[NSURL class]] options:nil];
         for (NSURL *url in urls) {
-            NSString *path = [[url filePathURL] absoluteString];
-            [self openFile: path];
+            const char *path = [[url filePathURL] fileSystemRepresentation];
+            [self openFile: [NSString stringWithUTF8String:path]];
         }
     }
     return YES;
