@@ -150,13 +150,23 @@
     }
 }
 
-- (void)openFile:(NSString *)filename
+- (void)openFile:(NSString *)nsFilename
 {
-    filename = [filename stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"];
-    filename = [filename stringByReplacingOccurrencesOfString:@" " withString:@"\\ "];
-    filename = [filename stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
-    filename = [@"e " stringByAppendingString:filename];
-    mVim->vim_command([filename UTF8String]);
+    std::string filename;
+    std::stringstream ss;
+
+    filename = [nsFilename UTF8String];
+
+    ss << "e ";
+
+    /* We don't want Vim to try and interpret any part of the filename, and
+       there's no documentation of what needs escaping, so escape every byte
+       of it. */
+    for (char ch : filename) {
+        ss << '\\' << ch;
+    }
+
+    mVim->vim_command(ss.str());
 }
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
