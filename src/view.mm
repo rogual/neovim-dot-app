@@ -199,9 +199,10 @@
     NSPasteboard *pboard = [sender draggingPasteboard];
     if ([[pboard types] containsObject:NSURLPboardType]) {
         NSArray *urls = [pboard readObjectsForClasses:@[[NSURL class]] options:nil];
-        NSURL *firstURL = [urls objectAtIndex:0];
-        NSString *path = [[firstURL filePathURL] absoluteString];
-        [self openFile: path];
+        for (NSURL *url in urls) {
+            NSString *path = [[url filePathURL] absoluteString];
+            [self openFile: path];
+        }
     }
     return YES;
 }
