@@ -27,6 +27,8 @@ class Vim;
     NSPoint mCursorDisplayPos;
 }
 
+- (BOOL)insertOrProbablyCommandMode;
+
 - (void)cutText;
 - (void)copyText;
 - (void)pasteText;

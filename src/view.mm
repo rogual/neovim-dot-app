@@ -136,7 +136,7 @@
 
 - (void)pasteText
 {
-    if (mInsertMode) {
+    if ([self insertOrProbablyCommandMode]) {
         NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
         NSString* string = [pasteboard stringForType:NSPasteboardTypeString];
         string = [string stringByReplacingOccurrencesOfString:@"<"
@@ -206,7 +206,7 @@
 
     #else
 
-        if (mInsertMode || y + 1 == mYCells)
+        if ([self insertOrProbablyCommandMode])
             cellRect = CGRectMake(x, y, .2, 1);
         else
             cellRect = CGRectMake(x, y+1, 1, .3);
@@ -218,6 +218,13 @@
     #endif
 }
 
+/* Returns TRUE if we are insert mode or if we are probably in command mode. If
+   the cursor is in the bottom row then we are deemed to probably be in command
+   mode. */
+- (BOOL)insertOrProbablyCommandMode
+{
+    return (mInsertMode || mCursorDisplayPos.y + 1 == mYCells);
+}
 
 /* -- Resizing -- */
 
