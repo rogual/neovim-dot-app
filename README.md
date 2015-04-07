@@ -28,6 +28,13 @@ Pull requests are welcome, and greatly appreciated!
 
 ### Prerequisites
 
+#### OS and Compiler
+
+* Neovim.app compiles on OS X 10.9 and 10.10.
+* You'll need to install Xcode and its command-line tools.
+* Homebrew isn't required but it's an easy way to install the rest of the 
+  dependencies.
+
 #### SCons
     $ brew install scons
 
