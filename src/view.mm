@@ -14,8 +14,8 @@
     if (self = [super initWithFrame:frame]) {
         mVim = vim;
 
-        CGSize sizeInPoints = CGSizeMake(1920, 1080);
-        CGSize sizeInPixels = [self convertSizeToBacking:sizeInPoints];
+        /* TODO: support arbitrarily large windows */
+        CGSize sizeInPixels = CGSizeMake(2*1920, 2*1080);
 
         mBackgroundColor = [[NSColor whiteColor] retain];
         mForegroundColor = [[NSColor blackColor] retain];
@@ -41,11 +41,8 @@
         );
         assert (mCanvasContext);
 
-        /* CGContext measures everything in pixels. If we want to auto-scale the
-           stuff we draw into it to take Retina displays into account (which we
-           do!) then we need to set a scaling factor ourselves: */
-        float scale = [[NSScreen mainScreen] backingScaleFactor];
-        CGContextScaleCTM(mCanvasContext, scale, scale);
+        CGContextSaveGState(mCanvasContext);
+        [self updateScale];
 
         /* Load font from saved settings */
         NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
@@ -67,7 +64,7 @@
 
         mCursorPos = mCursorDisplayPos = CGPointZero;
         mCursorOn = true;
-        
+
         [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
     }
 
@@ -83,6 +80,23 @@
         [self setFrame:frame];
     }
     return self;
+}
+
+- (void)updateScale
+{
+    /* CGContext measures everything in pixels. If we want to auto-scale the
+       stuff we draw into it to take Retina displays into account (which we
+       do!) then we need to set a scaling factor ourselves: */
+    float scale = [[self window] backingScaleFactor];
+    CGContextRestoreGState(mCanvasContext);
+    CGContextSaveGState(mCanvasContext);
+    CGContextScaleCTM(mCanvasContext, scale, scale);
+}
+
+- (void)viewDidChangeBackingProperties
+{
+    [self updateScale];
+    mVim->vim_command("redraw!");
 }
 
 /* Ask the font panel not to show colors, effects, etc. It'll still show color
