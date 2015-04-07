@@ -108,9 +108,8 @@ static NSString *stringFromModifiedKey(unsigned keyCode, unsigned modifiers)
    to the given ostream */
 static void addModifiers(std::ostream &os, unsigned mods)
 {
-    /* Alphabetical order */
     if (mods & NSControlKeyMask) os << "C-";
-    if (mods & NSCommandKeyMask) os << "D-";
+    if (mods & NSCommandKeyMask) os << "T-";
     if (mods & NSAlternateKeyMask) os << "M-";
     if (mods & NSShiftKeyMask) os << "S-";
 }

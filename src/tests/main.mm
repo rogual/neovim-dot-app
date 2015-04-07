@@ -62,77 +62,77 @@ int main()
        keyboard layout */
     g_input_source = getKeyboardLayout(CFSTR("com.apple.keylayout.British"));
 
-    // Special Keys  C  D  M  S  Expected
+    // Special Keys  C  T  M  S  Expected
     test(kVK_Return, 0, 0, 0, 0, "<CR>");
     test(kVK_Return, 0, 0, 0, 1, "<S-CR>");
     test(kVK_Return, 0, 0, 1, 0, "<M-CR>");
     test(kVK_Return, 0, 0, 1, 1, "<M-S-CR>");
-    test(kVK_Return, 0, 1, 0, 0, "<D-CR>");
-    test(kVK_Return, 0, 1, 0, 1, "<D-S-CR>");
-    test(kVK_Return, 0, 1, 1, 0, "<D-M-CR>");
-    test(kVK_Return, 0, 1, 1, 1, "<D-M-S-CR>");
+    test(kVK_Return, 0, 1, 0, 0, "<T-CR>");
+    test(kVK_Return, 0, 1, 0, 1, "<T-S-CR>");
+    test(kVK_Return, 0, 1, 1, 0, "<T-M-CR>");
+    test(kVK_Return, 0, 1, 1, 1, "<T-M-S-CR>");
     test(kVK_Return, 1, 0, 0, 0, "<C-CR>");
     test(kVK_Return, 1, 0, 0, 1, "<C-S-CR>");
     test(kVK_Return, 1, 0, 1, 0, "<C-M-CR>");
     test(kVK_Return, 1, 0, 1, 1, "<C-M-S-CR>");
-    test(kVK_Return, 1, 1, 0, 0, "<C-D-CR>");
-    test(kVK_Return, 1, 1, 0, 1, "<C-D-S-CR>");
-    test(kVK_Return, 1, 1, 1, 0, "<C-D-M-CR>");
-    test(kVK_Return, 1, 1, 1, 1, "<C-D-M-S-CR>");
+    test(kVK_Return, 1, 1, 0, 0, "<C-T-CR>");
+    test(kVK_Return, 1, 1, 0, 1, "<C-T-S-CR>");
+    test(kVK_Return, 1, 1, 1, 0, "<C-T-M-CR>");
+    test(kVK_Return, 1, 1, 1, 1, "<C-T-M-S-CR>");
 
-    // Letters       C  D  M  S  Expected
+    // Letters       C  T  M  S  Expected
     test(kVK_ANSI_J, 0, 0, 0, 0, "j");
     test(kVK_ANSI_J, 0, 0, 0, 1, "J");
     test(kVK_ANSI_J, 0, 0, 1, 0, "∆");
     test(kVK_ANSI_J, 0, 0, 1, 1, "Ô");
-    test(kVK_ANSI_J, 0, 1, 0, 0, "<D-j>");
-    test(kVK_ANSI_J, 0, 1, 0, 1, "<D-S-j>");
-    test(kVK_ANSI_J, 0, 1, 1, 0, "<D-M-j>");
-    test(kVK_ANSI_J, 0, 1, 1, 1, "<D-M-S-j>");
+    test(kVK_ANSI_J, 0, 1, 0, 0, "<T-j>");
+    test(kVK_ANSI_J, 0, 1, 0, 1, "<T-S-j>");
+    test(kVK_ANSI_J, 0, 1, 1, 0, "<T-M-j>");
+    test(kVK_ANSI_J, 0, 1, 1, 1, "<T-M-S-j>");
     test(kVK_ANSI_J, 1, 0, 0, 0, "<C-j>");
     test(kVK_ANSI_J, 1, 0, 0, 1, "<C-S-j>");
     test(kVK_ANSI_J, 1, 0, 1, 0, "<C-M-j>");
     test(kVK_ANSI_J, 1, 0, 1, 1, "<C-M-S-j>");
-    test(kVK_ANSI_J, 1, 1, 0, 0, "<C-D-j>");
-    test(kVK_ANSI_J, 1, 1, 0, 1, "<C-D-S-j>");
-    test(kVK_ANSI_J, 1, 1, 1, 0, "<C-D-M-j>");
-    test(kVK_ANSI_J, 1, 1, 1, 1, "<C-D-M-S-j>");
+    test(kVK_ANSI_J, 1, 1, 0, 0, "<C-T-j>");
+    test(kVK_ANSI_J, 1, 1, 0, 1, "<C-T-S-j>");
+    test(kVK_ANSI_J, 1, 1, 1, 0, "<C-T-M-j>");
+    test(kVK_ANSI_J, 1, 1, 1, 1, "<C-T-M-S-j>");
 
-    // Numbers       C  D  M  S  Expected
+    // Numbers       C  T  M  S  Expected
     test(kVK_ANSI_6, 0, 0, 0, 0, "6");
     test(kVK_ANSI_6, 0, 0, 0, 1, "^");
     test(kVK_ANSI_6, 0, 0, 1, 0, "§");
     test(kVK_ANSI_6, 0, 0, 1, 1, "ﬂ");
-    test(kVK_ANSI_6, 0, 1, 0, 0, "<D-6>");
-    test(kVK_ANSI_6, 0, 1, 0, 1, "<D-^>");
-    test(kVK_ANSI_6, 0, 1, 1, 0, "<D-M-6>");
-    test(kVK_ANSI_6, 0, 1, 1, 1, "<D-M-^>");
+    test(kVK_ANSI_6, 0, 1, 0, 0, "<T-6>");
+    test(kVK_ANSI_6, 0, 1, 0, 1, "<T-^>");
+    test(kVK_ANSI_6, 0, 1, 1, 0, "<T-M-6>");
+    test(kVK_ANSI_6, 0, 1, 1, 1, "<T-M-^>");
     test(kVK_ANSI_6, 1, 0, 0, 0, "<C-6>");
     test(kVK_ANSI_6, 1, 0, 0, 1, "<C-^>");
     test(kVK_ANSI_6, 1, 0, 1, 0, "<C-M-6>");
     test(kVK_ANSI_6, 1, 0, 1, 1, "<C-M-^>");
-    test(kVK_ANSI_6, 1, 1, 0, 0, "<C-D-6>");
-    test(kVK_ANSI_6, 1, 1, 0, 1, "<C-D-^>");
-    test(kVK_ANSI_6, 1, 1, 1, 0, "<C-D-M-6>");
-    test(kVK_ANSI_6, 1, 1, 1, 1, "<C-D-M-^>");
+    test(kVK_ANSI_6, 1, 1, 0, 0, "<C-T-6>");
+    test(kVK_ANSI_6, 1, 1, 0, 1, "<C-T-^>");
+    test(kVK_ANSI_6, 1, 1, 1, 0, "<C-T-M-6>");
+    test(kVK_ANSI_6, 1, 1, 1, 1, "<C-T-M-^>");
 
-    // Symbols           C  D  M  S  Expected
+    // Symbols           C  T  M  S  Expected
     test(kVK_ANSI_Comma, 0, 0, 0, 0, ",");
     test(kVK_ANSI_Comma, 0, 0, 0, 1, "<lt>");
     test(kVK_ANSI_Comma, 0, 0, 1, 0, "≤");
     test(kVK_ANSI_Comma, 0, 0, 1, 1, "¯");
-    test(kVK_ANSI_Comma, 0, 1, 0, 0, "<D-,>");
-    test(kVK_ANSI_Comma, 0, 1, 0, 1, "<D-lt>");
-    test(kVK_ANSI_Comma, 0, 1, 1, 0, "<D-M-,>");
-    test(kVK_ANSI_Comma, 0, 1, 1, 1, "<D-M-lt>");
+    test(kVK_ANSI_Comma, 0, 1, 0, 0, "<T-,>");
+    test(kVK_ANSI_Comma, 0, 1, 0, 1, "<T-lt>");
+    test(kVK_ANSI_Comma, 0, 1, 1, 0, "<T-M-,>");
+    test(kVK_ANSI_Comma, 0, 1, 1, 1, "<T-M-lt>");
     test(kVK_ANSI_Comma, 1, 0, 0, 0, "<C-,>");
     test(kVK_ANSI_Comma, 1, 0, 0, 1, "<C-lt>");
     test(kVK_ANSI_Comma, 1, 0, 1, 0, "<C-M-,>");
     test(kVK_ANSI_Comma, 1, 0, 1, 1, "<C-M-lt>");
-    test(kVK_ANSI_Comma, 1, 1, 0, 0, "<C-D-,>");
-    test(kVK_ANSI_Comma, 1, 1, 0, 1, "<C-D-lt>");
-    test(kVK_ANSI_Comma, 1, 1, 1, 0, "<C-D-M-,>");
-    test(kVK_ANSI_Comma, 1, 1, 1, 1, "<C-D-M-lt>");
+    test(kVK_ANSI_Comma, 1, 1, 0, 0, "<C-T-,>");
+    test(kVK_ANSI_Comma, 1, 1, 0, 1, "<C-T-lt>");
+    test(kVK_ANSI_Comma, 1, 1, 1, 0, "<C-T-M-,>");
+    test(kVK_ANSI_Comma, 1, 1, 1, 1, "<C-T-M-lt>");
 
     if (!pass) {
         std::cerr << "Tests are failing.\n";
