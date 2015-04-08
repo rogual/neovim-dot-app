@@ -79,3 +79,16 @@ This means your msgpack is out of date. Try:
 ## Running the Tests
 
     $ build/test
+
+## Q&A
+
+### I'm having Python problems
+
+Neovim uses the first Python it finds on your PATH. If you've launched Neovim
+from anywhere other than a terminal, it will only see your system PATH, which
+probably doesn't have that fancy new version of Python you've installed on it.
+
+To point Neovim at the Python installation you want to use, put this in
+your .nvimrc:
+
+    let g:python_host_prog='/path/to/python'
