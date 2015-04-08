@@ -20,8 +20,6 @@ using msgpack::object;
 
 - (void) redraw:(const msgpack::object &)update_o
 {
-    bool didAnything = false;
-
     [mTextAttrs setValue:mFont forKey:NSFontAttributeName];
 
     [NSGraphicsContext saveGraphicsState];
@@ -57,8 +55,6 @@ using msgpack::object;
                 continue;
             }
 
-            didAnything = true;
-
             [self doAction:action->code withItem:item_o];
         }
     }
@@ -68,13 +64,6 @@ using msgpack::object;
     }
 
     [NSGraphicsContext restoreGraphicsState];
-
-    if (didAnything) {
-        if (debug) std::cout << "--\n";
-        [self setNeedsDisplay:YES];
-    }
-    else
-        if (debug) std::cout << "..\n";
 }
 
 - (void) doAction:(RedrawCode::Enum)code withItem:(const object &)item_o
@@ -106,6 +95,8 @@ using msgpack::object;
         [nsrun drawAtPoint:rect.origin withAttributes:mTextAttrs];
 
         mCursorPos.x += sz;
+
+        [self setNeedsDisplay:YES];
     }
     else for (int i=0; i<narglists; i++) {
         const object &arglist = arglists[i];
@@ -146,6 +137,7 @@ using msgpack::object;
         {
             mCursorOn = true;
             mCursorDisplayPos = mCursorPos;
+            [self setNeedsDisplay:YES];
             break;
         }
 
@@ -160,8 +152,10 @@ using msgpack::object;
             mCursorPos.y = argv[0].convert();
             mCursorPos.x = argv[1].convert();
 
-            if (mCursorOn)
+            if (mCursorOn) {
                 mCursorDisplayPos = mCursorPos;
+                [self setNeedsDisplay:YES];
+            }
 
             break;
         }
@@ -176,6 +170,8 @@ using msgpack::object;
 
             [mBackgroundColor set];
             NSRectFill(viewFrame);
+
+            [self setNeedsDisplay:YES];
             break;
         }
 
@@ -188,6 +184,8 @@ using msgpack::object;
             rect.size.height = mCharSize.height;
             [mBackgroundColor set];
             NSRectFill( rect ) ;
+
+            [self setNeedsDisplay:YES];
             break;
         }
 
@@ -274,6 +272,7 @@ using msgpack::object;
                 NSRectFill(dest);
             }
 
+            [self setNeedsDisplay:YES];
             break;
         }
 
@@ -282,18 +281,22 @@ using msgpack::object;
             mXCells = argv[0].convert();
             mYCells = argv[1].convert();
             mCellScrollRect = CGRectMake(0, 0, mXCells, mYCells);
+
+            [self setNeedsDisplay:YES];
             break;
         }
 
         case RedrawCode::normal_mode:
         {
             mInsertMode = false;
+            [self setNeedsDisplay:YES];
             break;
         }
 
         case RedrawCode::insert_mode:
         {
             mInsertMode = true;
+            [self setNeedsDisplay:YES];
             break;
         }
 
