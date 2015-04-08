@@ -11,4 +11,4 @@ clean:
 	$(RM) -r build
 
 install:
-	cp -fpRv "build/Neovim.app" "/Applications/Neovim.app"
+	cp -fpRv "build/Neovim.app" "/Applications"
