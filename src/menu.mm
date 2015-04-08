@@ -59,6 +59,7 @@ static NSMenu *makeFontMenu()
     [sub addItemWithTitle:@"Cut" action:@selector(cutText) keyEquivalent:@"x"];
     [sub addItemWithTitle:@"Copy" action:@selector(copyText) keyEquivalent:@"c"];
     [sub addItemWithTitle:@"Paste" action:@selector(pasteText) keyEquivalent:@"v"];
+    [sub addItemWithTitle:@"Select All" action:@selector(selectAll) keyEquivalent:@"a"];
     mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
     [mi setSubmenu:sub];
 

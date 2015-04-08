@@ -171,6 +171,11 @@
     }
 }
 
+- (void)selectAll
+{
+    mVim->vim_command("normal! ggVG");
+}
+
 - (void)openFile:(NSString *)nsFilename
 {
     std::string filename;
