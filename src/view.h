@@ -21,10 +21,14 @@ class Vim;
     std::vector<NSEvent *>mKeyQueue;
     int mWaitAck;
     NSSize mCharSize;
-    NSFont *mFont;
     CGRect mCellScrollRect;
     NSPoint mCursorPos;
     NSPoint mCursorDisplayPos;
+
+    NSFont *mFont;
+    NSFont *mBoldFont;
+    NSFont *mItalicFont;
+    NSFont *mBoldItalicFont;
 }
 
 - (BOOL)insertOrProbablyCommandMode;

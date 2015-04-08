@@ -210,6 +210,27 @@ using msgpack::object;
             catch(...) { color = mBackgroundColor; }
             [mTextAttrs setValue:color forKey:NSBackgroundColorAttributeName];
 
+            bool bold;
+            try {
+                bold = attrs.at("bold").convert();
+            }
+            catch(...) { bold = false; }
+
+            bool italic;
+            try {
+                italic = attrs.at("italic").convert();
+            }
+            catch(...) { italic = false; }
+
+            NSFont *font;
+
+            if (bold && italic) font = mBoldItalicFont;
+            else if (bold)      font = mBoldFont;
+            else if (italic)    font = mItalicFont;
+            else                font = mFont;
+
+            [mTextAttrs setValue:font forKey:NSFontAttributeName];
+
             break;
         }
 

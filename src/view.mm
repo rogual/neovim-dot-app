@@ -47,9 +47,10 @@
 
         /* Load font from saved settings */
         NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-        mFont = [NSFont fontWithName:[defaults stringForKey:@"fontName"]
-                                size:[defaults floatForKey:@"fontSize"]];
-        [mFont retain];
+        NSFont *font = [NSFont fontWithName:[defaults stringForKey:@"fontName"]
+                                       size:[defaults floatForKey:@"fontSize"]];
+        [font retain];
+        [self setFont:font];
 
         mTextAttrs = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
             mForegroundColor, NSForegroundColorAttributeName,
@@ -114,9 +115,29 @@
     mCharSize = [@" " sizeWithAttributes:mTextAttrs];
 }
 
+- (void)setFont:(NSFont *)font
+{
+    [mBoldFont release];
+    [mItalicFont release];
+    [mBoldItalicFont release];
+
+    mFont = font;
+
+    NSFontManager *man = [NSFontManager sharedFontManager];
+
+    mBoldFont = [man convertFont:font toHaveTrait:NSBoldFontMask];
+    mItalicFont = [man convertFont:font toHaveTrait:NSItalicFontMask];
+    mBoldItalicFont = [man convertFont:font
+                           toHaveTrait:NSBoldFontMask | NSItalicFontMask];
+
+    [mBoldFont retain];
+    [mItalicFont retain];
+    [mBoldItalicFont retain];
+}
+
 - (void)changeFont:(id)sender
 {
-    mFont = [sender convertFont:mFont];
+    [self setFont:[sender convertFont:mFont]];
 
     //update user defaults with new font
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
