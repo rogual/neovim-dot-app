@@ -39,12 +39,12 @@ static NSWindow *window = 0;
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-    vim->vim_command("doautoall FocusGained");
+    vim->vim_command("doautocmd FocusGained");
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification
 {
-    vim->vim_command("doautoall FocusLost");
+    vim->vim_command("doautocmd FocusLost");
 }
 
 @end
