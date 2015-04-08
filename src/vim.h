@@ -53,6 +53,13 @@ class Vim: public Client
             return Client::call("vim_command", args);
         }
 
+        TypedRPC<std::string> vim_command_output(std::string cmd)
+        {
+            typedef msgpack::type::tuple<std::string> args_t;
+            args_t args(cmd);
+            return Client::call("vim_command_output", args);
+        }
+
         VoidRPC vim_input(std::string keys)
         {
             typedef msgpack::type::tuple<std::string> args_t;
