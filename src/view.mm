@@ -6,6 +6,7 @@
 #import "view.h"
 #import "input.h"
 #import "graphics.h"
+#import "vimutils.h"
 
 @implementation VimView
 
@@ -153,11 +154,17 @@
 - (void)pasteText
 {
     if ([self insertOrProbablyCommandMode]) {
-        NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
-        NSString* string = [pasteboard stringForType:NSPasteboardTypeString];
-        string = [string stringByReplacingOccurrencesOfString:@"<"
-                                                   withString:@"<lt>"];
-        [self vimInput:[string UTF8String]];
+        with_option(mVim, "paste", [self]() {
+            NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+            NSString* string =
+                [pasteboard stringForType:NSPasteboardTypeString];
+
+            string = [string stringByReplacingOccurrencesOfString:@"<"
+                                                       withString:@"<lt>"];
+            string = [string stringByReplacingOccurrencesOfString:@"\n"
+                                                       withString:@"<CR>"];
+            [self vimInput:[string UTF8String]];
+        });
     }
     else {
         mVim->vim_command("normal! \"+p");
