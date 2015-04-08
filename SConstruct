@@ -6,9 +6,9 @@ from SCons.Script import Environment
 env = Environment(ENV=os.environ, CXX='clang++')
 
 env.Append(
-    CCFLAGS=['-std=c++11', '-g', '-Wno-deprecated-register'],
+    CCFLAGS=['-std=c++11', '-stdlib=libc++', '-g', '-Wno-deprecated-register'],
     CPPPATH=['build'],
-    LIBS=['msgpack'],
+    LIBS=['c++', 'msgpack'],
     FRAMEWORKS=['Cocoa', 'Carbon']
 )
 
