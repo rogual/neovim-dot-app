@@ -25,7 +25,7 @@
         /* Pick a color space, and store it as a property so we can set the
            window's color space to be the same one, improving draw speed. */
         mColorSpace = CGColorSpaceCreateWithName(
-            kCGColorSpaceGenericRGB
+            kCGColorSpaceSRGB
         );
 
         /* A CGBitmapContext is basically a mutable buffer of bytes in a given
