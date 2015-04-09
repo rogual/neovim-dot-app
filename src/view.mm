@@ -139,7 +139,7 @@
 {
     [self setFont:[sender convertFont:mFont]];
 
-    //update user defaults with new font
+    // Update user defaults with new font
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:mFont.fontName forKey:@"fontName"];
     [defaults setFloat:mFont.pointSize forKey:@"fontSize"];
@@ -147,13 +147,26 @@
     [mTextAttrs setValue:mFont forKey:NSFontAttributeName];
     [self updateCharSize];
 
-    NSWindow *win = [self window];
-    NSRect frame = [win frame];
-    frame = [win contentRectForFrameRect:frame];
-    CGSize cellSize = {(float)mXCells, (float)mYCells};
-    frame.size = [self viewSizeFromCellSize:cellSize];
-    frame = [win frameRectForContentRect:frame];
-    [win setFrame:frame display:NO];
+    /* If we're in fullscreen mode, figure out how many chars fit on the screen
+       at the new font size. If we're not, try and resize the window first. */
+    NSRect frame;
+    if ([[self window] styleMask] & NSFullScreenWindowMask) {
+        frame = [[[self window] screen] frame];
+    }
+    else {
+        NSWindow *win = [self window];
+        frame = [win frame];
+        frame = [win contentRectForFrameRect:frame];
+        CGSize cellSize = {(float)mXCells, (float)mYCells};
+        frame.size = [self viewSizeFromCellSize:cellSize];
+        frame = [win frameRectForContentRect:frame];
+        [win setFrame:frame display:NO];
+        frame = [self frame];
+    }
+
+    // Tell Vim to resize if necessary
+    CGSize newCellSize = [self cellSizeInsideViewSize:frame.size];
+    [self requestResize:newCellSize];
 
     mVim->vim_command("redraw!");
 }
