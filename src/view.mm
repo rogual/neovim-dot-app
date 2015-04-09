@@ -113,6 +113,9 @@
 - (void)updateCharSize
 {
     mCharSize = [@" " sizeWithAttributes:mTextAttrs];
+    mCharSize.height = ceil(
+        [mFont ascender] - [mFont descender] + [mFont leading]
+    );
 }
 
 - (void)setFont:(NSFont *)font
