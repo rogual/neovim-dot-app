@@ -68,13 +68,22 @@ If you're setting one of these options, you'll most likely want to set both.
 
 ### Problems Compiling?
 
-    error: no member named 'ext' in 'msgpack::object::union_type'
+* `error: no member named 'ext' in 'msgpack::object::union_type'`
 
 This means your msgpack is out of date. Try:
 
     brew uninstall msgpack
     brew update
     brew install msgpack
+
+* `'msgpack.hpp' file not found`
+
+Homebrew installs things into /usr/local, but the compiler doesn't look there
+unless you've run:
+
+    xcode-select --install
+
+so try doing that!
 
 ## Running the Tests
 
