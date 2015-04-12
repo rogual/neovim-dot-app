@@ -40,6 +40,7 @@ static NSWindow *window = 0;
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
     vim->vim_command("silent! doautoall <nomodeline> FocusGained");
+    vim->vim_command("checktime");
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification
