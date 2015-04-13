@@ -106,7 +106,9 @@ using msgpack::object;
         NSRectFill(rect);
 
         CGPoint origin = rect.origin;
-        rect.size.width = ceil(rect.size.width);
+        float r = rect.origin.x + rect.size.width;
+        rect.origin.x = floor(rect.origin.x);
+        rect.size.width = ceil(r - rect.origin.x);
 
         CGContextSaveGState(mCanvasContext);
         CGContextClipToRect(mCanvasContext, rect);
