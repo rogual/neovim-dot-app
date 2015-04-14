@@ -1,5 +1,4 @@
 #include "vim.h"
-#include <syslog.h>
 
 #import "app.h"
 #import "view.h"
@@ -105,8 +104,7 @@ static NSWindow *window = 0;
     for (NSString *envVar in envVars) {
         NSArray *keyvalue = [envVar componentsSeparatedByString:@"="];
 
-        if (keyvalue.count != 2) {
-            syslog(LOG_WARNING, "string didn't match expected format: %s", envVar.UTF8String);
+        if (keyvalue.count < 2) {
             continue;
         }
 
@@ -115,9 +113,7 @@ static NSWindow *window = 0;
 
         char *old = getenv(key.UTF8String);
 
-        syslog(LOG_WARNING, "setting %s=%s", key.UTF8String, value.UTF8String);
-        syslog(LOG_WARNING, "(old value: %s)", old);
-        setenv(((NSString *)keyvalue[0]).UTF8String, ((NSString *)keyvalue[1]).UTF8String, 1);
+        setenv(key.UTF8String, value.UTF8String, 1);
     }
 
     /* Set both VIM and NVIM for now. TODO: Remove VIM when
