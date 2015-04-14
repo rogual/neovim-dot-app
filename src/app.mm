@@ -1,4 +1,5 @@
 #include "vim.h"
+#include <syslog.h>
 
 #import "app.h"
 #import "view.h"
@@ -89,6 +90,35 @@ static NSWindow *window = 0;
     NSString *vimDir = [[NSBundle mainBundle] resourcePath];
     NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
                                                         ofType:nil];
+
+    NSString *path = @"/bin/bash";
+    NSArray *args = @[@"-c", @"\"env\""];
+    NSTask *task = [NSTask new];
+    task.launchPath = path;
+    task.arguments = args;
+    task.standardOutput = [NSPipe new];
+    [task launch];
+    [task waitUntilExit];
+    NSString *env = [[NSString alloc] initWithData:((NSPipe *)task.standardOutput).fileHandleForReading.readDataToEndOfFile encoding:NSUTF8StringEncoding];
+    NSArray *envVars = [env componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+
+    for (NSString *envVar in envVars) {
+        NSArray *keyvalue = [envVar componentsSeparatedByString:@"="];
+
+        if (keyvalue.count != 2) {
+            syslog(LOG_WARNING, "string didn't match expected format: %s", envVar.UTF8String);
+            continue;
+        }
+
+        NSString *key = keyvalue[0];
+        NSString *value = keyvalue[1];
+
+        char *old = getenv(key.UTF8String);
+
+        syslog(LOG_WARNING, "setting %s=%s", key.UTF8String, value.UTF8String);
+        syslog(LOG_WARNING, "(old value: %s)", old);
+        setenv(((NSString *)keyvalue[0]).UTF8String, ((NSString *)keyvalue[1]).UTF8String, 1);
+    }
 
     /* Set both VIM and NVIM for now. TODO: Remove VIM when
        https://github.com/neovim/neovim/pull/1927 is merged */
