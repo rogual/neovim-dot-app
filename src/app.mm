@@ -90,10 +90,19 @@ static NSWindow *window = 0;
     NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
                                                         ofType:nil];
 
-    NSString *path = @"/bin/bash";
-    NSArray *args = @[@"-c", @"\"env\""];
+    const char *envShell = getenv("SHELL");
+    size_t envShellLength = envShell ? strlen(envShell) : 0;
+    NSString *shell = [[NSString alloc] initWithData:[NSData dataWithBytes:envShell length:envShellLength]
+                                            encoding:NSUTF8StringEncoding];
+
+    // Handle the case where `getenv` returns an empty string (but not NULL)
+    if (!shell.length) {
+        shell = @"/bin/bash";
+    }
+
+    NSArray *args = @[@"-l -c", @"\"env\""];
     NSTask *task = [NSTask new];
-    task.launchPath = path;
+    task.launchPath = shell;
     task.arguments = args;
     task.standardOutput = [NSPipe new];
     [task launch];
