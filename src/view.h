@@ -31,8 +31,6 @@ class Vim;
     NSFont *mBoldItalicFont;
 }
 
-- (BOOL)insertOrProbablyCommandMode;
-
 - (void)cutText;
 - (void)copyText;
 - (void)pasteText;

@@ -190,22 +190,30 @@
 
 - (void)pasteText
 {
-    if ([self insertOrProbablyCommandMode]) {
+    if (mInsertMode) {
         with_option(mVim, "paste", [self]() {
-            NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
-            NSString* string =
-                [pasteboard stringForType:NSPasteboardTypeString];
-
-            string = [string stringByReplacingOccurrencesOfString:@"<"
-                                                       withString:@"<lt>"];
-            string = [string stringByReplacingOccurrencesOfString:@"\n"
-                                                       withString:@"<CR>"];
-            [self vimInput:[string UTF8String]];
+            [self pasteTextRaw];
         });
+    }
+    else if ([self probablyCommandMode]) {
+        [self pasteTextRaw];
     }
     else {
         mVim->vim_command("normal! \"+p");
     }
+}
+
+- (void)pasteTextRaw
+{
+    NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+    NSString* string =
+        [pasteboard stringForType:NSPasteboardTypeString];
+
+    string = [string stringByReplacingOccurrencesOfString:@"<"
+                                                withString:@"<lt>"];
+    string = [string stringByReplacingOccurrencesOfString:@"\n"
+                                                withString:@"<CR>"];
+    [self vimInput:[string UTF8String]];
 }
 
 - (void)selectAll
@@ -334,7 +342,7 @@
 
     #else
 
-        if ([self insertOrProbablyCommandMode])
+        if (mInsertMode || [self probablyCommandMode])
             cellRect = CGRectMake(x, y, .2, 1);
         else
             cellRect = CGRectMake(x, y+1, 1, .3);
@@ -346,13 +354,13 @@
     #endif
 }
 
-/* Returns TRUE if we are insert mode or if we are probably in command mode. If
-   the cursor is in the bottom row then we are deemed to probably be in command
-   mode. */
-- (BOOL)insertOrProbablyCommandMode
+/* Returns TRUE if we are probably in command mode. If the cursor is in the
+   bottom row then we are deemed to probably be in command mode. */
+- (BOOL)probablyCommandMode
 {
-    return (mInsertMode || mCursorDisplayPos.y + 1 == mYCells);
+    return mCursorDisplayPos.y + 1 == mYCells;
 }
+
 
 /* -- Resizing -- */
 
