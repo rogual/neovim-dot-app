@@ -108,6 +108,20 @@ using msgpack::object;
             lens.push_back(len);
         }
 
+        /* Swap FG & BG colours if necessary */
+        NSMutableDictionary *textAttrs;
+        if (mReverseVideo) {
+            textAttrs = [[[NSMutableDictionary alloc] init] autorelease];
+            [textAttrs setDictionary:mTextAttrs];
+            NSColor *fg = [textAttrs objectForKey:NSForegroundColorAttributeName];
+            NSColor *bg = [textAttrs objectForKey:NSBackgroundColorAttributeName];
+            [textAttrs setObject:fg forKey:NSBackgroundColorAttributeName];
+            [textAttrs setObject:bg forKey:NSForegroundColorAttributeName];
+        }
+        else {
+            textAttrs = mTextAttrs;
+        }
+
         for (int i=0; i<runs.size(); i++) {
             const std::string &run = runs[i];
             int sz = lens[i];
@@ -126,7 +140,7 @@ using msgpack::object;
             - Use a clipping rect for fonts like Droid Sans that draw way too
                 high */
 
-            NSColor *bg = [mTextAttrs objectForKey:NSBackgroundColorAttributeName];
+            NSColor *bg = [textAttrs objectForKey:NSBackgroundColorAttributeName];
             [bg set];
             NSRectFill(rect);
 
@@ -137,7 +151,7 @@ using msgpack::object;
 
             CGContextSaveGState(mCanvasContext);
             CGContextClipToRect(mCanvasContext, rect);
-            [nsrun drawAtPoint:origin withAttributes:mTextAttrs];
+            [nsrun drawAtPoint:origin withAttributes:textAttrs];
             CGContextRestoreGState(mCanvasContext);
 
             mCursorPos.x += sz;
@@ -296,6 +310,11 @@ using msgpack::object;
 
             [mTextAttrs setValue:[NSNumber numberWithInteger:underlineStyle]
                           forKey:NSUnderlineStyleAttributeName];
+
+            try {
+                mReverseVideo = attrs.at("reverse").convert();
+            }
+            catch (...) { mReverseVideo = false; }
 
             break;
         }
