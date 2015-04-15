@@ -276,6 +276,27 @@ using msgpack::object;
 
             [mTextAttrs setValue:font forKey:NSFontAttributeName];
 
+            bool underline;
+            try {
+                underline = attrs.at("underline").convert();
+            }
+            catch (...) { underline = false; }
+
+            bool undercurl;
+            try {
+                undercurl = attrs.at("undercurl").convert();
+            }
+            catch (...) { undercurl = false; }
+
+            int underlineStyle = 0;
+            if (underline && undercurl) underlineStyle = NSUnderlineStyleDouble;
+            else if (underline) underlineStyle = NSUnderlineStyleSingle;
+            else if (undercurl) underlineStyle =
+                NSUnderlineStyleSingle | NSUnderlinePatternDot;
+
+            [mTextAttrs setValue:[NSNumber numberWithInteger:underlineStyle]
+                          forKey:NSUnderlineStyleAttributeName];
+
             break;
         }
 
