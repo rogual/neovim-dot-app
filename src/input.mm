@@ -10,13 +10,14 @@
 
 @implementation VimView (Input)
 
-/* When the user presses a key, put it in the keyqueue, and schedule
-   sendKeys */
 - (void)keyDown:(NSEvent *)event
 {
-    [event retain];
-    mKeyQueue.push_back(event);
-    [self performSelector:@selector(sendKeys) withObject:nil afterDelay:0];
+    std::stringstream raw;
+    translateKeyEvent(raw, event);
+
+    std::string raws = raw.str();
+    if (raws.size())
+        [self vimInput:raws];
 }
 
 - (void)mouseEvent:(NSEvent *)event drag:(BOOL)drag type:(const char *)type
@@ -78,39 +79,10 @@
     [self vimInput:ss.str()];
 }
 
-
-/* If the user hasn't hit any new keys, send all the keypresses in the keyqueue
-   to Vim. */
-- (void)sendKeys
-{
-    if (mWaitAck)
-        return;
-
-    if (mKeyQueue.empty())
-        return;
-
-    std::stringstream raw;
-    for (NSEvent *event: mKeyQueue) {
-        translateKeyEvent(raw, event);
-        [event release];
-    }
-
-    std::string raws = raw.str();
-    if (raws.size())
-        [self vimInput:raws];
-
-    mKeyQueue.clear();
-}
-
 /* Send an input string to Vim. */
 - (void)vimInput:(const std::string &)input
 {
-    mWaitAck += 1;
-    mVim->vim_input(input).then([self]() {
-        mWaitAck -= 1;
-        if (mWaitAck == 0)
-            [self sendKeys];
-    });
+    mVim->vim_input(input);
 }
 
 - (NSPoint)cellContainingEvent:(NSEvent *)event

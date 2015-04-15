@@ -19,8 +19,6 @@ class Vim;
     NSColor *mForegroundColor;
     NSMutableDictionary *mTextAttrs;
     bool mReverseVideo;
-    std::vector<NSEvent *>mKeyQueue;
-    int mWaitAck;
     NSSize mCharSize;
     CGRect mCellScrollRect;
     NSPoint mCursorPos;

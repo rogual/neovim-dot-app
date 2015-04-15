@@ -20,7 +20,6 @@
 
         mBackgroundColor = [[NSColor whiteColor] retain];
         mForegroundColor = [[NSColor blackColor] retain];
-        mWaitAck = 0;
 
         /* Pick a color space, and store it as a property so we can set the
            window's color space to be the same one, improving draw speed. */
