@@ -328,7 +328,41 @@
     drawBitmapContext(cg, mCanvasContext, totalRect);
 
     [self drawCursor];
+    [self drawMarkedText];
 }
+
+- (void) drawText:(NSString *)nsrun atCellPos:(NSPoint)cellPos withAttrs:(NSDictionary *)textAttrs length:(int)sz
+{
+    NSRect cellRect = CGRectMake(cellPos.x, cellPos.y, sz, 1);
+    NSRect rect = [self viewRectFromCellRect:cellRect];
+
+    if (!sz)
+        rect.size.width = [nsrun sizeWithAttributes:textAttrs].width;
+
+    /* Maybe there is some combination of options for either drawAtPoint,
+    drawInRect, or drawWithRect, that makes Cocoa draw some text in a
+    fucking rectangle, but I couldn't figure it out. The background is
+    always too tall or too short. Solution:
+
+    - Draw our own background for fonts like Monaco that come up short
+    - Use a clipping rect for fonts like Droid Sans that draw way too
+        high */
+
+    NSColor *bg = [textAttrs objectForKey:NSBackgroundColorAttributeName];
+    [bg set];
+    NSRectFill(rect);
+
+    CGPoint origin = rect.origin;
+    float r = rect.origin.x + rect.size.width;
+    rect.origin.x = floor(rect.origin.x);
+    rect.size.width = ceil(r - rect.origin.x);
+
+    CGContextSaveGState(mCanvasContext);
+    CGContextClipToRect(mCanvasContext, rect);
+    [nsrun drawAtPoint:origin withAttributes:textAttrs];
+    CGContextRestoreGState(mCanvasContext);
+}
+
 
 - (void)drawCursor
 {
@@ -363,6 +397,24 @@
         NSRectFill(viewRect);
 
     #endif
+}
+
+- (void)drawMarkedText
+{
+    if (!mImeMarkedText)
+        return;
+
+    [NSGraphicsContext saveGraphicsState];
+
+    [NSGraphicsContext setCurrentContext:[NSGraphicsContext
+        graphicsContextWithGraphicsPort:(void *)mCanvasContext
+        flipped:NO]];
+
+    [self drawText:mImeMarkedText atCellPos:mImeMarkedTextCellPos withAttrs:mTextAttrs length:0];
+
+    [NSGraphicsContext restoreGraphicsState];
+
+    [self setNeedsDisplay:YES];
 }
 
 /* Returns TRUE if we are probably in command mode. If the cursor is in the

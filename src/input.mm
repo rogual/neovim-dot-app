@@ -12,12 +12,22 @@
 
 - (void)keyDown:(NSEvent *)event
 {
-    std::stringstream raw;
-    translateKeyEvent(raw, event);
+    NSTextInputContext *con = [NSTextInputContext currentInputContext];
 
-    std::string raws = raw.str();
-    if (raws.size())
-        [self vimInput:raws];
+    mImeUsedEvent = false;
+    NSLog(@"KD");
+    if (mInsertMode && [con handleEvent:event] && mImeUsedEvent) {
+        NSLog(@"letting cocoa keep it");
+    }
+    else {
+        NSLog(@"Sending to vim");
+        std::stringstream raw;
+        translateKeyEvent(raw, event);
+
+        std::string raws = raw.str();
+        if (raws.size())
+            [self vimInput:raws];
+    }
 }
 
 - (void)mouseEvent:(NSEvent *)event drag:(BOOL)drag type:(const char *)type
@@ -91,6 +101,89 @@
     NSPoint viewLoc = [self convertPoint:winLoc fromView:nil];
     NSPoint cellLoc = [self cellContaining:viewLoc];
     return cellLoc;
+}
+
+
+/* -- NSTextInputClient methods -- */
+
+- (BOOL)hasMarkedText { NSLog(@"HMT"); return false; }
+- (NSRange)markedRange { NSLog(@"MR"); return {NSNotFound, 0}; }
+- (NSRange)selectedRange { NSLog(@"SR"); return {NSNotFound, 0}; }
+
+- (void)setMarkedText:(id)string
+        selectedRange:(NSRange)x
+        replacementRange:(NSRange)y
+{
+    if (!mImeMarkedText)
+        mImeMarkedText = [@"" retain];
+
+    if ([string isKindOfClass:[NSAttributedString class]])
+        string = [string string];
+
+    [mImeMarkedText autorelease];
+    //mImeMarkedText = [mImeMarkedText stringByAppendingString:string];
+    mImeMarkedText = string;
+    [mImeMarkedText retain];
+    mVim->vim_command("redraw!");
+
+    mImeMarkedTextCellPos = mCursorDisplayPos;
+
+    NSLog(@"setMarkedText %@", string);
+    mImeUsedEvent = true;
+}
+
+- (void)unmarkText
+{
+    [mImeMarkedText release];
+    mImeMarkedText = nil;
+    mVim->vim_command("redraw!");
+}
+
+- (NSArray *)validAttributesForMarkedText
+{
+    return @[];
+}
+
+- (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)aRange
+                                                actualRange:(NSRangePointer)actualRange
+{
+    return nil;
+}
+
+- (void)insertText:(id)string
+  replacementRange:(NSRange)replacementRange
+{
+    if ([string isKindOfClass:[NSAttributedString class]])
+        string = [string string];
+
+    NSLog(@"insertText:%@ r:%@", string, NSStringFromRange(replacementRange));
+    [self unmarkText];
+    [self insertText:string];
+    mImeUsedEvent = true;
+}
+
+- (void)insertText:(NSString *)string
+{
+    string = [string stringByReplacingOccurrencesOfString:@"<"
+                                               withString:@"<lt>"];
+
+    [self vimInput:[string UTF8String]];
+}
+
+
+- (NSUInteger)characterIndexForPoint:(NSPoint)aPoint
+{
+    return NSNotFound;
+}
+
+- (NSRect)firstRectForCharacterRange:(NSRange)aRange
+                         actualRange:(NSRangePointer)actualRange
+{
+    return {{0,0},{0,0}};
+}
+
+- (void)doCommandBySelector:(SEL)selector
+{
 }
 
 @end
