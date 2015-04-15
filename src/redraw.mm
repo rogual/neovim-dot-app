@@ -74,48 +74,74 @@ using msgpack::object;
 
 
     if (code == RedrawCode::put) {
+
+        static std::vector<std::string> runs;
+        runs.clear();
+
+        static std::vector<int> lens;
+        lens.clear();
+
         static std::string run;
         run.clear();
 
+        int len = 0;
         for (int i=1; i<item_sz; i++) {
             const object &arglist = item_o.via.array.ptr[i];
 
             assert(arglist.via.array.size == 1);
             const object &char_o = arglist.via.array.ptr[0];
-            run += char_o.as<std::string>();
+            std::string char_s = char_o.convert();
+            len += 1;
+            if (char_s.size() == 0) {
+                runs.push_back(run);
+                lens.push_back(len);
+                run.clear();
+                len = 0;
+            }
+            else {
+                run += char_s;
+            }
         }
 
-        NSString *nsrun = [NSString stringWithUTF8String:run.c_str()];
+        if (len) {
+            runs.push_back(run);
+            lens.push_back(len);
+        }
 
-        int sz = [nsrun length];
+        for (int i=0; i<runs.size(); i++) {
+            const std::string &run = runs[i];
+            int sz = lens[i];
 
-        NSRect cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1);
-        NSRect rect = [self viewRectFromCellRect:cellRect];
+            NSString *nsrun = [NSString stringWithUTF8String:run.c_str()];
 
-        /* Maybe there is some combination of options for either drawAtPoint,
-           drawInRect, or drawWithRect, that makes Cocoa draw some text in a
-           fucking rectangle, but I couldn't figure it out. The background is
-           always too tall or too short. Solution:
+            NSRect cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1);
+            NSRect rect = [self viewRectFromCellRect:cellRect];
 
-           - Draw our own background for fonts like Monaco that come up short
-           - Use a clipping rect for fonts like Droid Sans that draw way too
-             high */
+            /* Maybe there is some combination of options for either drawAtPoint,
+            drawInRect, or drawWithRect, that makes Cocoa draw some text in a
+            fucking rectangle, but I couldn't figure it out. The background is
+            always too tall or too short. Solution:
 
-        NSColor *bg = [mTextAttrs objectForKey:NSBackgroundColorAttributeName];
-        [bg set];
-        NSRectFill(rect);
+            - Draw our own background for fonts like Monaco that come up short
+            - Use a clipping rect for fonts like Droid Sans that draw way too
+                high */
 
-        CGPoint origin = rect.origin;
-        float r = rect.origin.x + rect.size.width;
-        rect.origin.x = floor(rect.origin.x);
-        rect.size.width = ceil(r - rect.origin.x);
+            NSColor *bg = [mTextAttrs objectForKey:NSBackgroundColorAttributeName];
+            [bg set];
+            NSRectFill(rect);
 
-        CGContextSaveGState(mCanvasContext);
-        CGContextClipToRect(mCanvasContext, rect);
-        [nsrun drawAtPoint:origin withAttributes:mTextAttrs];
-        CGContextRestoreGState(mCanvasContext);
+            CGPoint origin = rect.origin;
+            float r = rect.origin.x + rect.size.width;
+            rect.origin.x = floor(rect.origin.x);
+            rect.size.width = ceil(r - rect.origin.x);
 
-        mCursorPos.x += sz;
+            CGContextSaveGState(mCanvasContext);
+            CGContextClipToRect(mCanvasContext, rect);
+            [nsrun drawAtPoint:origin withAttributes:mTextAttrs];
+            CGContextRestoreGState(mCanvasContext);
+
+            mCursorPos.x += sz;
+        }
 
         [self setNeedsDisplay:YES];
     }
