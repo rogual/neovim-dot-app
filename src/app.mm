@@ -110,12 +110,11 @@ static NSWindow *window = 0;
     return env;
 }
 
-/**  
- *  Attempt to get the environment dictionary for the user's chosen shell,
- *  using the $SHELL environment variable.
- *  
- *  If that fails, try again using /bin/bash, which should always be available on OSX.
- */
+/* Attempt to get the environment dictionary for the user's chosen shell, using
+   the $SHELL environment variable.
+
+   If that fails, try again using /bin/bash, which should always be available
+   on OSX. */
 - (void)loadLoginShellEnvironmentVariables
 {
     NSString *shellPath = [[NSProcessInfo processInfo] environment][@"SHELL"];
