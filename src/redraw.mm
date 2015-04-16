@@ -128,6 +128,10 @@ using msgpack::object;
 
             NSString *nsrun = [NSString stringWithUTF8String:run.c_str()];
 
+            // Force left-to-right rendering
+            nsrun = [@"\u202d" stringByAppendingString:nsrun];
+            nsrun = [nsrun stringByAppendingString:@"\u202c"];
+
             NSRect cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1);
             NSRect rect = [self viewRectFromCellRect:cellRect];
 
