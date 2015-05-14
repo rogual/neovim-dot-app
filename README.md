@@ -28,12 +28,21 @@ Pull requests are welcome, and greatly appreciated!
 
 ### Prerequisites
 
-#### OS and Compiler
-
 * Neovim.app compiles on OS X 10.9 and 10.10.
 * You'll need to install Xcode and its command-line tools.
 * Homebrew isn't required but it's an easy way to install the rest of the 
   dependencies.
+
+### Install via Homebrew
+
+Install Neovim.app via Homebrew is easy.
+
+```bash
+$ brew tap rogual/neovim-dot-app
+$ brew install --HEAD neovim-dot-app
+```
+
+### Install manually
 
 #### SCons
     $ brew install scons
@@ -45,7 +54,7 @@ Pull requests are welcome, and greatly appreciated!
     $ brew tap neovim/homebrew-neovim
     $ brew install --HEAD neovim
 
-### To compile:
+#### To compile:
 
     $ make
 
