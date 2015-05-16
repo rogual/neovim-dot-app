@@ -11,6 +11,20 @@ extern char **g_argv;
 
 static VimWindow *activeWindow = 0;
 
+void ignore_sigpipe(void)
+{
+    struct sigaction act;
+    int r;
+    memset(&act, 0, sizeof(act));
+    act.sa_handler = SIG_IGN;
+    act.sa_flags = SA_RESTART;
+    r = sigaction(SIGPIPE, &act, NULL);
+    if (r) {
+        std::cerr << "Failed to ignore SIGPIPE\n";
+        exit(-1);
+    }
+}
+
 @implementation AppDelegate
 
 
@@ -103,6 +117,10 @@ static VimWindow *activeWindow = 0;
                                  @"fontSize": @11.0}];
 
     [self loadLoginShellEnvironmentVariables];
+
+    /* Closing vim subprocesses can result in a SIGPIPE, terminating
+       the program. So, we ignore it. */
+    ignore_sigpipe();
 
     NSString *vimDir = [[NSBundle mainBundle] resourcePath];
     /* Set both VIM and NVIM for now. TODO: Remove VIM when
