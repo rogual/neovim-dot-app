@@ -106,8 +106,9 @@ again:
         );
 
         if (sz == 0) {
-            std::cerr << "No more data\n";
-            exit(-1);
+            std::cerr << "No more data, closing window\n";
+            Event r = {0, std::string("neovim.app.nodata")};
+            return r;
         }
 
         if (sz < 0) {
