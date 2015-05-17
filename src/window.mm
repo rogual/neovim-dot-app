@@ -121,6 +121,10 @@
         [self updateWindowTitle];
         [mMainView redraw:update_o];
     }
+    else if (note == "neovim.app.nodata") {
+        /* The vim client closed our pipe, so it must have exited. */
+        [self close];
+    }
     else {
         std::cout << "Unknown note " << note << "\n";
     }
@@ -182,13 +186,6 @@
 
     for (;;) {
         Event event = vim->wait();
-
-        /* The vim client closed our pipe, so it must have exited. */
-        if(!event.note.empty() && event.note == "neovim.app.nodata") {
-            [self performSelectorOnMainThread:@selector(close)
-                                   withObject:nil waitUntilDone:YES];
-            return;
-        }
 
         /* waitUntilDone needs to be YES here since we're accessing that
            event from the other thread. */
