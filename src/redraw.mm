@@ -75,6 +75,19 @@ using msgpack::object;
 
     if (code == RedrawCode::put) {
 
+        /* This loop is getting a bit messy; feel free to rewrite. But, these
+           lines should render properly and be aligned:
+
+            iiiiiiiiiiiiiiiiiiii|
+            MMMMMMMMMMMMMMMMMMMM|
+            サパラサパサパラサパ|
+            བཔོལག་བཔོལག་བཔོལག་བཔོལག་|
+
+            If we start drawing more than one char at a time, OSX starts
+            mashing the chars together in some scripts. Drawing char by char
+            is slower though, so not ideal.
+        */
+
         static std::vector<std::string> runs;
         runs.clear();
 
@@ -91,15 +104,22 @@ using msgpack::object;
             assert(arglist.via.array.size == 1);
             const object &char_o = arglist.via.array.ptr[0];
             std::string char_s = char_o.convert();
-            len += 1;
+
+            /* Vim gives us empty strings to pad out double-width characters.
+               Don't draw them as spaces (which would erase half the char); just
+               increase len of previous run. */
             if (char_s.size() == 0) {
+                len += 1;
                 runs.push_back(run);
                 lens.push_back(len);
-                run.clear();
+                run = char_s;
                 len = 0;
             }
             else {
-                run += char_s;
+                runs.push_back(run);
+                lens.push_back(len);
+                run = char_s;
+                len = 1;
             }
         }
 
@@ -125,6 +145,9 @@ using msgpack::object;
         for (int i=0; i<runs.size(); i++) {
             const std::string &run = runs[i];
             int sz = lens[i];
+
+            if (sz == 0)
+                continue;
 
             NSString *nsrun = [NSString stringWithUTF8String:run.c_str()];
 
