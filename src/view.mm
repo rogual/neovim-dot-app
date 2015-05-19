@@ -15,9 +15,6 @@
     if (self = [super initWithFrame:frame]) {
         mVim = vim;
 
-        /* TODO: support arbitrarily large windows */
-        CGSize sizeInPixels = CGSizeMake(2*1920, 2*1080);
-
         mBackgroundColor = [[NSColor whiteColor] retain];
         mForegroundColor = [[NSColor blackColor] retain];
 
@@ -27,22 +24,7 @@
             kCGColorSpaceSRGB
         );
 
-        /* A CGBitmapContext is basically a mutable buffer of bytes in a given
-           image format, that can be drawn into. It sort of conflates the ideas
-           of an image and a context. */
-        mCanvasContext = CGBitmapContextCreate(
-            0, // ask CG to allocate a buffer for us
-            sizeInPixels.width,
-            sizeInPixels.height,
-            8, // bitsPerComponent
-            0, // bytesPerRow (use default)
-            mColorSpace,
-            kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host
-        );
-        assert (mCanvasContext);
-
-        CGContextSaveGState(mCanvasContext);
-        [self updateScale];
+        [self allocateCanvas];
 
         /* Load font from saved settings */
         NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
@@ -70,6 +52,36 @@
     }
 
     return self;
+}
+
+- (void)allocateCanvas
+{
+    CGContextRelease(mCanvasContext);
+
+    /* Allocate a canvas big enough to fill the entire screen at Retina
+       resolution. TODO: Detect screen size changes */
+    CGSize screenSize = [[NSScreen mainScreen] frame].size;
+    CGSize sizeInPixels = CGSizeMake(
+        screenSize.width * 2, screenSize.height * 2
+    );
+
+    /* A CGBitmapContext is basically a mutable buffer of bytes in a given
+        image format, that can be drawn into. It sort of conflates the ideas
+        of an image and a context. */
+    mCanvasContext = CGBitmapContextCreate(
+        0, // ask CG to allocate a buffer for us
+        sizeInPixels.width,
+        sizeInPixels.height,
+        8, // bitsPerComponent
+        0, // bytesPerRow (use default)
+        mColorSpace,
+        kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host
+    );
+    assert (mCanvasContext);
+
+    CGContextSaveGState(mCanvasContext);
+    [self updateScale];
+
 }
 
 - (id)initWithCellSize:(CGSize)cellSize vim:(Vim *)vim
