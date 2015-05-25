@@ -34,6 +34,9 @@ class Vim;
 - (void)copyText;
 - (void)pasteText;
 
+- (void)setFont:(NSFont *)font;
+- (void)setFontProgramatically:(NSFont *)font;
+
 - (void)openFile:(NSString *)filename;
 
 - (void)requestResize:(CGSize)cellSize;

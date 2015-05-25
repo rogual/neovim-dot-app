@@ -107,7 +107,7 @@
 
 - (void)openFilename:(NSString *)file
 {
-        [mMainView openFile:file];
+    [mMainView openFile:file];
 }
 
 /* This gets called on the main thread when Vim gives us a UI notification */
@@ -125,6 +125,35 @@
     else if (note == "neovim.app.nodata") {
         /* The vim client closed our pipe, so it must have exited. */
         [self close];
+    }
+    else if (note == "neovim.app.setfont") {
+        std::vector<msgpack::object> args = update_o.convert();
+
+        try {
+            if (args.size() != 2) {
+                throw "setfont expects 2 arguments (name, size)";
+            }
+
+            std::string name = args[0].convert();
+            int size = args[1].convert();
+
+            NSString *nsName = [NSString stringWithUTF8String:name.c_str()];
+            NSFont *font = [NSFont fontWithName:nsName size:size];
+
+            if (!font) {
+                throw std::string() + "Font '" + name + "' not installed";
+            }
+
+            if (([[font fontDescriptor] symbolicTraits] & NSFontMonoSpaceTrait) == 0) {
+                throw std::string() + "Font '" + name + "' does not appear to "
+                    "be fixed-width";
+            }
+
+            [mMainView setFontProgramatically:font];
+        }
+        catch (std::string msg) {
+            mVim->vim_report_error(msg);
+        }
     }
     else {
         std::cout << "Unknown note " << note << "\n";

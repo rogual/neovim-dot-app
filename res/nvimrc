@@ -3,3 +3,7 @@ set mouse=a
 " Some vim users are used to pressing Ctrl+6 to go to the alternate file, but
 " this only ever worked because terminals don't distinguish it from Ctrl+^.
 nnoremap <C-6> <C-^>
+
+function! MacSetFont(name, size)
+    call rpcnotify(1, "neovim.app.setfont", a:name, a:size)
+endfunction

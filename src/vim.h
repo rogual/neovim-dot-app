@@ -67,6 +67,13 @@ class Vim: public Client
             return Client::call("vim_input", args);
         }
 
+        VoidRPC vim_report_error(std::string error)
+        {
+            typedef msgpack::type::tuple<std::string> args_t;
+            args_t args(error);
+            return Client::call("vim_report_error", args);
+        }
+
         VoidRPC ui_attach(int w, int h, bool rgb)
         {
             typedef msgpack::type::tuple<int, int, bool> args_t;

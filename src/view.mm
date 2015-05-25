@@ -26,24 +26,24 @@
 
         [self allocateCanvas];
 
-        /* Load font from saved settings */
-        NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-        NSFont *font = [NSFont fontWithName:[defaults stringForKey:@"fontName"]
-                                       size:[defaults floatForKey:@"fontSize"]];
-        [font retain];
-        [self setFont:font];
-
+        /* Default textAttrs (Font is added to this when we call setFont) */
         mTextAttrs = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
             mForegroundColor, NSForegroundColorAttributeName,
             mBackgroundColor, NSBackgroundColorAttributeName,
-            mFont, NSFontAttributeName,
             nil
         ] retain];
 
-        [[NSFontManager sharedFontManager] setSelectedFont:mFont isMultiple:NO];
         [[NSFontManager sharedFontManager] setDelegate:self];
 
-        [self updateCharSize];
+        /* Load font from saved settings */
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        NSString *fontName = [defaults stringForKey:@"fontName"];
+        float fontSize = [defaults floatForKey:@"fontSize"];
+        if (fontName && fontSize) {
+            NSFont *font = [NSFont fontWithName:fontName
+                                           size:fontSize];
+            [self setFont:font];
+        }
 
         mCursorPos = mCursorDisplayPos = CGPointZero;
         mCursorOn = true;
@@ -86,6 +86,9 @@
 
 - (id)initWithCellSize:(CGSize)cellSize vim:(Vim *)vim
 {
+    mXCells = cellSize.width;
+    mYCells = cellSize.height;
+
     NSRect frame = CGRectMake(0, 0, 100, 100);
 
     if (self = [self initWithFrame:frame vim:vim]) {
@@ -131,6 +134,9 @@
 
 - (void)setFont:(NSFont *)font
 {
+    float size = [[[font fontDescriptor] objectForKey:NSFontSizeAttribute] floatValue];
+
+    [mFont release];
     [mBoldFont release];
     [mItalicFont release];
     [mBoldItalicFont release];
@@ -144,21 +150,16 @@
     mBoldItalicFont = [man convertFont:font
                            toHaveTrait:NSBoldFontMask | NSItalicFontMask];
 
+    [mFont retain];
     [mBoldFont retain];
     [mItalicFont retain];
     [mBoldItalicFont retain];
-}
-
-- (void)changeFont:(id)sender
-{
-    [self setFont:[sender convertFont:mFont]];
-
-    // Update user defaults with new font
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:mFont.fontName forKey:@"fontName"];
-    [defaults setFloat:mFont.pointSize forKey:@"fontSize"];
 
     [mTextAttrs setValue:mFont forKey:NSFontAttributeName];
+
+    [[NSFontManager sharedFontManager] setSelectedFont:mFont isMultiple:NO];
+
+    /* Now for the metrics. Update charsize... */
     [self updateCharSize];
 
     /* If we're in fullscreen mode, figure out how many chars fit on the screen
@@ -172,10 +173,11 @@
         frame = [win frame];
         frame = [win contentRectForFrameRect:frame];
         CGSize cellSize = {(float)mXCells, (float)mYCells};
+
         frame.size = [self viewSizeFromCellSize:cellSize];
-        frame = [win frameRectForContentRect:frame];
-        [win setFrame:frame display:NO];
-        frame = [self frame];
+
+        NSRect winFrame = [win frameRectForContentRect:frame];
+        [win setFrame:winFrame display:NO];
     }
 
     // Tell Vim to resize if necessary
@@ -183,6 +185,31 @@
     [self requestResize:newCellSize];
 
     mVim->vim_command("redraw!");
+}
+
+/* Called when the user sets the font via VimL. If they're doing this, let's
+   delete the userdefault font so it doesn't get redundantly loaded each time
+   at startup.
+
+   TODO: This doesn't actually seem to work, as font is still found in the
+   user defaults at startup. */
+- (void)setFontProgramatically:(NSFont *)font
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults removeObjectForKey:@"fontName"];
+    [defaults removeObjectForKey:@"fontSize"];
+    [self setFont:font];
+}
+
+/* Called when the user sets the font via the Font menu. */
+- (void)changeFont:(id)sender
+{
+    [self setFont:[sender convertFont:mFont]];
+
+    // Update user defaults with new font
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:mFont.fontName forKey:@"fontName"];
+    [defaults setFloat:mFont.pointSize forKey:@"fontSize"];
 }
 
 - (void)cutText
