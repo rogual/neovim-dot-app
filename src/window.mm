@@ -5,8 +5,8 @@
 
 @implementation VimWindow
 {
-    Vim * vim;
-    VimView * mMainView;
+    Vim *mVim;
+    VimView *mMainView;
 }
 
 /* Override this so we can resize by whole cells, just like Terminal.app */
@@ -33,13 +33,13 @@
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-    vim->vim_command("silent! doautoall <nomodeline> FocusGained");
-    vim->vim_command("checktime");
+    mVim->vim_command("silent! doautoall <nomodeline> FocusGained");
+    mVim->vim_command("checktime");
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification
 {
-    vim->vim_command("silent! doautoall <nomodeline> FocusLost");
+    mVim->vim_command("silent! doautoall <nomodeline> FocusLost");
 }
 
 
@@ -47,11 +47,11 @@
 - (void)cutText { [mMainView cutText]; }
 - (void)pasteText { [mMainView pasteText]; }
 
-- (void)newTab { vim->vim_command("tabnew"); }
-- (void)nextTab { vim->vim_command("tabnext"); }
-- (void)prevTab { vim->vim_command("tabprev"); }
-- (void)closeTab { vim->vim_command("tabclose"); }
-- (void)saveBuffer { vim->vim_command("write"); }
+- (void)newTab { mVim->vim_command("tabnew"); }
+- (void)nextTab { mVim->vim_command("tabnext"); }
+- (void)prevTab { mVim->vim_command("tabprev"); }
+- (void)closeTab { mVim->vim_command("tabclose"); }
+- (void)saveBuffer { mVim->vim_command("write"); }
 
 
 - (id)init
@@ -68,11 +68,11 @@
     NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
                                                         ofType:nil];
 
-    vim = new Vim([vimPath UTF8String]);
-    vim->ui_attach(width, height, true);
+    mVim = new Vim([vimPath UTF8String]);
+    mVim->ui_attach(width, height, true);
 
     mMainView = [[VimView alloc] initWithCellSize:CGSizeMake(width, height)
-                                             vim:vim];
+                                              vim:mVim];
 
     int style = NSTitledWindowMask |
                 NSClosableWindowMask |
@@ -100,7 +100,8 @@
 
 - (void)dealloc
 {
-    delete vim; vim = nil;
+    delete mVim;
+    mVim = 0;
     [super dealloc];
 }
 
@@ -133,8 +134,8 @@
 /* Set the window's title and “represented file” icon. */
 - (void)updateWindowTitle
 {
-    vim->vim_get_current_buffer().then([self](Buffer buf) {
-        vim->buffer_get_name(buf).then([self](std::string bufname) {
+    mVim->vim_get_current_buffer().then([self](Buffer buf) {
+        mVim->buffer_get_name(buf).then([self](std::string bufname) {
             if (bufname.empty()) {
                 [self setTitle:@"Untitled"];
                 [self setRepresentedFilename:@""];
@@ -185,7 +186,7 @@
     assert(![NSThread isMainThread]);
 
     for (;;) {
-        Event event = vim->wait();
+        Event event = mVim->wait();
 
         /* waitUntilDone needs to be YES here since we're accessing that
            event from the other thread. */
