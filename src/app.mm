@@ -108,7 +108,6 @@ void ignore_sigpipe(void)
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
     [NSFontManager setFontManagerFactory:[VimFontManager class]];
-    [self initMenu];
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults registerDefaults:@{@"width": @80,

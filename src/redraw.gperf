@@ -5,6 +5,7 @@
         {
             put,
             cursor_goto,
+            update_menu,
             clear,
             eol_clear,
             highlight_set,
@@ -32,6 +33,7 @@ struct RedrawAction
 %%
 put,               RedrawCode::put
 cursor_goto,       RedrawCode::cursor_goto
+update_menu,       RedrawCode::update_menu
 clear,             RedrawCode::clear
 eol_clear,         RedrawCode::eol_clear
 highlight_set,     RedrawCode::highlight_set

@@ -11,6 +11,7 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import "view.h"
 #import "graphics.h"
+#import "menu.h"
 
 static const bool debug = false;
 
@@ -27,6 +28,8 @@ using msgpack::object;
     [NSGraphicsContext setCurrentContext:[NSGraphicsContext
         graphicsContextWithGraphicsPort:(void *)mCanvasContext
         flipped:NO]];
+
+    mMenuNeedsUpdate = false;
 
     try
     {
@@ -64,6 +67,10 @@ using msgpack::object;
     }
 
     [NSGraphicsContext restoreGraphicsState];
+
+    if (mMenuNeedsUpdate) {
+        [self updateMenu];
+    }
 }
 
 - (void) doAction:(RedrawCode::Enum)code withItem:(const object &)item_o
@@ -245,6 +252,12 @@ using msgpack::object;
                 [self setNeedsDisplay:YES];
             }
 
+            break;
+        }
+
+        case RedrawCode::update_menu:
+        {
+            mMenuNeedsUpdate = true;
             break;
         }
 
