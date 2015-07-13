@@ -7,3 +7,6 @@ nnoremap <C-6> <C-^>
 function! MacSetFont(name, size)
     call rpcnotify(1, "neovim.app.setfont", a:name, a:size)
 endfunction
+
+noremap <ScrollWheelUp> <C-Y>
+noremap <ScrollWheelDown> <C-E>

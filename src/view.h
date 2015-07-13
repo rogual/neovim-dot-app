@@ -28,6 +28,12 @@ class Vim;
     NSFont *mBoldFont;
     NSFont *mItalicFont;
     NSFont *mBoldItalicFont;
+
+    NSMenuItem *mPopupMenu;
+    NSMenu *mFontMenu;
+    bool mMenuNeedsUpdate;
+
+    CGPoint scrollAccumulator;
 }
 
 - (void)cutText;

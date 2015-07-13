@@ -57,22 +57,70 @@
 
 - (void)scrollWheel:(NSEvent *)event
 {
-    CGFloat x = [event deltaX], y = [event deltaY];
+    CGFloat x = [event scrollingDeltaX], y = [event scrollingDeltaY];
 
-    if (!x && !y)
-        return;
+    if ([event hasPreciseScrollingDeltas]) {
+        x /= mCharSize.width;
+        y /= mCharSize.height;
+    }
+
+    x *= 2;
+    y *= 2;
+
+    scrollAccumulator.x += x;
+    scrollAccumulator.y += y;
 
     NSPoint cellLoc = [self cellContainingEvent:event];
 
+    if (scrollAccumulator.y < -1) {
+        int lines = -scrollAccumulator.y;
+        scrollAccumulator.y += lines;
+
+        std::stringstream ss;
+        for (int i=0; i<lines; i++) {
+            ss << "<C-E>";
+        }
+        [self vimInput:ss.str()];
+    }
+
+    if (scrollAccumulator.y > 1) {
+        int lines = scrollAccumulator.y;
+        scrollAccumulator.y -= lines;
+
+        std::stringstream ss;
+        for (int i=0; i<lines; i++) {
+            ss << "<C-Y>";
+        }
+        [self vimInput:ss.str()];
+    }
+
+    //while (scrollAccumulator.x <= -1) {
+        //scrollAccumulator.x += 1;
+        //[self sendScrollEvent:"ScrollWheelLeft" forEvent:event at:cellLoc];
+    //}
+
+    //while (scrollAccumulator.x >= 1) {
+        //scrollAccumulator.x -= 1;
+        //[self sendScrollEvent:"ScrollWheelRight" forEvent:event at:cellLoc];
+    //}
+
+    //while (scrollAccumulator.y <= -1) {
+        //scrollAccumulator.y += 1;
+        //[self sendScrollEvent:"ScrollWheelDown" forEvent:event at:cellLoc];
+    //}
+
+    //while (scrollAccumulator.y >= 1) {
+        //scrollAccumulator.y -= 1;
+        //[self sendScrollEvent:"ScrollWheelUp" forEvent:event at:cellLoc];
+    //}
+}
+
+- (void)sendScrollEvent:(const char *)type
+              forEvent:(NSEvent *)event
+                    at:(NSPoint)cellLoc
+{
+
     std::stringstream ss;
-
-    const char *type;
-         if (y > 0) type = "ScrollWheelUp";
-    else if (y < 0) type = "ScrollWheelDown";
-    else if (x > 0) type = "ScrollWheelRight";
-    else if (x < 0) type = "ScrollWheelLeft";
-    else assert(0);
-
     addModifiedName(ss, event, type);
 
     ss << "<" << cellLoc.x << "," << cellLoc.y << ">";

@@ -41,6 +41,7 @@ void drawBitmapContext(
     );
     assert (image);
 
+    CGContextSetBlendMode(dest, kCGBlendModeCopy);
     CGContextDrawImage(dest, rect, image);
 
     CFRelease(image);
