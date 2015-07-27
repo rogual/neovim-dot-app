@@ -13,8 +13,7 @@
             update_fg,
             update_bg,
             resize,
-            normal_mode,
-            insert_mode,
+            mode_change,
             busy_start,
             busy_stop,
             bell,
@@ -41,8 +40,7 @@ scroll,            RedrawCode::scroll
 update_fg,         RedrawCode::update_fg
 update_bg,         RedrawCode::update_bg
 resize,            RedrawCode::resize
-normal_mode,       RedrawCode::normal_mode
-insert_mode,       RedrawCode::insert_mode
+mode_change,       RedrawCode::mode_change
 busy_start,        RedrawCode::busy_start
 busy_stop,         RedrawCode::busy_stop
 bell,              RedrawCode::bell

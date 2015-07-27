@@ -400,16 +400,10 @@ using msgpack::object;
             break;
         }
 
-        case RedrawCode::normal_mode:
+        case RedrawCode::mode_change:
         {
-            mInsertMode = false;
-            [self setNeedsDisplay:YES];
-            break;
-        }
-
-        case RedrawCode::insert_mode:
-        {
-            mInsertMode = true;
+            std::string mode = argv[0].convert();
+            mInsertMode = (mode == "insert");
             [self setNeedsDisplay:YES];
             break;
         }
