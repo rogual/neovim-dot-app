@@ -7,6 +7,7 @@
 {
     Vim *mVim;
     VimView *mMainView;
+    NSThread *mVimThread;
 }
 
 /* Override this so we can resize by whole cells, just like Terminal.app */
@@ -91,9 +92,8 @@
     [self makeKeyAndOrderFront:NSApp];
     [self setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
 
-    [NSThread detachNewThreadSelector:@selector(vimThread:)
-                             toTarget:self
-                           withObject:nil];
+    mVimThread = [[NSThread alloc] initWithTarget:self selector:@selector(vimThread:) object:nil];
+    [mVimThread start];
 
     return self;
 }
@@ -124,6 +124,7 @@
     }
     else if (note == "neovim.app.nodata") {
         /* The vim client closed our pipe, so it must have exited. */
+        [mVimThread cancel];
         [self close];
     }
     else if (note == "neovim.app.setfont") {
@@ -215,13 +216,16 @@
     assert(![NSThread isMainThread]);
 
     for (;;) {
-        Event event = mVim->wait();
+        if ([[NSThread currentThread] isCancelled])
+            [NSThread exit];
 
+        Event event = mVim->wait();
         /* waitUntilDone needs to be YES here since we're accessing that
            event from the other thread. */
         [self performSelectorOnMainThread:@selector(handleEvent:)
                                withObject:[NSValue valueWithPointer:&event]
                             waitUntilDone:YES];
+
     }
 }
 
