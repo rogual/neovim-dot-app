@@ -25,6 +25,13 @@ class Vim: public Client
             return Client::call("vim_get_current_buffer", args);
         }
 
+        TypedRPC<msgpack::object> vim_get_tabpages()
+        {
+            typedef msgpack::type::tuple<> args_t;
+            args_t args;
+            return Client::call("vim_get_tabpages", args);
+        }
+
         TypedRPC<int> buffer_line_count(Buffer buf)
         {
             typedef msgpack::type::tuple<Buffer> args_t;

@@ -51,7 +51,7 @@ static NSMenu *makeFontMenu()
     sub = [[NSMenu alloc] initWithTitle:@"File"];
     [sub addItemWithTitle:@"New Window" action:@selector(newWindow) keyEquivalent:@"n"];
     [sub addItemWithTitle:@"New Tab" action:@selector(newTab) keyEquivalent:@"t"];
-    [sub addItemWithTitle:@"Close Tab" action:@selector(closeTab) keyEquivalent:@"w"];
+    [sub addItemWithTitle:@"Close" action:@selector(closeTabOrWindow) keyEquivalent:@"w"];
     [sub addItemWithTitle:@"Save Buffer" action:@selector(saveBuffer) keyEquivalent:@"s"];
     mi = [menu addItemWithTitle:@"" action:nil keyEquivalent:@""];
     [mi setSubmenu:sub];
