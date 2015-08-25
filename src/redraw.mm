@@ -281,55 +281,55 @@ using msgpack::object;
         {
             std::map<std::string, msgpack::object> attrs = argv[0].convert();
 
-            NSColor *color;
-            try {
-                unsigned fg = attrs.at("foreground").convert();
-                color = NSColorFromRGB(fg);
-            }
-            catch(...) { color = mForegroundColor; }
-            [mTextAttrs setValue:color forKey:NSForegroundColorAttributeName];
+            NSColor *fgcolor        = mForegroundColor;
+            NSColor *bgcolor        = mBackgroundColor;
+            NSFont  *font           = mFont;
+            bool     bold           = false;
+            bool     italic         = false;
+            bool     underline      = false;
+            bool     undercurl      = false;
+            int      underlineStyle = 0;
 
-            try {
-                unsigned bg = attrs.at("background").convert();
-                color = NSColorFromRGB(bg);
-            }
-            catch(...) { color = mBackgroundColor; }
-            [mTextAttrs setValue:color forKey:NSBackgroundColorAttributeName];
+            mReverseVideo = false;
 
-            bool bold;
-            try {
-                bold = attrs.at("bold").convert();
-            }
-            catch(...) { bold = false; }
+            for(auto iter = attrs.begin(); iter != attrs.end(); ++iter)
+            {
+                std::string attr    = iter->first;
+                msgpack::object val = iter->second;
 
-            bool italic;
-            try {
-                italic = attrs.at("italic").convert();
-            }
-            catch(...) { italic = false; }
+                if (attr == "foreground")
+                    fgcolor = NSColorFromRGB(val.convert());
 
-            NSFont *font;
+                else if (attr == "background")
+                    bgcolor = NSColorFromRGB(val.convert());
+
+                else if (attr == "bold")
+                    bold = val.convert();
+
+                else if (attr == "italic")
+                    italic = val.convert();
+
+                else if (attr == "underline")
+                    underline = val.convert();
+
+                else if (attr == "undercurl")
+                    undercurl = val.convert();
+
+                else if (attr == "reverse")
+                    mReverseVideo = val.convert();
+
+            }
+
+            [mTextAttrs setValue:fgcolor forKey:NSForegroundColorAttributeName];
+            [mTextAttrs setValue:bgcolor forKey:NSBackgroundColorAttributeName];
 
             if (bold && italic) font = mBoldItalicFont;
             else if (bold)      font = mBoldFont;
             else if (italic)    font = mItalicFont;
-            else                font = mFont;
 
             [mTextAttrs setValue:font forKey:NSFontAttributeName];
 
-            bool underline;
-            try {
-                underline = attrs.at("underline").convert();
-            }
-            catch (...) { underline = false; }
 
-            bool undercurl;
-            try {
-                undercurl = attrs.at("undercurl").convert();
-            }
-            catch (...) { undercurl = false; }
-
-            int underlineStyle = 0;
             if (underline && undercurl) underlineStyle = NSUnderlineStyleDouble;
             else if (underline) underlineStyle = NSUnderlineStyleSingle;
             else if (undercurl) underlineStyle =
@@ -337,12 +337,6 @@ using msgpack::object;
 
             [mTextAttrs setValue:[NSNumber numberWithInteger:underlineStyle]
                           forKey:NSUnderlineStyleAttributeName];
-
-            try {
-                mReverseVideo = attrs.at("reverse").convert();
-            }
-            catch (...) { mReverseVideo = false; }
-
             break;
         }
 
