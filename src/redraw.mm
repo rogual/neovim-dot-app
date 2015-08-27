@@ -128,21 +128,18 @@ using msgpack::object;
             lens.push_back(len);
         }
 
-        /* Swap FG & BG colours if necessary */
-        NSMutableDictionary *textAttrs;
-        if (mReverseVideo) {
-            textAttrs = [[[NSMutableDictionary alloc] init] autorelease];
-            [textAttrs setDictionary:mTextAttrs];
-            NSColor *fg = [textAttrs objectForKey:NSForegroundColorAttributeName];
-            NSColor *bg = [textAttrs objectForKey:NSBackgroundColorAttributeName];
-            [textAttrs setObject:fg forKey:NSBackgroundColorAttributeName];
-            [textAttrs setObject:bg forKey:NSForegroundColorAttributeName];
-        }
-        else {
-            textAttrs = mTextAttrs;
-        }
+        NSColor *fg = [mTextAttrs objectForKey:NSForegroundColorAttributeName];
+        NSColor *bg = [mTextAttrs objectForKey:NSBackgroundColorAttributeName];
 
-        NSDate *start = [NSDate date];
+        NSMutableDictionary *textAttrs = [[[NSMutableDictionary alloc] init] autorelease];
+        [textAttrs setDictionary:mTextAttrs];
+        [textAttrs removeObjectForKey:NSBackgroundColorAttributeName];
+
+        // Reverse bg and fg color if necessary
+        if (mReverseVideo) {
+            [textAttrs setObject:bg forKey:NSForegroundColorAttributeName];
+            bg = fg;
+        }
 
         for (int i=0; i<runs.size(); i++) {
             const std::string &run = runs[i];
@@ -151,16 +148,14 @@ using msgpack::object;
             if (sz == 0)
                 continue;
 
-            NSString *nsrun = [NSString stringWithUTF8String:run.c_str()];
+            NSString *nsrun = [NSString stringWithUTF8String: run.c_str()];
 
             // Force left-to-right rendering
             nsrun = [@"\u202d" stringByAppendingString:nsrun];
             nsrun = [nsrun stringByAppendingString:@"\u202c"];
 
-            NSRect cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1);
-            NSRect rect = [self viewRectFromCellRect:cellRect];
-
-            NSColor *bg = [textAttrs objectForKey:NSBackgroundColorAttributeName];
+            NSRect rect = [self
+                viewRectFromCellRect:CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1)];
             [bg set];
             NSRectFill(rect);
 
@@ -169,12 +164,6 @@ using msgpack::object;
             CGContextRestoreGState(mCanvasContext);
 
             mCursorPos.x += sz;
-        }
-
-        double elapsed = [start timeIntervalSinceNow] * -1000.0;
-
-        if (elapsed >= 8) {
-          NSLog(@"Took too long: %f", elapsed);
         }
 
         [self setNeedsDisplay:YES];
@@ -259,12 +248,13 @@ using msgpack::object;
         case RedrawCode::eol_clear:
         {
             NSRect rect;
-            rect.origin.x = mCursorPos.x * mCharSize.width;
-            rect.origin.y = viewFrame.size.height - (mCursorPos.y + 1) * mCharSize.height;
-            rect.size.width = viewFrame.size.width - mCursorPos.x;
-            rect.size.height = mCharSize.height;
+            rect.origin.x = floor(mCursorPos.x * mCharSize.width);
+            rect.origin.y = floor(viewFrame.size.height - (mCursorPos.y + 1) * mCharSize.height);
+            rect.size.width = ceil(viewFrame.size.width - mCursorPos.x);
+            rect.size.height = ceil(mCharSize.height);
+
             [mBackgroundColor set];
-            NSRectFill( rect ) ;
+            NSRectFill(rect);
 
             [self setNeedsDisplay:YES];
             break;
@@ -353,14 +343,14 @@ using msgpack::object;
             CGSize size = bitmapContextSizeInPoints(self, mCanvasContext);
             NSRect totalRect = {CGPointZero, size};
 
-            totalRect.origin.y += amt * mCharSize.height;
+            totalRect.origin.y = floor(totalRect.origin.y + amt * mCharSize.height);
 
             CGContextSaveGState(mCanvasContext);
             CGContextClipToRect(mCanvasContext, dest);
             drawBitmapContext(mCanvasContext, mCanvasContext, totalRect);
             CGContextRestoreGState(mCanvasContext);
 
-            /* Clear the newly-visible lines */
+            // Clear the newly-visible lines
             [mBackgroundColor set];
             if (amt > 0) {
                 dest.size.height = amt * mCharSize.height;

@@ -127,11 +127,7 @@
 - (void)updateCharSize
 {
     mCharSize = [@" " sizeWithAttributes:mTextAttrs];
-    /*
-    mCharSize.height = ceil(
-        [mFont ascender] - [mFont descender] + [mFont leading]
-    );
-    */
+    mCharSize.height = ceil([mFont ascender] - [mFont descender] + [mFont leading]);
 }
 
 - (void)setFont:(NSFont *)font
@@ -368,7 +364,8 @@
 
     /* Difference, which can invert, is only present in the 10.10 SDK, so
        use the ugly cursor if the person compiling doesn't have that SDK.
-       This is all going away anyway once we get a character buffer. */
+       This is all going away anyway once we get a character buffer.*/
+
     #ifdef __MAC_10_10
 
         if (mInsertMode || y + 1 == mYCells)
@@ -432,9 +429,14 @@
     CGFloat sy1 = cellRect.origin.y + cellRect.size.height;
 
     NSRect viewRect;
-    viewRect.origin.x = cellRect.origin.x * mCharSize.width;
-    viewRect.origin.y = [self frame].size.height - sy1 * mCharSize.height;
+    viewRect.origin.x = floor(cellRect.origin.x * mCharSize.width);
+    viewRect.origin.y = floor([self frame].size.height - sy1 * mCharSize.height);
+
     viewRect.size = [self viewSizeFromCellSize:cellRect.size];
+
+    viewRect.size.width = ceil(viewRect.size.width);
+    viewRect.size.height = ceil(viewRect.size.height);
+
     return viewRect;
 }
 
