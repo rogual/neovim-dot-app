@@ -6,9 +6,6 @@
 #import "redraw.h"
 #import "font.h"
 
-extern int g_argc;
-extern char **g_argv;
-
 static VimWindow *activeWindow = 0;
 
 void ignore_sigpipe(void)
@@ -143,18 +140,6 @@ void ignore_sigpipe(void)
     setenv("LANG", ss.str().c_str(), 1);
 
     [self newWindow];
-
-    // Open files given on command-line
-    for (int i=1; i<g_argc; i++) {
-        [activeWindow openFilename:[NSString stringWithUTF8String:g_argv[i]]];
-    }
 }
-
-- (BOOL)application:(NSApplication *)app openFile:(NSString *)filename
-{
-    [activeWindow openFilename:filename];
-    return YES;
-}
-
 
 @end
