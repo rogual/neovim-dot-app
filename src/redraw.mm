@@ -93,13 +93,16 @@ using msgpack::object;
         [bg set];
         NSRectFill(bgrect);
 
+        CGContextSaveGState(mCanvasContext);
+
+        // TODO: Remove when font height formula is corrected (updateCharSize)
+        CGContextClipToRect(mCanvasContext, bgrect);
+
         // Iterate over characters to be drawn
         for (int i = 1; i < item_sz; i++) {
             const object &arglist = item_o.via.array.ptr[i];
 
             assert(arglist.via.array.size == 1);
-            // const object &char_o = arglist.via.array.ptr[0];
-            // const std::string char_s = char_o.convert();
             const std::string char_s = arglist.via.array.ptr[0].convert();
 
             // Do nothing if last char was double width
@@ -117,12 +120,12 @@ using msgpack::object;
             NSPoint point = [self
                 viewPointFromCellPoint:CGPointMake(mCursorPos.x, mCursorPos.y)];
 
-            CGContextSaveGState(mCanvasContext);
             [nsrun drawAtPoint:point withAttributes:textAttrs];
-            CGContextRestoreGState(mCanvasContext);
 
             mCursorPos.x += 1;
         }
+
+        CGContextRestoreGState(mCanvasContext);
 
         [self setNeedsDisplay:YES];
     }
