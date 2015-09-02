@@ -70,67 +70,13 @@ using msgpack::object;
 {
     int item_sz = item_o.via.array.size;
     object *arglists = item_o.via.array.ptr + 1;
-    int narglists = item_sz - 1;
-
 
     if (code == RedrawCode::put) {
-
-        /* This loop is getting a bit messy; feel free to rewrite. But, these
-           lines should render properly and be aligned:
-
-            iiiiiiiiiiiiiiiiiiii|
-            MMMMMMMMMMMMMMMMMMMM|
-            サパラサパサパラサパ|
-            བཔོལག་བཔོལག་བཔོལག་བཔོལག་|
-
-            If we start drawing more than one char at a time, OSX starts
-            mashing the chars together in some scripts. Drawing char by char
-            is slower though, so not ideal.
-        */
-
-        static std::vector<std::string> runs;
-        runs.clear();
-
-        static std::vector<int> lens;
-        lens.clear();
-
-        static std::string run;
-        run.clear();
-
-        int len = 0;
-        for (int i=1; i<item_sz; i++) {
-            const object &arglist = item_o.via.array.ptr[i];
-
-            assert(arglist.via.array.size == 1);
-            const object &char_o = arglist.via.array.ptr[0];
-            std::string char_s = char_o.convert();
-
-            /* Vim gives us empty strings to pad out double-width characters.
-               Don't draw them as spaces (which would erase half the char); just
-               increase len of previous run. */
-            if (char_s.size() == 0) {
-                len += 1;
-                runs.push_back(run);
-                lens.push_back(len);
-                run = char_s;
-                len = 0;
-            }
-            else {
-                runs.push_back(run);
-                lens.push_back(len);
-                run = char_s;
-                len = 1;
-            }
-        }
-
-        if (len) {
-            runs.push_back(run);
-            lens.push_back(len);
-        }
-
+        // Separate Front- and Backend colors
         NSColor *fg = [mTextAttrs objectForKey:NSForegroundColorAttributeName];
         NSColor *bg = [mTextAttrs objectForKey:NSBackgroundColorAttributeName];
 
+        // Remove Background color from text attributes
         NSMutableDictionary *textAttrs = [[[NSMutableDictionary alloc] init] autorelease];
         [textAttrs setDictionary:mTextAttrs];
         [textAttrs removeObjectForKey:NSBackgroundColorAttributeName];
@@ -141,34 +87,46 @@ using msgpack::object;
             bg = fg;
         }
 
-        for (int i=0; i<runs.size(); i++) {
-            const std::string &run = runs[i];
-            int sz = lens[i];
+        // Draw background separately [width = item_sz]
+        NSRect bgrect = [self
+            viewRectFromCellRect:CGRectMake(mCursorPos.x, mCursorPos.y, item_sz - 1, 1)];
+        [bg set];
+        NSRectFill(bgrect);
 
-            if (sz == 0)
-                continue;
+        // Iterate over characters to be drawn
+        for (int i = 1; i < item_sz; i++) {
+            const object &arglist = item_o.via.array.ptr[i];
 
-            NSString *nsrun = [NSString stringWithUTF8String: run.c_str()];
+            assert(arglist.via.array.size == 1);
+            // const object &char_o = arglist.via.array.ptr[0];
+            // const std::string char_s = char_o.convert();
+            const std::string char_s = arglist.via.array.ptr[0].convert();
+
+            // Do nothing if last char was double width
+            if (char_s.size() == 0) {
+              mCursorPos.x += 1;
+              continue;
+            }
+
+            NSString *nsrun = [NSString stringWithUTF8String:char_s.c_str()];
 
             // Force left-to-right rendering
             nsrun = [@"\u202d" stringByAppendingString:nsrun];
             nsrun = [nsrun stringByAppendingString:@"\u202c"];
 
-            NSRect rect = [self
-                viewRectFromCellRect:CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1)];
-            [bg set];
-            NSRectFill(rect);
+            NSPoint point = [self
+                viewPointFromCellPoint:CGPointMake(mCursorPos.x, mCursorPos.y)];
 
             CGContextSaveGState(mCanvasContext);
-            [nsrun drawAtPoint:rect.origin withAttributes:textAttrs];
+            [nsrun drawAtPoint:point withAttributes:textAttrs];
             CGContextRestoreGState(mCanvasContext);
 
-            mCursorPos.x += sz;
+            mCursorPos.x += 1;
         }
 
         [self setNeedsDisplay:YES];
     }
-    else for (int i=0; i<narglists; i++) {
+    else for (int i = 0; i < item_sz - 1; i++) {
         const object &arglist = arglists[i];
         [self doAction:code withArgc:arglist.via.array.size argv:arglist.via.array.ptr];
     }
@@ -249,8 +207,8 @@ using msgpack::object;
         {
             NSRect rect;
             rect.origin.x = floor(mCursorPos.x * mCharSize.width);
-            rect.origin.y = floor(viewFrame.size.height - (mCursorPos.y + 1) * mCharSize.height);
-            rect.size.width = ceil(viewFrame.size.width - mCursorPos.x);
+            rect.origin.y = floor([self frame].size.height - (mCursorPos.y + 1) * mCharSize.height);
+            rect.size.width = ceil([self frame].size.width - mCursorPos.x);
             rect.size.height = ceil(mCharSize.height);
 
             [mBackgroundColor set];

@@ -440,6 +440,16 @@
     return viewRect;
 }
 
+- (NSPoint)viewPointFromCellPoint:(CGPoint)cellPoint
+{
+  NSPoint point;
+
+  point.x = floor(cellPoint.x * mCharSize.width);
+  point.y = floor([self frame].size.height - (cellPoint.y + 1) * mCharSize.height);
+
+  return point;
+}
+
 - (CGSize)viewSizeFromCellSize:(CGSize)cellSize
 {
     return CGSizeMake(
