@@ -7,6 +7,7 @@
 #import "input.h"
 #import "graphics.h"
 #import "vimutils.h"
+#import "menu.h"
 
 @implementation VimView
 
@@ -50,6 +51,8 @@
 
         [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
     }
+
+    [self initMenu];
 
     return self;
 }

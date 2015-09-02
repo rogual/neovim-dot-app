@@ -2,6 +2,8 @@
 
 #import "window.h"
 #import "redraw.h"
+#import "menu.h"
+#import "app.h"
 
 @implementation VimWindow
 {
@@ -36,13 +38,13 @@
 {
     mVim->vim_command("silent! doautoall <nomodeline> FocusGained");
     mVim->vim_command("checktime");
+    [mMainView showMenu];
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification
 {
     mVim->vim_command("silent! doautoall <nomodeline> FocusLost");
 }
-
 
 - (void)copyText { [mMainView copyText]; }
 - (void)cutText { [mMainView cutText]; }
@@ -61,7 +63,6 @@
                 [self close];
         });
 }
-
 
 - (id)init
 {
@@ -124,7 +125,6 @@
     assert([NSThread isMainThread]);
 
     if (note == "redraw") {
-
         /* There must be a better way of finding out when the current buffer
            has changed? Until we figure one out, update title every redraw. */
         [self updateWindowTitle];
@@ -134,6 +134,25 @@
         /* The vim client closed our pipe, so it must have exited. */
         [mVimThread cancel];
         [self close];
+    }
+    else if (note == "neovim.app.menu") {
+        [mMainView customizeMenu:update_o];
+    }
+    else if (note == "neovim.app.window") {
+        AppDelegate *app = (AppDelegate *)[NSApp delegate];
+        [app newWindow];
+    }
+    else if (note == "neovim.app.larger") {
+        [mMainView increaseFontSize];
+    }
+    else if (note == "neovim.app.smaller") {
+        [mMainView decreaseFontSize];
+    }
+    else if (note == "neovim.app.showfonts") {
+        [mMainView showFontSelector];
+    }
+    else if (note == "neovim.app.fullscreen") {
+        [self toggleFullScreen:nil];
     }
     else if (note == "neovim.app.setfont") {
         std::vector<msgpack::object> args = update_o.convert();
