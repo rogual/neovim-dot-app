@@ -9,29 +9,25 @@
 extern int g_argc;
 extern char **g_argv;
 
-const char *vim_argv[] = {"nvim", "--embed", 0};
 
-const char **vim_create_argv()
+const char **vim_create_argv(std::vector<char *> *args=NULL)
 {
-    if (!(isatty (STDIN_FILENO) || isatty (STDOUT_FILENO) || isatty(STDERR_FILENO)))
-        return vim_argv;
+    std::vector<char *> *argv = new std::vector<char *>();
+    argv->push_back(const_cast<char*>("nvim"));
+    argv->push_back(const_cast<char*>("--embed"));
 
-    if (g_argc == 1)
-        return vim_argv;
+    if (args) {
+        for (std::vector<char *>::iterator arg = args->begin(); arg != args->end(); ++arg)
+            argv->push_back(const_cast<char*>(*arg));
+    }
 
-    const char **argv = new const char *[g_argc+2];
-    argv[0] = vim_argv[0];
-    argv[1] = vim_argv[1];
-    for (int x = 2; x-1 < g_argc; x++)
-       argv[x] = g_argv[x-1];
+    argv->push_back(0);
 
-    argv[g_argc+1] = 0;
-
-    return argv;
+    return (const char **)&(*argv)[0];
 }
 
-Vim::Vim(const char *vim_path):
-    process(vim_path, vim_create_argv()),
+Vim::Vim(const char *vim_path, std::vector<char *> *args):
+    process(vim_path, vim_create_argv(args)),
     Client(process)
 {
 }

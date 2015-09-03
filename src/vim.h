@@ -7,7 +7,7 @@
 class Vim: public Client
 {
     public:
-        Vim(const char *vim_path);
+        Vim(const char *vim_path, std::vector<char *> *args);
 
         Event wait();
 

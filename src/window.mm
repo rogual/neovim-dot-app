@@ -66,6 +66,11 @@
 
 - (id)init
 {
+    return [self initWithArgs:NULL];
+}
+
+- (id)initWithArgs:(std::vector<char *> *)args
+{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     int width = [defaults integerForKey:@"width"];
     int height = [defaults integerForKey:@"height"];
@@ -78,7 +83,7 @@
     NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
                                                         ofType:nil];
 
-    mVim = new Vim([vimPath UTF8String]);
+    mVim = new Vim([vimPath UTF8String], args);
     mVim->ui_attach(width, height, true);
 
     mMainView = [[VimView alloc] initWithCellSize:CGSizeMake(width, height)
