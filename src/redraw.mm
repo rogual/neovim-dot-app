@@ -93,12 +93,9 @@ using msgpack::object;
         [bg set];
         NSRectFill(bgrect);
 
-        CGContextSaveGState(mCanvasContext);
+        // Init string
+        NSString *nsrun = @"\u202d";
 
-        // TODO: Remove when font height formula is corrected (updateCharSize)
-        CGContextClipToRect(mCanvasContext, bgrect);
-
-        // Iterate over characters to be drawn
         for (int i = 1; i < item_sz; i++) {
             const object &arglist = item_o.via.array.ptr[i];
 
@@ -107,26 +104,28 @@ using msgpack::object;
 
             // Do nothing if last char was double width
             if (char_s.size() == 0) {
-              mCursorPos.x += 1;
               continue;
             }
 
-            NSString *nsrun = [NSString stringWithUTF8String:char_s.c_str()];
-
-            // Force left-to-right rendering
-            nsrun = [@"\u202d" stringByAppendingString:nsrun];
-            nsrun = [nsrun stringByAppendingString:@"\u202c"];
-
-            NSPoint point = [self
-                viewPointFromCellPoint:CGPointMake(mCursorPos.x, mCursorPos.y)];
-
-            [nsrun drawAtPoint:point withAttributes:textAttrs];
-
-            mCursorPos.x += 1;
+            nsrun = [nsrun stringByAppendingString:
+              [NSString stringWithUTF8String:char_s.c_str()]];
         }
 
-        CGContextRestoreGState(mCanvasContext);
+        // Force left-to-right rendering
+        nsrun = [nsrun stringByAppendingString:@"\u202c"];
 
+        CGContextSaveGState(mCanvasContext);
+        // TODO: Remove when font height formula is corrected (updateCharSize)
+        CGContextClipToRect(mCanvasContext, bgrect);
+
+        NSPoint point = [self
+            viewPointFromCellPoint:CGPointMake(mCursorPos.x, mCursorPos.y)];
+
+        [nsrun drawAtPoint:point withAttributes:textAttrs];
+
+        mCursorPos.x += item_sz - 1;
+
+        CGContextRestoreGState(mCanvasContext);
         [self setNeedsDisplay:YES];
     }
     else for (int i = 0; i < item_sz - 1; i++) {
