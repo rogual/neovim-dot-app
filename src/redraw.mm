@@ -72,6 +72,16 @@ using msgpack::object;
     object *arglists = item_o.via.array.ptr + 1;
 
     if (code == RedrawCode::put) {
+        /*
+        This is the main redraw loop, which draws consecutive characters on one line.
+        The background is drawn separately from the foreground and the text
+        attributes are set in another event.
+        These lines should render properly and be aligned:
+        iiiiiiiiiiiiiiiiiiii|
+        MMMMMMMMMMMMMMMMMMMM|
+        サパラサパサパラサパ|
+        */
+
         // Separate Front- and Backend colors
         NSColor *fg = [mTextAttrs objectForKey:NSForegroundColorAttributeName];
         NSColor *bg = [mTextAttrs objectForKey:NSBackgroundColorAttributeName];
@@ -93,9 +103,15 @@ using msgpack::object;
         [bg set];
         NSRectFill(bgrect);
 
-        // Init string
+        CGContextSaveGState(mCanvasContext);
+
+        // TODO: Remove when font height formula is corrected (updateCharSize)
+        CGContextClipToRect(mCanvasContext, bgrect);
+
+        // Init string (First part of unicode left-to-right force)
         NSString *nsrun = @"\u202d";
 
+        int width = 0;
         for (int i = 1; i < item_sz; i++) {
             const object &arglist = item_o.via.array.ptr[i];
 
@@ -104,26 +120,33 @@ using msgpack::object;
 
             // Do nothing if last char was double width
             if (char_s.size() == 0) {
-              continue;
+                // Force left-to-right rendering (Second part of unicode force)
+                nsrun = [nsrun stringByAppendingString:@"\u202c"];
+
+                NSPoint point = [self
+                    viewPointFromCellPoint:CGPointMake(mCursorPos.x, mCursorPos.y)];
+                [nsrun drawAtPoint:point withAttributes:textAttrs];
+
+                // Width + 1 as it was a double width char
+                mCursorPos.x += width + 1;
+                nsrun = @"\u202d";
+                width = 0;
+                continue;
             }
 
+            width++;
             nsrun = [nsrun stringByAppendingString:
               [NSString stringWithUTF8String:char_s.c_str()]];
         }
 
-        // Force left-to-right rendering
+        // Force left-to-right rendering (Second part of unicode force)
         nsrun = [nsrun stringByAppendingString:@"\u202c"];
-
-        CGContextSaveGState(mCanvasContext);
-        // TODO: Remove when font height formula is corrected (updateCharSize)
-        CGContextClipToRect(mCanvasContext, bgrect);
 
         NSPoint point = [self
             viewPointFromCellPoint:CGPointMake(mCursorPos.x, mCursorPos.y)];
-
         [nsrun drawAtPoint:point withAttributes:textAttrs];
 
-        mCursorPos.x += item_sz - 1;
+        mCursorPos.x += width;
 
         CGContextRestoreGState(mCanvasContext);
         [self setNeedsDisplay:YES];
