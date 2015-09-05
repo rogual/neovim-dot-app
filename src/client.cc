@@ -35,6 +35,7 @@ Event Client::wait()
     > note_t;
 
     int pstdout = process.get_stdout();
+    int pstderr = process.get_stderr();
 
 again:
 
@@ -47,6 +48,9 @@ again:
     while(unpacker.next(&unpacked)) {
 
         msgpack::object item = unpacked.get();
+
+        if (item.type != msgpack::type::ARRAY)
+            continue;
 
         std::vector<msgpack::object> array = item.convert();
 
@@ -107,6 +111,9 @@ again:
 
         if (sz == 0) {
             Event r = {0, std::string("neovim.app.nodata")};
+            char errmsg[2048];
+            if (read(pstderr, &errmsg, sizeof(errmsg)) != -1)
+                std::cerr << errmsg << "\n";
             return r;
         }
 

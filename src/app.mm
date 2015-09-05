@@ -6,8 +6,8 @@
 #import "redraw.h"
 #import "font.h"
 
-extern int g_argc;
 extern char **g_argv;
+extern int g_argc;
 
 static VimWindow *activeWindow = 0;
 
@@ -100,6 +100,11 @@ void ignore_sigpipe(void)
     activeWindow = [[[VimWindow alloc] init] retain];
 }
 
+- (void)newWindowWithArgs:(std::vector<char *> *)args
+{
+    activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
+}
+
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app
 {
     return YES;
@@ -141,19 +146,18 @@ void ignore_sigpipe(void)
     setenv("LC_ALL", ss.str().c_str(), 1);
     setenv("LANG", ss.str().c_str(), 1);
 
-    [self newWindow];
+    /* Check whether Neovim.app was opened via launchd or from terminal */
+    if (!(isatty (STDIN_FILENO) || isatty (STDOUT_FILENO) || isatty(STDERR_FILENO)))
+        [self newWindow];
+    else if (g_argc == 1)
+        [self newWindow];
+    else {
+        std::vector<char *> args;
+        for (int i = 1; i < g_argc ; i++)
+            args.push_back(g_argv[i]);
 
-    // Open files given on command-line
-    for (int i=1; i<g_argc; i++) {
-        [activeWindow openFilename:[NSString stringWithUTF8String:g_argv[i]]];
+        [self newWindowWithArgs:&args];
     }
 }
-
-- (BOOL)application:(NSApplication *)app openFile:(NSString *)filename
-{
-    [activeWindow openFilename:filename];
-    return YES;
-}
-
 
 @end

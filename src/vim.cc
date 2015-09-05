@@ -6,10 +6,28 @@
 
 #include "vim.h"
 
-const char *vim_argv[] = {"nvim", "--embed", 0};
+extern int g_argc;
+extern char **g_argv;
 
-Vim::Vim(const char *vim_path):
-    process(vim_path, vim_argv),
+
+const char **vim_create_argv(std::vector<char *> *args=NULL)
+{
+    std::vector<char *> *argv = new std::vector<char *>();
+    argv->push_back(const_cast<char*>("nvim"));
+    argv->push_back(const_cast<char*>("--embed"));
+
+    if (args) {
+        for (std::vector<char *>::iterator arg = args->begin(); arg != args->end(); ++arg)
+            argv->push_back(const_cast<char*>(*arg));
+    }
+
+    argv->push_back(0);
+
+    return (const char **)&(*argv)[0];
+}
+
+Vim::Vim(const char *vim_path, std::vector<char *> *args):
+    process(vim_path, vim_create_argv(args)),
     Client(process)
 {
 }

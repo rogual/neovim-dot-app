@@ -54,8 +54,22 @@
 - (void)nextTab { mVim->vim_command("tabnext"); }
 - (void)prevTab { mVim->vim_command("tabprev"); }
 - (void)saveBuffer { mVim->vim_command("write"); }
+- (void)closeTabOrWindow
+{ 
+    mVim->vim_get_tabpages().then([self](msgpack::object o) {
+            if (o.via.array.size > 1)
+                mVim->vim_command("tabclose"); 
+            else
+                [self close];
+        });
+}
 
 - (id)init
+{
+    return [self initWithArgs:NULL];
+}
+
+- (id)initWithArgs:(std::vector<char *> *)args
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     int width = [defaults integerForKey:@"width"];
@@ -69,7 +83,7 @@
     NSString *vimPath = [[NSBundle mainBundle] pathForResource:@"nvim"
                                                         ofType:nil];
 
-    mVim = new Vim([vimPath UTF8String]);
+    mVim = new Vim([vimPath UTF8String], args);
     mVim->ui_attach(width, height, true);
 
     mMainView = [[VimView alloc] initWithCellSize:CGSizeMake(width, height)
