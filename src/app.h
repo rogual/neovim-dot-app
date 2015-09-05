@@ -3,6 +3,6 @@
 @interface AppDelegate : NSResponder <NSApplicationDelegate> {}
 
 - (void) newWindow;
-- (void) newWindowWithArgs:(std::vector<char *> *)args;
+- (void) newWindowWithArgs:(const std::vector<char *> &)args;
 
 @end

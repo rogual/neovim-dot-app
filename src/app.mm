@@ -100,7 +100,7 @@ void ignore_sigpipe(void)
     activeWindow = [[[VimWindow alloc] init] retain];
 }
 
-- (void)newWindowWithArgs:(std::vector<char *> *)args
+- (void)newWindowWithArgs:(const std::vector<char *> &)args
 {
     activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
 }
@@ -146,18 +146,14 @@ void ignore_sigpipe(void)
     setenv("LC_ALL", ss.str().c_str(), 1);
     setenv("LANG", ss.str().c_str(), 1);
 
-    /* Check whether Neovim.app was opened via launchd or from terminal */
-    if (!(isatty (STDIN_FILENO) || isatty (STDOUT_FILENO) || isatty(STDERR_FILENO)))
-        [self newWindow];
-    else if (g_argc == 1)
-        [self newWindow];
-    else {
-        std::vector<char *> args;
-        for (int i = 1; i < g_argc ; i++)
-            args.push_back(g_argv[i]);
-
-        [self newWindowWithArgs:&args];
+    /* Pass args on to Neovim. OSX will helpfully add a -psn_XXX arg
+       which Neovim would choke on, so strip it out. */
+    std::vector<char *> args;
+    for (int i = 1; i < g_argc ; i++) {
+      if (strncmp("-psn_", g_argv[i], 5))
+        args.push_back(g_argv[i]);
     }
+    [self newWindowWithArgs:args];
 }
 
 @end

@@ -66,10 +66,11 @@
 
 - (id)init
 {
-    return [self initWithArgs:NULL];
+    std::vector<char *> no_args;
+    return [self initWithArgs:no_args];
 }
 
-- (id)initWithArgs:(std::vector<char *> *)args
+- (id)initWithArgs:(const std::vector<char *> &)args
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     int width = [defaults integerForKey:@"width"];

@@ -10,23 +10,21 @@ extern int g_argc;
 extern char **g_argv;
 
 
-const char **vim_create_argv(std::vector<char *> *args=NULL)
+const char **vim_create_argv(const std::vector<char *> &args)
 {
     std::vector<char *> *argv = new std::vector<char *>();
     argv->push_back(const_cast<char*>("nvim"));
     argv->push_back(const_cast<char*>("--embed"));
 
-    if (args) {
-        for (std::vector<char *>::iterator arg = args->begin(); arg != args->end(); ++arg)
-            argv->push_back(const_cast<char*>(*arg));
-    }
+    for (auto arg: args)
+      argv->push_back(const_cast<char*>(arg));
 
     argv->push_back(0);
 
     return (const char **)&(*argv)[0];
 }
 
-Vim::Vim(const char *vim_path, std::vector<char *> *args):
+Vim::Vim(const char *vim_path, const std::vector<char *> &args):
     process(vim_path, vim_create_argv(args)),
     Client(process)
 {
