@@ -34,8 +34,6 @@
             nil
         ] retain];
 
-        [[NSFontManager sharedFontManager] setDelegate:self];
-
         /* Load font from saved settings */
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         NSString *fontName = [defaults stringForKey:@"fontName"];
