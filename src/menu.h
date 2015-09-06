@@ -8,4 +8,7 @@
     - (void) increaseFontSize;
     - (void) decreaseFontSize;
     - (void) showFontSelector;
+
+    - (NSArray *) showFileOpenDialog;
+    - (NSURL *) showFileSaveDialog;
 @end

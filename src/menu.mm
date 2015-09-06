@@ -157,6 +157,31 @@ NSString *menuPath(NSMenuItem *item) {
     [self executeMenuItem:[mFontMenu itemWithTitle:@"Show Fonts"]];
 }
 
+- (NSArray *) showFileOpenDialog 
+{
+    NSOpenPanel *openDlg = [NSOpenPanel openPanel];
+    [openDlg setCanChooseFiles:YES];
+    [openDlg setCanChooseDirectories:YES];
+    [openDlg setPrompt:@"Open"];
+    [openDlg setAllowsMultipleSelection:YES];
+
+    if ([openDlg runModal] == NSFileHandlingPanelOKButton) 
+        return [openDlg URLs];
+
+    return nil;
+}
+
+- (NSURL *) showFileSaveDialog
+{
+    NSSavePanel *saveDlg = [NSSavePanel savePanel];
+    [saveDlg setPrompt:@"Save"];
+
+    if ([saveDlg runModal] == NSFileHandlingPanelOKButton) 
+        return [saveDlg URL];
+
+    return nil;
+}
+
 - (void) createMenuFromVimString:(const std::string &)string {
 
     static int g_counter = 0;

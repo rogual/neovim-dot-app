@@ -32,6 +32,22 @@ function! MacNewWindow()
     call rpcnotify(1, "neovim.app.window")
 endfunction
 
+function! MacOpenFile()
+    call rpcnotify(1, "neovim.app.openFile")
+endfunction
+
+function! MacSaveFile()
+    if expand("%:p") == ""
+        call rpcnotify(1, "neovim.app.saveFile")
+    else
+        write
+    endif
+endfunction
+
+function! MacSaveAsFile()
+    call rpcnotify(1, "neovim.app.saveAsFile")
+endfunction
+
 function! MacCloseTabOrWindow()
     try
         tabclose
@@ -61,6 +77,12 @@ anoremenu &Edit.Increase\ Font\ Size :call MacIncreaseFontSize()<CR>
 anoremenu &Edit.Decrease\ Font\ Size :call MacDecreaseFontSize()<CR>
 anoremenu &Edit.Show\ Fonts :call MacShowFontSelector()<CR>
 
+" Add open/save controls
+anoremenu .220 &File.Open :call MacOpenFile()<CR>
+anoremenu .220 &File.Save :call MacSaveFile()<CR>
+anoremenu .350 &File.Save\ As :call MacSaveAsFile()<CR>
+
+
 " Add Mac tab controls
 anoremenu .310 &File.New\ Window :call MacNewWindow()<CR>
 anoremenu .336 &Window.New\ Tab :tabnew<CR>
@@ -77,7 +99,8 @@ anoremenu .900 &Window.Toggle\ Full\ Screen :call MacToggleFullScreen()<CR>
 " Assign Cmd-key shortcuts
 call MacMenu("File.New Window", "T-n")
 call MacMenu("File.Save", "T-s")
-call MacMenu("File.Open...", "T-o")
+call MacMenu("File.Save As", "T-S-s")
+call MacMenu("File.Open", "T-o")
 call MacMenu("File.Print", "T-p")
 
 call MacMenu("Edit.Undo", "T-z")
