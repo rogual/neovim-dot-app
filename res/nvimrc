@@ -40,6 +40,10 @@ function! MacCloseTabOrWindow()
     endtry
 endfunction
 
+function! NeovimAppBufChanged()
+    call rpcnotify(1, "neovim.app.bufchanged", &modified)
+endfunction
+
 " First, load the default menus
 runtime menu.vim
 
@@ -97,3 +101,5 @@ call MacMenu("Window.Close Other Tabs", "T-S-w")
 
 call MacMenu("Window.Toggle Full Screen", "T-f")
 
+" Update modified status on all events that could cause a change
+autocmd TextChanged,BufWritePost,InsertLeave,BufEnter,BufLeave * call NeovimAppBufChanged()

@@ -189,6 +189,10 @@
             mVim->vim_report_error(msg);
         }
     }
+    else if (note ==  "neovim.app.bufchanged") {
+        int isModified = update_o.via.array.ptr[0].convert();
+        [self setDocumentEdited:isModified?YES:NO];
+    }
     else {
         std::cout << "Unknown note " << note << "\n";
     }
