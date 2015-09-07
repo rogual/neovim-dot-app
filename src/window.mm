@@ -169,7 +169,7 @@
         if (file != nil)
         {
             std::stringstream cmd;
-            cmd << "w " << [[file path] UTF8String];
+            cmd << "w " << [self escapeVimCharsInString:[[file path] UTF8String]];
             mVim->vim_command(cmd.str());
         }
     }
@@ -178,7 +178,7 @@
         if (file != nil)
         {
             std::stringstream cmd;
-            cmd << "sav " << [[file path] UTF8String];
+            cmd << "sav " << [self escapeVimCharsInString:[[file path] UTF8String]];
             mVim->vim_command(cmd.str());
         }
     }
@@ -226,6 +226,19 @@
     else {
         std::cout << "Unknown note " << note << "\n";
     }
+}
+
+/* Escapes characters that vim uses in command mode.  */
+- (std::string) escapeVimCharsInString:(std::string) str
+{
+    std::stringstream escapedStr;
+    for (auto c : str)
+    {
+        if (strchr("\" `#%*[{}]\\|", c))
+            escapedStr << "\\";
+        escapedStr << c;
+    }
+    return escapedStr.str();
 }
 
 /* Set the window's title and “represented file” icon. */
