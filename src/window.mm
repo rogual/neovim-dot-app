@@ -148,6 +148,40 @@
         AppDelegate *app = (AppDelegate *)[NSApp delegate];
         [app newWindow];
     }
+    else if (note == "neovim.app.openFile") {
+        NSArray *files = [mMainView showFileOpenDialog];
+        if (files != nil) {
+            std::vector<char *> args;
+
+            /* open in tabs if more than one file was selected */
+            if ([files count] > 1)
+                args.push_back(const_cast<char *>("-p"));
+
+            for (NSURL *url in files) 
+                args.push_back(const_cast<char *>([[url path] UTF8String]));
+
+            AppDelegate *app = (AppDelegate *)[NSApp delegate];
+            [app newWindowWithArgs:args];
+        }
+    }
+    else if (note == "neovim.app.saveFile") {
+        NSURL *file = [mMainView showFileSaveDialog];
+        if (file != nil)
+        {
+            std::stringstream cmd;
+            cmd << "w " << [self escapeVimCharsInString:[[file path] UTF8String]];
+            mVim->vim_command(cmd.str());
+        }
+    }
+    else if (note == "neovim.app.saveAsFile") {
+        NSURL *file = [mMainView showFileSaveDialog];
+        if (file != nil)
+        {
+            std::stringstream cmd;
+            cmd << "sav " << [self escapeVimCharsInString:[[file path] UTF8String]];
+            mVim->vim_command(cmd.str());
+        }
+    }
     else if (note == "neovim.app.larger") {
         [mMainView increaseFontSize];
     }
@@ -196,6 +230,19 @@
     else {
         std::cout << "Unknown note " << note << "\n";
     }
+}
+
+/* Escapes characters that vim uses in command mode.  */
+- (std::string) escapeVimCharsInString:(std::string) str
+{
+    std::stringstream escapedStr;
+    for (auto c : str)
+    {
+        if (strchr("\" `#%*[{}]\\|", c))
+            escapedStr << "\\";
+        escapedStr << c;
+    }
+    return escapedStr.str();
 }
 
 /* Set the window's title and “represented file” icon. */
