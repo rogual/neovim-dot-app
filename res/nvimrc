@@ -78,9 +78,9 @@ anoremenu &Edit.Decrease\ Font\ Size :call MacDecreaseFontSize()<CR>
 anoremenu &Edit.Show\ Fonts :call MacShowFontSelector()<CR>
 
 " Add open/save controls
-anoremenu .220 &File.Open :call MacOpenFile()<CR>
+anoremenu .220 &File.Open… :call MacOpenFile()<CR>
 anoremenu .220 &File.Save :call MacSaveFile()<CR>
-anoremenu .350 &File.Save\ As :call MacSaveAsFile()<CR>
+anoremenu .350 &File.Save\ As… :call MacSaveAsFile()<CR>
 
 
 " Add Mac tab controls
@@ -99,8 +99,8 @@ anoremenu .900 &Window.Toggle\ Full\ Screen :call MacToggleFullScreen()<CR>
 " Assign Cmd-key shortcuts
 call MacMenu("File.New Window", "T-n")
 call MacMenu("File.Save", "T-s")
-call MacMenu("File.Save As", "T-S-s")
-call MacMenu("File.Open", "T-o")
+call MacMenu("File.Save As…", "T-S-s")
+call MacMenu("File.Open…", "T-o")
 call MacMenu("File.Print", "T-p")
 
 call MacMenu("Edit.Undo", "T-z")
