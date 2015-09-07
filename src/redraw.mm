@@ -77,123 +77,88 @@ using msgpack::object;
 {
     int item_sz = item_o.via.array.size;
     object *arglists = item_o.via.array.ptr + 1;
-    int narglists = item_sz - 1;
-
 
     if (code == RedrawCode::put) {
-
-        /* This loop is getting a bit messy; feel free to rewrite. But, these
-           lines should render properly and be aligned:
-
-            iiiiiiiiiiiiiiiiiiii|
-            MMMMMMMMMMMMMMMMMMMM|
-            サパラサパサパラサパ|
-            བཔོལག་བཔོལག་བཔོལག་བཔོལག་|
-
-            If we start drawing more than one char at a time, OSX starts
-            mashing the chars together in some scripts. Drawing char by char
-            is slower though, so not ideal.
+        /*
+        This is the main redraw loop, which draws consecutive characters on one line.
+        The background is drawn separately from the foreground and the text
+        attributes are set in another event.
+        These lines should render properly and be aligned:
+        iiiiiiiiiiiiiiiiiiii|
+        MMMMMMMMMMMMMMMMMMMM|
+        サパラサパサパラサパ|
         */
 
-        static std::vector<std::string> runs;
-        runs.clear();
+        // Separate Front- and Backend colors
+        NSColor *fg = [mTextAttrs objectForKey:NSForegroundColorAttributeName];
+        NSColor *bg = [mTextAttrs objectForKey:NSBackgroundColorAttributeName];
 
-        static std::vector<int> lens;
-        lens.clear();
+        // Remove Background color from text attributes
+        NSMutableDictionary *textAttrs = [[[NSMutableDictionary alloc] init] autorelease];
+        [textAttrs setDictionary:mTextAttrs];
+        [textAttrs removeObjectForKey:NSBackgroundColorAttributeName];
 
-        static std::string run;
-        run.clear();
+        // Reverse bg and fg color if necessary
+        if (mReverseVideo) {
+            [textAttrs setObject:bg forKey:NSForegroundColorAttributeName];
+            bg = fg;
+        }
 
-        int len = 0;
-        for (int i=1; i<item_sz; i++) {
+        // Draw background separately [width = item_sz]
+        NSRect bgrect = [self
+            viewRectFromCellRect:CGRectMake(mCursorPos.x, mCursorPos.y, item_sz - 1, 1)];
+        [bg set];
+        NSRectFill(bgrect);
+
+        CGContextSaveGState(mCanvasContext);
+
+        // TODO: Remove when font height formula is corrected (updateCharSize)
+        CGContextClipToRect(mCanvasContext, bgrect);
+
+        // Init string (First part of unicode left-to-right force)
+        NSString *nsrun = @"\u202d";
+
+        int width = 0;
+        for (int i = 1; i < item_sz; i++) {
             const object &arglist = item_o.via.array.ptr[i];
 
             assert(arglist.via.array.size == 1);
-            const object &char_o = arglist.via.array.ptr[0];
-            std::string char_s = char_o.convert();
+            const std::string char_s = arglist.via.array.ptr[0].convert();
 
-            /* Vim gives us empty strings to pad out double-width characters.
-               Don't draw them as spaces (which would erase half the char); just
-               increase len of previous run. */
+            // Do nothing if last char was double width
             if (char_s.size() == 0) {
-                len += 1;
-                runs.push_back(run);
-                lens.push_back(len);
-                run = char_s;
-                len = 0;
-            }
-            else {
-                runs.push_back(run);
-                lens.push_back(len);
-                run = char_s;
-                len = 1;
-            }
-        }
+                // Force left-to-right rendering (Second part of unicode force)
+                nsrun = [nsrun stringByAppendingString:@"\u202c"];
 
-        if (len) {
-            runs.push_back(run);
-            lens.push_back(len);
-        }
+                NSPoint point = [self
+                    viewPointFromCellPoint:CGPointMake(mCursorPos.x, mCursorPos.y)];
+                [nsrun drawAtPoint:point withAttributes:textAttrs];
 
-        /* Swap FG & BG colours if necessary */
-        NSMutableDictionary *textAttrs;
-        if (mReverseVideo) {
-            textAttrs = [[[NSMutableDictionary alloc] init] autorelease];
-            [textAttrs setDictionary:mTextAttrs];
-            NSColor *fg = [textAttrs objectForKey:NSForegroundColorAttributeName];
-            NSColor *bg = [textAttrs objectForKey:NSBackgroundColorAttributeName];
-            [textAttrs setObject:fg forKey:NSBackgroundColorAttributeName];
-            [textAttrs setObject:bg forKey:NSForegroundColorAttributeName];
-        }
-        else {
-            textAttrs = mTextAttrs;
-        }
-
-        for (int i=0; i<runs.size(); i++) {
-            const std::string &run = runs[i];
-            int sz = lens[i];
-
-            if (sz == 0)
+                // Width + 1 as it was a double width char
+                mCursorPos.x += width + 1;
+                nsrun = @"\u202d";
+                width = 0;
                 continue;
+            }
 
-            NSString *nsrun = [NSString stringWithUTF8String:run.c_str()];
-
-            // Force left-to-right rendering
-            nsrun = [@"\u202d" stringByAppendingString:nsrun];
-            nsrun = [nsrun stringByAppendingString:@"\u202c"];
-
-            NSRect cellRect = CGRectMake(mCursorPos.x, mCursorPos.y, sz, 1);
-            NSRect rect = [self viewRectFromCellRect:cellRect];
-
-            /* Maybe there is some combination of options for either drawAtPoint,
-            drawInRect, or drawWithRect, that makes Cocoa draw some text in a
-            fucking rectangle, but I couldn't figure it out. The background is
-            always too tall or too short. Solution:
-
-            - Draw our own background for fonts like Monaco that come up short
-            - Use a clipping rect for fonts like Droid Sans that draw way too
-                high */
-
-            NSColor *bg = [textAttrs objectForKey:NSBackgroundColorAttributeName];
-            [bg set];
-            NSRectFill(rect);
-
-            CGPoint origin = rect.origin;
-            float r = rect.origin.x + rect.size.width;
-            rect.origin.x = floor(rect.origin.x);
-            rect.size.width = ceil(r - rect.origin.x);
-
-            CGContextSaveGState(mCanvasContext);
-            CGContextClipToRect(mCanvasContext, rect);
-            [nsrun drawAtPoint:origin withAttributes:textAttrs];
-            CGContextRestoreGState(mCanvasContext);
-
-            mCursorPos.x += sz;
+            width++;
+            nsrun = [nsrun stringByAppendingString:
+              [NSString stringWithUTF8String:char_s.c_str()]];
         }
 
+        // Force left-to-right rendering (Second part of unicode force)
+        nsrun = [nsrun stringByAppendingString:@"\u202c"];
+
+        NSPoint point = [self
+            viewPointFromCellPoint:CGPointMake(mCursorPos.x, mCursorPos.y)];
+        [nsrun drawAtPoint:point withAttributes:textAttrs];
+
+        mCursorPos.x += width;
+
+        CGContextRestoreGState(mCanvasContext);
         [self setNeedsDisplay:YES];
     }
-    else for (int i=0; i<narglists; i++) {
+    else for (int i = 0; i < item_sz - 1; i++) {
         const object &arglist = arglists[i];
         [self doAction:code withArgc:arglist.via.array.size argv:arglist.via.array.ptr];
     }
@@ -279,12 +244,13 @@ using msgpack::object;
         case RedrawCode::eol_clear:
         {
             NSRect rect;
-            rect.origin.x = mCursorPos.x * mCharSize.width;
-            rect.origin.y = viewFrame.size.height - (mCursorPos.y + 1) * mCharSize.height;
-            rect.size.width = viewFrame.size.width - mCursorPos.x;
-            rect.size.height = mCharSize.height;
+            rect.origin.x = floor(mCursorPos.x * mCharSize.width);
+            rect.origin.y = floor([self frame].size.height - (mCursorPos.y + 1) * mCharSize.height);
+            rect.size.width = ceil([self frame].size.width - mCursorPos.x);
+            rect.size.height = ceil(mCharSize.height);
+
             [mBackgroundColor set];
-            NSRectFill( rect ) ;
+            NSRectFill(rect);
 
             [self setNeedsDisplay:YES];
             break;
@@ -373,14 +339,14 @@ using msgpack::object;
             CGSize size = bitmapContextSizeInPoints(self, mCanvasContext);
             NSRect totalRect = {CGPointZero, size};
 
-            totalRect.origin.y += amt * mCharSize.height;
+            totalRect.origin.y = floor(totalRect.origin.y + amt * mCharSize.height);
 
             CGContextSaveGState(mCanvasContext);
             CGContextClipToRect(mCanvasContext, dest);
             drawBitmapContext(mCanvasContext, mCanvasContext, totalRect);
             CGContextRestoreGState(mCanvasContext);
 
-            /* Clear the newly-visible lines */
+            // Clear the newly-visible lines
             [mBackgroundColor set];
             if (amt > 0) {
                 dest.size.height = amt * mCharSize.height;
