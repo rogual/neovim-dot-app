@@ -55,10 +55,10 @@
 - (void)prevTab { mVim->vim_command("tabprev"); }
 - (void)saveBuffer { mVim->vim_command("write"); }
 - (void)closeTabOrWindow
-{ 
+{
     mVim->vim_get_tabpages().then([self](msgpack::object o) {
             if (o.via.array.size > 1)
-                mVim->vim_command("tabclose"); 
+                mVim->vim_command("tabclose");
             else
                 [self close];
         });
@@ -131,10 +131,10 @@
     assert([NSThread isMainThread]);
 
     if (note == "redraw") {
-        /* There must be a better way of finding out when the current buffer
-           has changed? Until we figure one out, update title every redraw. */
-        [self updateWindowTitle];
         [mMainView redraw:update_o];
+    }
+    else if (note == "neovim.app.bufenter") {
+        [self updateWindowTitle];
     }
     else if (note == "neovim.app.nodata") {
         /* The vim client closed our pipe, so it must have exited. */
@@ -157,7 +157,7 @@
             if ([files count] > 1)
                 args.push_back(const_cast<char *>("-p"));
 
-            for (NSURL *url in files) 
+            for (NSURL *url in files)
                 args.push_back(const_cast<char *>([[url path] UTF8String]));
 
             AppDelegate *app = (AppDelegate *)[NSApp delegate];
@@ -289,7 +289,7 @@
 }
 
 
-/* Vim thread. Waits for events from Vim, and schedules them to be handled on 
+/* Vim thread. Waits for events from Vim, and schedules them to be handled on
    the main thread. */
 - (void)vimThread:(id)unused
 {
