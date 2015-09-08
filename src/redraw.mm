@@ -235,16 +235,11 @@ using msgpack::object;
             if (nsTitle.length == 0) {
                 [mWindow setTitle:@"Untitled"];
                 [mWindow setRepresentedFilename:@""];
-                return;
+            } else {
+                [mWindow setTitleWithRepresentedFilename:nsTitle];
             }
 
-            if ([[NSFileManager defaultManager] fileExistsAtPath:nsTitle]) {
-                [mWindow setTitleWithRepresentedFilename:nsTitle];
-            }
-            else {
-                [mWindow setTitleWithRepresentedFilename:nsTitle];
-                [mWindow setRepresentedFilename:@""];
-            }
+            break;
         }
 
         case RedrawCode::clear:
