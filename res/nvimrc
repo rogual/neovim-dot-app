@@ -1,7 +1,8 @@
 set mouse=a
 
-" Send BufEnter event for changing the title appropriately
-autocmd BufEnter * call rpcnotify(1, "neovim.app.bufenter")
+" Enable setting the title
+set title
+set titlestring=%F
 
 " Some vim users are used to pressing Ctrl+6 to go to the alternate file, but
 " this only ever worked because terminals don't distinguish it from Ctrl+^.
@@ -122,4 +123,3 @@ call MacMenu("Window.Close Tab", "T-w")
 call MacMenu("Window.Close Other Tabs", "T-S-w")
 
 call MacMenu("Window.Toggle Full Screen", "T-f")
-

@@ -226,6 +226,27 @@ using msgpack::object;
             break;
         }
 
+        case RedrawCode::set_title:
+        {
+            const std::string title = argv[0].convert();
+            NSString *nsTitle = [NSString stringWithUTF8String:title.c_str()];
+
+            // Set the window's title and “represented file” icon.
+            if (nsTitle.length == 0) {
+                [mWindow setTitle:@"Untitled"];
+                [mWindow setRepresentedFilename:@""];
+                return;
+            }
+
+            if ([[NSFileManager defaultManager] fileExistsAtPath:nsTitle]) {
+                [mWindow setTitleWithRepresentedFilename:nsTitle];
+            }
+            else {
+                [mWindow setTitleWithRepresentedFilename:nsTitle];
+                [mWindow setRepresentedFilename:@""];
+            }
+        }
+
         case RedrawCode::clear:
         {
             mCursorPos.x = 0;
@@ -392,6 +413,7 @@ using msgpack::object;
         case RedrawCode::mouse_off:
         case RedrawCode::busy_start:
         case RedrawCode::busy_stop:
+        case RedrawCode::set_icon:
             break;
 
         default:

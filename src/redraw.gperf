@@ -6,6 +6,8 @@
             put,
             cursor_goto,
             update_menu,
+            set_title,
+            set_icon,
             clear,
             eol_clear,
             highlight_set,
@@ -34,6 +36,8 @@ struct RedrawAction
 put,               RedrawCode::put
 cursor_goto,       RedrawCode::cursor_goto
 update_menu,       RedrawCode::update_menu
+set_title,         RedrawCode::set_title
+set_icon,          RedrawCode::set_icon
 clear,             RedrawCode::clear
 eol_clear,         RedrawCode::eol_clear
 highlight_set,     RedrawCode::highlight_set
