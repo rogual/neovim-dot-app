@@ -133,6 +133,9 @@
     if (note == "redraw") {
         [mMainView redraw:update_o];
     }
+    else if (note == "neovim.app.bufenter") {
+        [self updateWindowTitle];
+    }
     else if (note == "neovim.app.nodata") {
         /* The vim client closed our pipe, so it must have exited. */
         [mVimThread cancel];
@@ -237,6 +240,32 @@
     }
     return escapedStr.str();
 }
+
+/* Set the window's title and “represented file” icon. */
+- (void)updateWindowTitle
+{
+    mVim->vim_get_current_buffer().then([self](Buffer buf) {
+        mVim->buffer_get_name(buf).then([self](std::string bufname) {
+            if (bufname.empty()) {
+                [self setTitle:@"Untitled"];
+                [self setRepresentedFilename:@""];
+                return;
+            }
+
+            NSString *nsBufname =
+                [NSString stringWithUTF8String:bufname.c_str()];
+
+            if ([[NSFileManager defaultManager] fileExistsAtPath:nsBufname]) {
+                [self setTitleWithRepresentedFilename:nsBufname];
+            }
+            else {
+                [self setTitleWithRepresentedFilename:nsBufname];
+                [self setRepresentedFilename:@""];
+            }
+        });
+    });
+}
+
 
 /* A selector to this method is posted to the main runloop in order to handle
    an event from Vim on the main thread. */

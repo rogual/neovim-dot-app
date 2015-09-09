@@ -11,8 +11,6 @@ class Vim;
     CGContextRef mCanvasContext;
     CGColorSpaceRef mColorSpace;
 
-    NSWindow *mWindow;
-
     int mXCells;
     int mYCells;
     bool mInsertMode;

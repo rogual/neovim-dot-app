@@ -11,11 +11,6 @@
 
 @implementation VimView
 
-- (void)viewWillMoveToWindow:(NSWindow *)newWindow
-{
-  mWindow = newWindow;
-}
-
 - (id)initWithFrame:(NSRect)frame vim:(Vim *)vim
 {
     if (self = [super initWithFrame:frame]) {
