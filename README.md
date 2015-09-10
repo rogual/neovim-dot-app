@@ -36,6 +36,7 @@ Pull requests are welcome, and greatly appreciated!
 ### Install via Homebrew
 
 ```bash
+$ brew tap neovim/homebrew-neovim # neovim-dot-app depends on a neovim package
 $ brew tap rogual/neovim-dot-app
 $ brew install --HEAD neovim-dot-app
 ```
