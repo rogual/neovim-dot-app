@@ -156,4 +156,12 @@ void ignore_sigpipe(void)
     [self newWindowWithArgs:args];
 }
 
+- (BOOL)application:(NSApplication *)app openFile:(NSString *)filename
+{
+    std::vector<char *> args;
+    args.push_back(const_cast<char *>([filename UTF8String]));
+    activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
+    return YES;
+}
+
 @end
