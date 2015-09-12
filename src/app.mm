@@ -27,8 +27,6 @@ void ignore_sigpipe(void)
 
 @implementation AppDelegate
 
-
-
 - (NSDictionary *)environmentFromLoginShell:(NSString *)shellPath
 {
     if (!shellPath.length) {
@@ -148,6 +146,8 @@ void ignore_sigpipe(void)
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
+    didFinishLaunching = NO;
+
     [NSFontManager setFontManagerFactory:[VimFontManager class]];
     [self ensureFixedWidthCollection];
 
@@ -187,22 +187,42 @@ void ignore_sigpipe(void)
        working directory is set to "/". Change to the user's home directory. */
     if (getppid() == 1)
         chdir(getenv("HOME"));
+}
 
+- (void)applicationDidFinishLaunching:(NSNotification *)notification
+{
     /* Pass args on to Neovim. OSX will helpfully add a -psn_XXX arg
        which Neovim would choke on, so strip it out. */
     std::vector<char *> args;
+
+    if (initOpenFile != NULL) {
+      args.push_back(const_cast<char *>([initOpenFile UTF8String]));
+    }
+
     for (int i = 1; i < g_argc ; i++) {
-      if (strncmp("-psn_", g_argv[i], 5))
-        args.push_back(g_argv[i]);
+        if (strncmp("-psn_", g_argv[i], 5))
+            args.push_back(g_argv[i]);
     }
     [self newWindowWithArgs:args];
+
+    didFinishLaunching = YES;
 }
 
+/* OSX calls this when the user opens a file with us through Finder. But, that
+   alone would be too easy, so it ALSO parses our command line arguments for
+   us, decides what it thinks is a filename, and calls this for those too.
+   Hence the initOpenFile and didFinishLaunching dance. */
 - (BOOL)application:(NSApplication *)app openFile:(NSString *)filename
 {
-    std::vector<char *> args;
-    args.push_back(const_cast<char *>([filename UTF8String]));
-    activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
+    if (didFinishLaunching) {
+        std::vector<char *> args;
+        args.push_back(const_cast<char *>([filename UTF8String]));
+        activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
+    }
+    else {
+        initOpenFile = filename;
+        [initOpenFile retain];
+    }
     return YES;
 }
 
