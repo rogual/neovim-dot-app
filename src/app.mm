@@ -112,6 +112,8 @@ void ignore_sigpipe(void)
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
+    didFinishLaunching = NO;
+
     [NSFontManager setFontManagerFactory:[VimFontManager class]];
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -145,22 +147,38 @@ void ignore_sigpipe(void)
     ss << ".UTF-8";
     setenv("LC_ALL", ss.str().c_str(), 1);
     setenv("LANG", ss.str().c_str(), 1);
+}
 
+- (void)applicationDidFinishLaunching:(NSNotification *)notification
+{
     /* Pass args on to Neovim. OSX will helpfully add a -psn_XXX arg
        which Neovim would choke on, so strip it out. */
     std::vector<char *> args;
-    for (int i = 1; i < g_argc ; i++) {
-      if (strncmp("-psn_", g_argv[i], 5))
-        args.push_back(g_argv[i]);
+
+    if (initOpenFile != NULL) {
+        args.push_back(const_cast<char *>([initOpenFile UTF8String]));
     }
+
+    for (int i = 1; i < g_argc ; i++) {
+        if (strncmp("-psn_", g_argv[i], 5))
+            args.push_back(g_argv[i]);
+    }
+
     [self newWindowWithArgs:args];
+
+    didFinishLaunching = YES;
 }
 
 - (BOOL)application:(NSApplication *)app openFile:(NSString *)filename
 {
-    std::vector<char *> args;
-    args.push_back(const_cast<char *>([filename UTF8String]));
-    activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
+    if (didFinishLaunching) {
+        std::vector<char *> args;
+        args.push_back(const_cast<char *>([filename UTF8String]));
+        activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
+    } else {
+        initOpenFile = filename;
+    }
+
     return YES;
 }
 
