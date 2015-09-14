@@ -146,6 +146,11 @@ void ignore_sigpipe(void)
     setenv("LC_ALL", ss.str().c_str(), 1);
     setenv("LANG", ss.str().c_str(), 1);
 
+    /* Parent PID = 1 then Neovim.app was ran by launchd. In these cases
+       working directory is set to "/". Change to the user's home directory. */
+    if (getppid() == 1)
+        chdir(getenv("HOME"));
+
     /* Pass args on to Neovim. OSX will helpfully add a -psn_XXX arg
        which Neovim would choke on, so strip it out. */
     std::vector<char *> args;
