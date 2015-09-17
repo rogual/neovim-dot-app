@@ -133,7 +133,7 @@
     if (note == "redraw") {
         [mMainView redraw:update_o];
     }
-    else if (note == "neovim.app.bufenter") {
+    else if (note == "neovim.app.updateTitle") {
         [self updateWindowTitle];
     }
     else if (note == "neovim.app.nodata") {
