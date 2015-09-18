@@ -125,6 +125,28 @@
     [mMainView openFile:file];
 }
 
+- (void) saveFileDoSaveAs:(BOOL)isSaveAs
+{
+    NSURL *file = [mMainView showFileSaveDialog];
+    if (file != nil)
+    {
+        std::stringstream cmd;
+        if (isSaveAs)
+            cmd << "sav! ";
+        else
+            cmd << "w! ";
+
+        cmd << [self escapeVimCharsInString:[[file path] UTF8String]];
+        mVim->vim_command(cmd.str()).then([self](msgpack::object err){
+                if (err.is_nil()) return;
+                std::string errmsg = err.via.array.ptr[1].convert();
+                errmsg = errmsg.substr(errmsg.find(":")+1);
+                mVim->vim_report_error(errmsg);
+            });
+    }
+
+}
+
 /* This gets called on the main thread when Vim gives us a UI notification */
 - (void)notified:(const std::string &)note withData:(const msgpack::object &)update_o
 {
@@ -165,22 +187,10 @@
         }
     }
     else if (note == "neovim.app.saveFile") {
-        NSURL *file = [mMainView showFileSaveDialog];
-        if (file != nil)
-        {
-            std::stringstream cmd;
-            cmd << "w " << [self escapeVimCharsInString:[[file path] UTF8String]];
-            mVim->vim_command(cmd.str());
-        }
+        [self saveFileDoSaveAs:NO];
     }
     else if (note == "neovim.app.saveAsFile") {
-        NSURL *file = [mMainView showFileSaveDialog];
-        if (file != nil)
-        {
-            std::stringstream cmd;
-            cmd << "sav " << [self escapeVimCharsInString:[[file path] UTF8String]];
-            mVim->vim_command(cmd.str());
-        }
+        [self saveFileDoSaveAs:YES];
     }
     else if (note == "neovim.app.larger") {
         [mMainView increaseFontSize];
@@ -227,6 +237,7 @@
         std::cout << "Unknown note " << note << "\n";
     }
 }
+
 
 /* Escapes characters that vim uses in command mode.  */
 - (std::string) escapeVimCharsInString:(std::string) str
