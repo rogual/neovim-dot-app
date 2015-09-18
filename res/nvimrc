@@ -82,6 +82,16 @@ function! s:mac_get_modified_buffers()
     return filter(activeBufs, 'getbufvar(v:val, "&modified")')
 endfunction
 
+function! MacOpenFileInBufferOrNewTab(filename)
+    echom a:filename
+    if expand("%:p") == "" && &modified == 0
+        execute "edit " . a:filename
+    else
+        execute "tabedit " . a:filename
+    endif
+endfunction
+
+
 " First, load the default menus
 runtime menu.vim
 
