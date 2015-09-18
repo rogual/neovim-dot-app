@@ -138,6 +138,7 @@
 
         cmd << [self escapeVimCharsInString:[[file path] UTF8String]];
         mVim->vim_command(cmd.str()).then([self](msgpack::object err){
+                if (err.is_nil()) return;
                 std::string errmsg = err.via.array.ptr[1].convert();
                 errmsg = errmsg.substr(errmsg.find(":")+1);
                 mVim->vim_report_error(errmsg);
