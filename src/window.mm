@@ -87,6 +87,13 @@
     mVim = new Vim([vimPath UTF8String], args);
     mVim->ui_attach(width, height, true);
 
+    /* Reload .nvimrc after connecting to get any settings requiring
+       gui_running to be re-evaluated as true.
+       This should be removed after an implementation similar to
+       https://github.com/neovim/python-client/issues/106
+       is done. */
+    mVim->vim_command("so $MYVIMRC");
+
     mMainView = [[VimView alloc] initWithCellSize:CGSizeMake(width, height)
                                               vim:mVim];
 
