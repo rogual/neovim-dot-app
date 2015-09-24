@@ -41,6 +41,7 @@ static const char *keyName(unsigned short keyCode)
 static unsigned cocoaToCarbonModifiers(unsigned mods)
 {
     return ((mods & NSShiftKeyMask) ? shiftKey : 0) |
+           ((mods & NSAlphaShiftKeyMask) ? alphaLock : 0) |
            ((mods & NSCommandKeyMask) ? cmdKey : 0) |
            ((mods & NSControlKeyMask) ? controlKey : 0) |
            ((mods & NSAlternateKeyMask) ? optionKey : 0);
@@ -157,7 +158,7 @@ void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags)
     /* For printable keys, shift and alt modify the character so we don't
         send them as modifiers (no "S-" or "M-") */
     if (printable)
-        sendflags &= ~(NSShiftKeyMask | NSAlternateKeyMask);
+        sendflags &= ~(NSShiftKeyMask | NSAlternateKeyMask | NSAlphaShiftKeyMask);
 
     /* If Ctrl or Cmd is down, Cocoa doesn't give us a usable "characters"
        field. (Ctrl gives ASCII ctrl-codes, Cmd forces lowercase.) It does
@@ -220,6 +221,7 @@ void translateKeyEvent(std::ostream &os, NSEvent *event)
     /* We only care about these modifiers */
     unsigned flags = [event modifierFlags] & (
         NSShiftKeyMask |
+        NSAlphaShiftKeyMask |
         NSAlternateKeyMask |
         NSControlKeyMask |
         NSCommandKeyMask
