@@ -120,3 +120,8 @@ call MacMenu("Window.Close Other Tabs", "T-S-w")
 
 call MacMenu("Window.Toggle Full Screen", "T-f")
 
+function! MacUpdateTitle()
+    call rpcnotify(1, "neovim.app.updateTitle")
+endfunction
+
+autocmd BufEnter,BufFilePost * call MacUpdateTitle()
