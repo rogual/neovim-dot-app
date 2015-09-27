@@ -18,6 +18,8 @@
     std::string raws = raw.str();
     if (raws.size())
         [self vimInput:raws];
+
+    [NSCursor setHiddenUntilMouseMoves:YES];
 }
 
 - (void)mouseEvent:(NSEvent *)event drag:(BOOL)drag type:(const char *)type

@@ -56,7 +56,12 @@ function! MacCloseTabOrWindow()
     endtry
 endfunction
 
-function! NeovimAppBufChanged()
+function! MacUpdateTitle()
+    call rpcnotify(1, "neovim.app.updateTitle")
+endfunction
+
+
+function! MacBufChanged()
     call rpcnotify(1, "neovim.app.bufchanged", &modified)
 endfunction
 
@@ -124,5 +129,7 @@ call MacMenu("Window.Close Other Tabs", "T-S-w")
 
 call MacMenu("Window.Toggle Full Screen", "T-f")
 
+autocmd BufEnter,BufFilePost,BufWritePost * call MacUpdateTitle()
+
 " Update modified status on all events that could cause a change
-autocmd TextChanged,BufWritePost,InsertLeave,BufEnter,BufLeave * call NeovimAppBufChanged()
+autocmd TextChanged,BufWritePost,InsertLeave,BufEnter,BufLeave * call MacBufChanged()

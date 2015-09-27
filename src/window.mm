@@ -55,10 +55,10 @@
 - (void)prevTab { mVim->vim_command("tabprev"); }
 - (void)saveBuffer { mVim->vim_command("write"); }
 - (void)closeTabOrWindow
-{ 
+{
     mVim->vim_get_tabpages().then([self](msgpack::object o) {
             if (o.via.array.size > 1)
-                mVim->vim_command("tabclose"); 
+                mVim->vim_command("tabclose");
             else
                 [self close];
         });
@@ -86,6 +86,13 @@
 
     mVim = new Vim([vimPath UTF8String], args);
     mVim->ui_attach(width, height, true);
+
+    /* Reload .nvimrc after connecting to get any settings requiring
+       gui_running to be re-evaluated as true.
+       This should be removed after an implementation similar to
+       https://github.com/neovim/python-client/issues/106
+       is done. */
+    mVim->vim_command("so $MYVIMRC");
 
     mMainView = [[VimView alloc] initWithCellSize:CGSizeMake(width, height)
                                               vim:mVim];
@@ -125,16 +132,38 @@
     [mMainView openFile:file];
 }
 
+- (void) saveFileDoSaveAs:(BOOL)isSaveAs
+{
+    NSURL *file = [mMainView showFileSaveDialog];
+    if (file != nil)
+    {
+        std::stringstream cmd;
+        if (isSaveAs)
+            cmd << "sav! ";
+        else
+            cmd << "w! ";
+
+        cmd << [self escapeVimCharsInString:[[file path] UTF8String]];
+        mVim->vim_command(cmd.str()).then([self](msgpack::object err){
+                if (err.is_nil()) return;
+                std::string errmsg = err.via.array.ptr[1].convert();
+                errmsg = errmsg.substr(errmsg.find(":")+1);
+                mVim->vim_report_error(errmsg);
+            });
+    }
+
+}
+
 /* This gets called on the main thread when Vim gives us a UI notification */
 - (void)notified:(const std::string &)note withData:(const msgpack::object &)update_o
 {
     assert([NSThread isMainThread]);
 
     if (note == "redraw") {
-        /* There must be a better way of finding out when the current buffer
-           has changed? Until we figure one out, update title every redraw. */
-        [self updateWindowTitle];
         [mMainView redraw:update_o];
+    }
+    else if (note == "neovim.app.updateTitle") {
+        [self updateWindowTitle];
     }
     else if (note == "neovim.app.nodata") {
         /* The vim client closed our pipe, so it must have exited. */
@@ -157,7 +186,7 @@
             if ([files count] > 1)
                 args.push_back(const_cast<char *>("-p"));
 
-            for (NSURL *url in files) 
+            for (NSURL *url in files)
                 args.push_back(const_cast<char *>([[url path] UTF8String]));
 
             AppDelegate *app = (AppDelegate *)[NSApp delegate];
@@ -165,22 +194,10 @@
         }
     }
     else if (note == "neovim.app.saveFile") {
-        NSURL *file = [mMainView showFileSaveDialog];
-        if (file != nil)
-        {
-            std::stringstream cmd;
-            cmd << "w " << [self escapeVimCharsInString:[[file path] UTF8String]];
-            mVim->vim_command(cmd.str());
-        }
+        [self saveFileDoSaveAs:NO];
     }
     else if (note == "neovim.app.saveAsFile") {
-        NSURL *file = [mMainView showFileSaveDialog];
-        if (file != nil)
-        {
-            std::stringstream cmd;
-            cmd << "sav " << [self escapeVimCharsInString:[[file path] UTF8String]];
-            mVim->vim_command(cmd.str());
-        }
+        [self saveFileDoSaveAs:YES];
     }
     else if (note == "neovim.app.larger") {
         [mMainView increaseFontSize];
@@ -231,6 +248,7 @@
         std::cout << "Unknown note " << note << "\n";
     }
 }
+
 
 /* Escapes characters that vim uses in command mode.  */
 - (std::string) escapeVimCharsInString:(std::string) str
@@ -293,7 +311,7 @@
 }
 
 
-/* Vim thread. Waits for events from Vim, and schedules them to be handled on 
+/* Vim thread. Waits for events from Vim, and schedules them to be handled on
    the main thread. */
 - (void)vimThread:(id)unused
 {
