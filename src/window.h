@@ -5,5 +5,6 @@
 
 - (void)openFilename:(NSString *)file;
 - (id)initWithArgs:(const std::vector<char *> &)args;
+- (void)promptBeforeClosingWindow;
 
 @end

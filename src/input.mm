@@ -19,6 +19,9 @@
     if (raws.size())
         [self vimInput:raws];
 
+    if (mInsertMode)
+        [[self window] setDocumentEdited:YES];
+
     [NSCursor setHiddenUntilMouseMoves:YES];
 }
 

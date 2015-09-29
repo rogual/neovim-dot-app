@@ -52,7 +52,7 @@ function! MacCloseTabOrWindow()
     try
         tabclose
     catch
-         q
+         call rpcnotify(1, "neovim.app.closeTabOrWindow")
     endtry
 endfunction
 
@@ -60,9 +60,20 @@ function! MacUpdateTitle()
     call rpcnotify(1, "neovim.app.updateTitle")
 endfunction
 
-
 function! MacBufChanged()
     call rpcnotify(1, "neovim.app.bufchanged", &modified)
+endfunction
+
+function! MacGetDirtyBuffers()
+    let allBufs      = range(1, bufnr('$'))
+    let activeBufs   = filter(allBufs, 'buflisted(v:val)')
+    let dirtyBuffers = ""
+
+    for x in filter(activeBufs, 'getbufvar(v:val, "&modified")')
+       let dirtyBuffers .= x . "\n" . bufname(x) . "\n"
+    endfor
+
+    silent! echo dirtyBuffers
 endfunction
 
 " First, load the default menus
@@ -132,4 +143,4 @@ call MacMenu("Window.Toggle Full Screen", "T-f")
 autocmd BufEnter,BufFilePost,BufWritePost * call MacUpdateTitle()
 
 " Update modified status on all events that could cause a change
-autocmd TextChanged,BufWritePost,InsertLeave,BufEnter,BufLeave * call MacBufChanged()
+autocmd TextChanged,BufWritePost,InsertEnter,InsertLeave,BufEnter,BufLeave * call MacBufChanged()
