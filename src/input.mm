@@ -19,9 +19,6 @@
     if (raws.size())
         [self vimInput:raws];
 
-    if (mInsertMode)
-        [[self window] setDocumentEdited:YES];
-
     [NSCursor setHiddenUntilMouseMoves:YES];
 }
 
@@ -87,6 +84,9 @@
 /* Send an input string to Vim. */
 - (void)vimInput:(const std::string &)input
 {
+    if (mInsertMode)
+        [[self window] setDocumentEdited:YES];
+
     mVim->vim_input(input);
 }
 
