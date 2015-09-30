@@ -33,6 +33,8 @@ class Vim;
     NSMenuItem *mPopupMenu;
     NSMenu *mFontMenu;
     bool mMenuNeedsUpdate;
+
+    NSString *mMarkedText;
 }
 
 - (void)cutText;
