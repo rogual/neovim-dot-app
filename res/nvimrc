@@ -61,19 +61,25 @@ function! MacUpdateTitle()
 endfunction
 
 function! MacBufChanged()
-    call rpcnotify(1, "neovim.app.bufchanged", &modified)
+    let anyModified = s:mac_get_modified_buffers() != []
+    call rpcnotify(1, "neovim.app.bufchanged", anyModified)
 endfunction
 
 function! MacGetDirtyBuffers()
-    let allBufs      = range(1, bufnr('$'))
-    let activeBufs   = filter(allBufs, 'buflisted(v:val)')
     let dirtyBuffers = ""
 
-    for x in filter(activeBufs, 'getbufvar(v:val, "&modified")')
+    for x in s:mac_get_modified_buffers()
        let dirtyBuffers .= x . "\n" . bufname(x) . "\n"
     endfor
 
     silent! echo dirtyBuffers
+endfunction
+
+function! s:mac_get_modified_buffers()
+    let allBufs      = range(1, bufnr('$'))
+    let activeBufs   = filter(allBufs, 'buflisted(v:val)')
+
+    return filter(activeBufs, 'getbufvar(v:val, "&modified")')
 endfunction
 
 " First, load the default menus
