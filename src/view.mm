@@ -265,16 +265,30 @@
 
     filename = [nsFilename UTF8String];
 
-    ss << "e ";
+    ss << "call MacOpenFileInBufferOrNewTab(\"";
 
     /* We don't want Vim to try and interpret any part of the filename, and
        there's no documentation of what needs escaping, so escape every byte
-       of it. */
+       of it.  
+     
+       Characters need to be doubly escaped when passing it through exec.  
+       Quotes need a third '\' */
     for (char ch : filename) {
-        ss << '\\' << ch;
+        if (ch == '"') 
+            ss << "\\";
+        ss << "\\\\" << ch;
     }
+    ss << "\")";
 
-    mVim->vim_command(ss.str());
+    std::cout << "Sending: " << ss.str() << "\n";
+
+    mVim->vim_command(ss.str()).then([self](msgpack::object err){
+            if (err.is_nil()) return;
+
+            std::string errmsg = err.via.array.ptr[1].convert();
+            errmsg = errmsg.substr(errmsg.find(":")+1);
+            mVim->vim_report_error(errmsg); 
+        });
 }
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
