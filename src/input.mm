@@ -12,14 +12,19 @@
 
 - (void)keyDown:(NSEvent *)event
 {
+    NSTextInputContext *con = [NSTextInputContext currentInputContext];
+    [NSCursor setHiddenUntilMouseMoves:YES];
+
     std::stringstream raw;
     translateKeyEvent(raw, event);
-
     std::string raws = raw.str();
-    if (raws.size())
-        [self vimInput:raws];
 
-    [NSCursor setHiddenUntilMouseMoves:YES];
+    if ([self hasMarkedText])
+        [con handleEvent:event];
+    else if (raws.size())
+        [self vimInput:raws];
+    else if (mInsertMode) 
+        [con handleEvent:event];
 }
 
 - (void)mouseEvent:(NSEvent *)event drag:(BOOL)drag type:(const char *)type
@@ -93,6 +98,80 @@
     NSPoint viewLoc = [self convertPoint:winLoc fromView:nil];
     NSPoint cellLoc = [self cellContaining:viewLoc];
     return cellLoc;
+}
+
+/* -- NSTextInputClient methods -- */
+
+- (BOOL)hasMarkedText { return mMarkedText.length? YES : NO; }
+- (NSRange)markedRange { NSLog(@"MR"); return {NSNotFound, 0}; }
+- (NSRange)selectedRange { NSLog(@"SR"); return {NSNotFound, 0}; }
+
+- (void)setMarkedText:(id)string
+        selectedRange:(NSRange)x
+        replacementRange:(NSRange)y
+{
+    if (!mMarkedText)
+        mMarkedText = [@"" retain];
+
+    if ([string isKindOfClass:[NSAttributedString class]])
+        string = [string string];
+
+    [mMarkedText autorelease];
+    mMarkedText = [mMarkedText stringByAppendingString:string];
+    [mMarkedText retain];
+    mVim->vim_command("redraw!");
+}
+
+- (void)unmarkText
+{
+    [mMarkedText release];
+    mMarkedText = nil;
+    mVim->vim_command("redraw!");
+}
+
+- (NSArray *)validAttributesForMarkedText
+{
+    return @[];
+}
+
+- (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)aRange
+                                                actualRange:(NSRangePointer)actualRange
+{
+    return nil;
+}
+
+- (void)insertText:(id)string
+  replacementRange:(NSRange)replacementRange
+{
+    if ([string isKindOfClass:[NSAttributedString class]])
+        string = [string string];
+
+    [self unmarkText];
+    [self insertText:string];
+}
+
+- (void)insertText:(NSString *)string
+{
+    string = [string stringByReplacingOccurrencesOfString:@"<"
+                                               withString:@"<lt>"];
+
+    [self vimInput:[string UTF8String]];
+}
+
+
+- (NSUInteger)characterIndexForPoint:(NSPoint)aPoint
+{
+    return NSNotFound;
+}
+
+- (NSRect)firstRectForCharacterRange:(NSRange)aRange
+                         actualRange:(NSRangePointer)actualRange
+{
+    return {{0,0},{0,0}};
+}
+
+- (void)doCommandBySelector:(SEL)selector
+{
 }
 
 @end
