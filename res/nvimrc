@@ -57,7 +57,6 @@ function! MacCloseTabOrWindow()
 endfunction
 
 function! MacOpenFileInBufferOrNewTab(filename)
-    echom a:filename
     if expand("%:p") == "" && &modified == 0
         execute "edit " . a:filename
     else
