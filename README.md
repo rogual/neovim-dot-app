@@ -14,8 +14,8 @@ http://www.gnu.org/licenses/gpl-3.0.html
 
 ### What's Done
 
-Text editing, mouse support, tabs, clipboard, basic Mac menus, font selection,
-font size adjustments
+Text editing, mouse support, tabs, clipboard, Mac menus, font selection,
+font size adjustments, confirm-on-close, multiple windows.
 
 ### Still to do
 
@@ -28,7 +28,7 @@ Pull requests are welcome, and greatly appreciated!
 
 ### Prerequisites
 
-* Neovim.app compiles on OS X 10.9 and 10.10.
+* Neovim.app compiles on OS X 10.9, 10.10 and 10.11.
 * You'll need to install Xcode and its command-line tools.
 * Homebrew isn't required but it's an easy way to install the rest of the
   dependencies.
@@ -36,7 +36,7 @@ Pull requests are welcome, and greatly appreciated!
 ### Install via Homebrew
 
 ```bash
-$ brew tap neovim/homebrew-neovim # neovim-dot-app depends on a neovim package
+$ brew tap neovim/homebrew-neovim
 $ brew tap rogual/neovim-dot-app
 $ brew install --HEAD neovim-dot-app
 ```
@@ -85,6 +85,7 @@ This means your msgpack is out of date. Try:
     brew install msgpack
 
 * `'msgpack.hpp' file not found`
+* `ld: library not found for -lmsgpack`
 
 Homebrew installs things into /usr/local, but the compiler doesn't look there
 unless you've run:
