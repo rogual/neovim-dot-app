@@ -280,8 +280,6 @@
     }
     ss << "\")";
 
-    std::cout << "Sending: " << ss.str() << "\n";
-
     mVim->vim_command(ss.str()).then([self](msgpack::object err){
             if (err.is_nil()) return;
 
