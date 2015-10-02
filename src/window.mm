@@ -12,6 +12,14 @@
     NSThread *mVimThread;
 }
 
+typedef NS_ENUM(NSInteger, CloseAction) {
+    CloseActionSave,
+    CloseActionDontSave,
+    CloseActionSaveAll,
+    CloseActionDiscardAll,
+    CloseActionCancel
+};
+
 /* Override this so we can resize by whole cells, just like Terminal.app */
 - (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize
 {
@@ -26,6 +34,133 @@
     frameRect = [sender frameRectForContentRect:contentRect];
 
     return frameRect.size;
+}
+
+- (BOOL)windowShouldClose:(id)sender
+{
+    [self promptBeforeClosingWindow];
+    return NO;
+}
+
+- (void)promptBeforeClosingWindow
+{
+    mVim->vim_command_output("call MacGetDirtyBuffers()")
+        .then([self](std::string dirtyBufs){
+            /* A list of modified/dirty buffers are returned with the buffer
+               number and name. All seperated by newlines */
+            if (dirtyBufs.length() <= 1)
+                /* All good. Nothing to save */
+                [self close];
+
+            /* A newline is at the beginning of the string */
+            dirtyBufs.erase(dirtyBufs.begin());
+
+            std::stringstream saveCmd;
+            std::stringstream ss(dirtyBufs);
+
+            BOOL shouldClose  = YES;
+            BOOL isSaveAll    = NO;
+            int numBuffers = std::count(dirtyBufs.begin(), dirtyBufs.end(), '\n') / 2;
+            for (int x = numBuffers; x > 0; x--) {
+                NSModalResponse resp;
+                BOOL saveThis = NO;
+                std::string bufnr, filename;
+
+                std::getline(ss, bufnr, '\n');
+                std::getline(ss, filename, '\n');
+
+                if (!isSaveAll) {
+                    resp = [self alertSaveFileBeforeClose:filename saveMultiple:(x == 1) ? NO : YES];
+                    if (resp == CloseActionSave)
+                        saveThis = YES;
+                    else if(resp == CloseActionDontSave)
+                        continue;
+                    else if(resp == CloseActionSaveAll)
+                        isSaveAll = YES;
+                    else if(resp == CloseActionDiscardAll)
+                        break;
+                    else {
+                        shouldClose = NO;
+                        break;
+                    }
+                }
+
+                if (isSaveAll || saveThis) {
+                    std::string newFilename = "";
+                    saveCmd << "b" << bufnr;
+                    if (filename == "") {
+                        /* If the buffer has no name,  prompt for it to be saved.
+                           If the action is canceled, the loop is ended and the
+                           unnamed buffer is not saved. All other buffers that
+                           have been set to save prior to this point will be saved. */
+                        NSURL *file = [mMainView showFileSaveDialog];
+                        if (file == nil) {
+                            shouldClose = NO;
+                            break;
+                        }
+                        newFilename = [self escapeVimCharsInString:[[file path] UTF8String]];
+                    }
+                    saveCmd << " | w! " << newFilename << " | ";
+                }
+            }
+
+            if (shouldClose)
+                saveCmd << "qa!";
+
+            /* Perform the saves. and Exit if specified. Don't exit if there is an error */
+            mVim->vim_command(saveCmd.str())
+                .then([self](msgpack::object error){
+                    if (error.is_nil())
+                        return;
+
+                    std::string errmsg = error.via.array.ptr[1].convert();
+                    errmsg = errmsg.substr(errmsg.find(":")+1);
+                    mVim->vim_report_error(errmsg);
+                });
+        });
+}
+
+- (CloseAction)alertSaveFileBeforeClose:(std::string)fileName saveMultiple:(bool)isMulti
+{
+    NSString *msgText = @"";
+    int response=-1;
+
+    if (isMulti)
+        msgText = [msgText stringByAppendingString:@"There are several documents with unsaved changes. "];
+
+    if (fileName == "")
+        fileName = "Untitled";
+
+    msgText = [msgText stringByAppendingFormat:@"Do you want to save the changes you made in the document \"%s\"?",
+            fileName.c_str()];
+
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:msgText];
+    [alert setInformativeText:@"Your changes will be lost if you don't save them."];
+
+    [alert addButtonWithTitle:@"Save"];
+    [alert addButtonWithTitle:@"Don't Save"];
+    if (isMulti)
+    {
+        [alert addButtonWithTitle:@"Save All"];
+        [alert addButtonWithTitle:@"Discard All"];
+    }
+    [alert addButtonWithTitle:@"Cancel"];
+
+    switch([alert runModal])
+    {
+        case NSAlertFirstButtonReturn:
+            return CloseActionSave;
+        case NSAlertSecondButtonReturn:
+            return CloseActionDontSave;
+        case NSAlertThirdButtonReturn:
+            return (isMulti) ? CloseActionSaveAll : CloseActionCancel;
+        case NSAlertThirdButtonReturn+1:
+            return CloseActionDiscardAll;
+        case NSAlertThirdButtonReturn+2:
+            return CloseActionCancel;
+    }
+    return CloseActionCancel;
 }
 
 /* OS X doesn't send us a willResize event when leaving fullscreen mode, so: */
@@ -60,7 +195,7 @@
             if (o.via.array.size > 1)
                 mVim->vim_command("tabclose");
             else
-                [self close];
+                [self promptBeforeClosingWindow];
         });
 }
 
@@ -239,6 +374,13 @@
         catch (std::string msg) {
             mVim->vim_report_error(msg);
         }
+    }
+    else if (note ==  "neovim.app.bufchanged") {
+        int isModified = update_o.via.array.ptr[0].convert();
+        [self setDocumentEdited:isModified?YES:NO];
+    }
+    else if (note ==  "neovim.app.closeTabOrWindow") {
+        [self closeTabOrWindow];
     }
     else {
         std::cout << "Unknown note " << note << "\n";

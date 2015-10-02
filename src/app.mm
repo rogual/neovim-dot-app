@@ -105,6 +105,15 @@ void ignore_sigpipe(void)
     activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
 }
 
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
+{
+    if ([activeWindow isVisible]) {
+        [activeWindow promptBeforeClosingWindow];
+        return NSTerminateCancel;
+    }
+
+    return NSTerminateNow;
+}
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app
 {
     return YES;

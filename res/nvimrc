@@ -52,8 +52,34 @@ function! MacCloseTabOrWindow()
     try
         tabclose
     catch
-         q
+         call rpcnotify(1, "neovim.app.closeTabOrWindow")
     endtry
+endfunction
+
+function! MacUpdateTitle()
+    call rpcnotify(1, "neovim.app.updateTitle")
+endfunction
+
+function! MacBufChanged()
+    let anyModified = s:mac_get_modified_buffers() != []
+    call rpcnotify(1, "neovim.app.bufchanged", anyModified)
+endfunction
+
+function! MacGetDirtyBuffers()
+    let dirtyBuffers = ""
+
+    for x in s:mac_get_modified_buffers()
+       let dirtyBuffers .= x . "\n" . bufname(x) . "\n"
+    endfor
+
+    silent! echo dirtyBuffers
+endfunction
+
+function! s:mac_get_modified_buffers()
+    let allBufs      = range(1, bufnr('$'))
+    let activeBufs   = filter(allBufs, 'buflisted(v:val)')
+
+    return filter(activeBufs, 'getbufvar(v:val, "&modified")')
 endfunction
 
 " First, load the default menus
@@ -120,8 +146,7 @@ call MacMenu("Window.Close Other Tabs", "T-S-w")
 
 call MacMenu("Window.Toggle Full Screen", "T-f")
 
-function! MacUpdateTitle()
-    call rpcnotify(1, "neovim.app.updateTitle")
-endfunction
-
 autocmd BufEnter,BufFilePost,BufWritePost * call MacUpdateTitle()
+
+" Update modified status on all events that could cause a change
+autocmd TextChanged,BufWritePost,InsertEnter,InsertLeave,BufEnter,BufLeave * call MacBufChanged()
