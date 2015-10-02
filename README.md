@@ -23,6 +23,9 @@ See the [list of issues](https://github.com/rogual/neovim-dot-app/issues).
 
 Pull requests are welcome, and greatly appreciated!
 
+## Contributing
+
+See [here](https://github.com/rogual/neovim-dot-app/blob/master/CONTRIBUTING.md).
 
 ## Compiling
 
