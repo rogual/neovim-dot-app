@@ -56,4 +56,6 @@ class Vim;
 - (CGSize)viewSizeFromCellSize:(CGSize)cellSize;
 - (CGSize)cellSizeInsideViewSize:(CGSize)viewSize;
 
+- (BOOL)probablyCommandMode;
+
 @end

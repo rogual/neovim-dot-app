@@ -23,7 +23,7 @@
         [con handleEvent:event];
     else if (raws.size())
         [self vimInput:raws];
-    else
+    else if (mInsertMode || [self probablyCommandMode])
         [con handleEvent:event];
 }
 
