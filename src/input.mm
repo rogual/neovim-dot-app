@@ -4,9 +4,9 @@
 #import <Cocoa/Cocoa.h>
 
 #import "view.h"
+#import "redraw.h"
 #import "input.h"
 #import "keys.h"
-
 
 @implementation VimView (Input)
 
@@ -23,7 +23,7 @@
         [con handleEvent:event];
     else if (raws.size())
         [self vimInput:raws];
-    else if (mInsertMode) 
+    else
         [con handleEvent:event];
 }
 
@@ -122,14 +122,33 @@
     [mMarkedText autorelease];
     mMarkedText = [mMarkedText stringByAppendingString:string];
     [mMarkedText retain];
-    mVim->vim_command("redraw!");
+
+    /* Draw the fake character on the screen as if
+       nvim would've told it to do so */
+    typedef std::tuple<std::string, std::vector<std::string>> putmsg_t;
+    typedef std::tuple<std::string, std::vector<int>> cursormsg_t;
+
+    putmsg_t putdata("put", {[string UTF8String]});
+    cursormsg_t cursordata("cursor_goto",
+            {(int)mCursorDisplayPos.y, (int)mCursorDisplayPos.x});
+
+    msgpack::sbuffer sbuf;
+    msgpack::packer<msgpack::sbuffer> pk(sbuf);
+    pk.pack_array(2);
+    pk.pack(putdata);
+    pk.pack(cursordata);
+
+    msgpack::unpacked msg;
+    msgpack::unpack(&msg, sbuf.data(), sbuf.size());
+    msgpack::object obj = msg.get();
+
+    [self redraw:obj];
 }
 
 - (void)unmarkText
 {
     [mMarkedText release];
     mMarkedText = nil;
-    mVim->vim_command("redraw!");
 }
 
 - (NSArray *)validAttributesForMarkedText
