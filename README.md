@@ -39,7 +39,7 @@ See [here](https://github.com/rogual/neovim-dot-app/blob/master/CONTRIBUTING.md)
 ### Install via Homebrew
 
 ```bash
-$ brew tap neovim/homebrew-neovim
+$ brew tap neovim/neovim
 $ brew tap rogual/neovim-dot-app
 $ brew install --HEAD neovim-dot-app
 ```
