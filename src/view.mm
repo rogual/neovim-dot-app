@@ -168,15 +168,7 @@
         frame = [[[self window] screen] frame];
     }
     else {
-        NSWindow *win = [self window];
-        frame = [win frame];
-        frame = [win contentRectForFrameRect:frame];
-        CGSize cellSize = {(float)mXCells, (float)mYCells};
-
-        frame.size = [self viewSizeFromCellSize:cellSize];
-
-        NSRect winFrame = [win frameRectForContentRect:frame];
-        [win setFrame:winFrame display:NO];
+        frame = [self resizeWindow];
     }
 
     // Tell Vim to resize if necessary
@@ -434,6 +426,20 @@
         mVim->ui_try_resize((int)cellSize.width, (int)cellSize.height);
 }
 
+- (NSRect)resizeWindow
+{
+    NSWindow *win = [self window];
+    NSRect frame = [win frame];
+    frame = [win contentRectForFrameRect:frame];
+    CGSize cellSize = {(float)mXCells, (float)mYCells};
+
+    frame.size = [self viewSizeFromCellSize:cellSize];
+
+    NSRect winFrame = [win frameRectForContentRect:frame];
+    [win setFrame:winFrame display:NO];
+
+    return frame;
+}
 
 /* -- Coordinate conversions -- */
 
