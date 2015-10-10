@@ -121,8 +121,7 @@
 - (NSUInteger)validModesForFontPanel:(NSFontPanel *)fontPanel
 {
     return NSFontPanelFaceModeMask |
-           NSFontPanelSizeModeMask |
-           NSFontPanelCollectionModeMask;
+           NSFontPanelSizeModeMask;
 }
 
 - (void)updateCharSize
