@@ -55,5 +55,6 @@ class Vim;
 - (NSPoint)viewPointFromCellPoint:(NSPoint)cellPoint;
 - (CGSize)viewSizeFromCellSize:(CGSize)cellSize;
 - (CGSize)cellSizeInsideViewSize:(CGSize)viewSize;
+- (NSRect)resizeWindow;
 
 @end

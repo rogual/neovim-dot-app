@@ -370,6 +370,7 @@ using msgpack::object;
             mYCells = argv[1].convert();
             mCellScrollRect = CGRectMake(0, 0, mXCells, mYCells);
 
+            [self resizeWindow];
             [self setNeedsDisplay:YES];
             break;
         }
