@@ -198,4 +198,11 @@ void ignore_sigpipe(void)
     [self newWindowWithArgs:args];
 }
 
+/* Called by the shell when we need to open a file. */
+- (BOOL)application:(NSApplication *)app openFile:(NSString *)filename
+{
+    [activeWindow openFilename:filename];
+    return YES;
+}
+
 @end
