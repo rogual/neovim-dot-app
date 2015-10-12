@@ -119,9 +119,37 @@ void ignore_sigpipe(void)
     return YES;
 }
 
+/* Makes sure that there is a "Fixed Width" collection.
+   If there isn't it creates a collection called "Fixed Width"
+   adds all monospace fonts to it */
+- (void)ensureFixedWidthCollection
+{
+    NSFontManager *fontManager = [NSFontManager sharedFontManager];
+    NSFontCollection *collection =
+        [NSFontCollection fontCollectionWithName:@"com.apple.AllFonts"];
+
+    NSMutableArray *descriptors = [[NSMutableArray alloc] init];
+    for (NSFontDescriptor *desc in [collection matchingDescriptors])
+    {
+        NSString *name = [desc objectForKey:NSFontNameAttribute];
+        if ([desc symbolicTraits] & NSFontMonoSpaceTrait){
+            [descriptors addObject:desc];
+        }
+    }
+
+    collection = [NSFontCollection fontCollectionWithDescriptors:descriptors];
+
+    /* Add collection only to this process */
+    [NSFontCollection showFontCollection:collection
+        withName:@"Neovim Monospaced"
+        visibility:NSFontCollectionVisibilityProcess
+        error:NULL];
+}
+
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
     [NSFontManager setFontManagerFactory:[VimFontManager class]];
+    [self ensureFixedWidthCollection];
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults registerDefaults:@{@"width": @80,
