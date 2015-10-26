@@ -43,7 +43,13 @@ res = 'build/Neovim.app/Contents/Resources'
 env.Program('build/Neovim.app/Contents/MacOS/Neovim', sources)
 env.Install('build/Neovim.app/Contents', 'res/Info.plist')
 env.Install(res, nvim)
-env.Install(res, 'res/nvimrc')
+
+# Neovim no longer reads nvimrc, it now reads sysinit.vim. Keep the old one
+# for backcompat.
+nvimrc = env.Install(res, 'res/nvimrc')
+env.Command(
+    res + '/sysinit.vim', nvimrc, 'cd %s && ln -s nvimrc sysinit.vim' % res
+)
 
 # Tests
 env.Program('build/test', env.Glob('build/tests/*.mm') + ['build/keys.mm'])
