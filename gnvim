@@ -1,2 +1,2 @@
 #!/bin/sh
-open -a Neovim --args $@
+open -a Neovim --args --cwd $PWD $@

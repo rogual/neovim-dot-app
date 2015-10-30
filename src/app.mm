@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "vim.h"
 
 #import "app.h"
@@ -183,10 +185,24 @@ void ignore_sigpipe(void)
     setenv("LC_ALL", ss.str().c_str(), 1);
     setenv("LANG", ss.str().c_str(), 1);
 
+    /* Set working dir */
+    const char *cwd = 0;
+
     /* Parent PID = 1 then Neovim.app was ran by launchd. In these cases
        working directory is set to "/". Change to the user's home directory. */
     if (getppid() == 1)
-        chdir(getenv("HOME"));
+        cwd = getenv("HOME");
+
+    /* Set CWD if given on command line */
+    for (int i=0; i<g_argc-1; i++) {
+      if (!strcmp("--cwd", g_argv[i])) {
+        cwd = g_argv[i + 1];
+        break;
+      }
+    }
+
+    if (cwd)
+        chdir(cwd);
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
@@ -200,8 +216,15 @@ void ignore_sigpipe(void)
     }
 
     for (int i = 1; i < g_argc ; i++) {
-        if (strncmp("-psn_", g_argv[i], 5))
-            args.push_back(g_argv[i]);
+        if (!strncmp("-psn_", g_argv[i], 5))
+          continue;
+
+        if (!strcmp("--cwd", g_argv[i])) {
+          i += 1;
+          continue;
+        }
+
+        args.push_back(g_argv[i]);
     }
     [self newWindowWithArgs:args];
 
