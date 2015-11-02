@@ -143,6 +143,7 @@ call MacMenu("Edit.Redo", "T-S-z")
 call MacMenu("Edit.Cut", "T-x")
 call MacMenu("Edit.Copy", "T-c")
 call MacMenu("Edit.Paste", "T-v")
+call MacMenu("Edit.Select All", "T-a")
 
 call MacMenu("Edit.Increase Font Size", "T-+")
 call MacMenu("Edit.Decrease Font Size", "T--")
