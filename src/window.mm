@@ -169,6 +169,11 @@ typedef NS_ENUM(NSInteger, CloseAction) {
     [self windowWillResize:self toSize:[self frame].size];
 }
 
+- (void)windowDidChangeBackingProperties:(NSNotification *)notification
+{
+    [self windowWillResize:self toSize:[self frame].size];
+}
+
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
     mVim->vim_command("silent! doautoall <nomodeline> FocusGained");
