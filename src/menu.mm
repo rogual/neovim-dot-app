@@ -40,7 +40,10 @@ MenuInfo parseKeyEquivalent(std::string str)
         last = ch;
     }
 
-    info.keyEquivalent = str.substr(str.size() - 1);
+    if (str.size() == 0)
+        info.keyEquivalent = str;
+    else
+        info.keyEquivalent = str.substr(str.size() - 1);
     return info;
 }
 
