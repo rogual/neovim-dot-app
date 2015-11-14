@@ -200,6 +200,10 @@ NSString *menuPath(NSMenuItem *item) {
     NSMenu *app = [[NSMenu alloc] initWithTitle:@"Neovim"];
     [app addItemWithTitle:@"About Neovim" action:@selector(showAbout) keyEquivalent:@""];
     [app addItem:[NSMenuItem separatorItem]];
+    [app addItemWithTitle:@"Hide Neovim" action:@selector(hide:) keyEquivalent:@"h"];
+    NSMenuItem* item = [app addItemWithTitle:@"Hide Others" action:@selector(hideOtherApplications:) keyEquivalent:@"h"];
+    item.keyEquivalentModifierMask = NSCommandKeyMask|NSAlternateKeyMask;
+    [app addItem:[NSMenuItem separatorItem]];
     [app addItemWithTitle:@"Quit" action:@selector(terminate:) keyEquivalent:@"q"];
     NSMenuItem *appItem = [mMenuBar addItemWithTitle:@"" action:nil keyEquivalent:@""];
     [appItem setSubmenu:app];
