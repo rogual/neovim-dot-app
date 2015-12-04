@@ -1,3 +1,2 @@
 #!/bin/sh
-dir=$(dirname "$@")
-open -a Neovim --args --cwd "$dir" "$@"
+open -a Neovim --args --cwd "$(dirname $@)" "$@"
