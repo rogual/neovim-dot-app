@@ -61,6 +61,10 @@ function! MacCloseTabOrWindow()
     endtry
 endfunction
 
+function! MacSetOpenFilePreference(preference)
+    call rpcnotify(1, "neovim.app.setOpenFilePreference", a:preference)
+endfunction
+
 function! MacUpdateTitle()
     call rpcnotify(1, "neovim.app.updateTitle")
 endfunction

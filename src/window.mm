@@ -387,6 +387,28 @@ typedef NS_ENUM(NSInteger, CloseAction) {
     else if (note ==  "neovim.app.closeTabOrWindow") {
         [self closeTabOrWindow];
     }
+    else if (note ==  "neovim.app.setOpenFilePreference") {
+        std::vector<msgpack::object> args = update_o.convert();
+
+        try {
+            if (args.size() != 1) {
+                throw "setOpenFilePreference takes 1 argument: 'new-tab' or 'new-window'";
+            }
+
+            std::string preference = args[0].convert();
+
+	    if (preference == "new-tab") {
+	    	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"openInTabs"];
+	    } else if (preference == "new-window") {
+	    	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"openInTabs"];
+	    } else {
+                throw "setOpenFilePreference takes 1 argument: 'new-tab' or 'new-window'";
+	    }
+        }
+        catch (std::string msg) {
+            mVim->vim_report_error(msg);
+        }
+    }
     else {
         std::cout << "Unknown note " << note << "\n";
     }
