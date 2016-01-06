@@ -33,6 +33,9 @@ typedef NS_ENUM(NSInteger, CloseAction) {
     contentRect.size = [mMainView viewSizeFromCellSize:cellSize];
     frameRect = [sender frameRectForContentRect:contentRect];
 
+    // update the view resize and save
+    [mMainView viewDidEndLiveResize];
+
     return frameRect.size;
 }
 
