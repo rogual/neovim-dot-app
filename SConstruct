@@ -5,6 +5,12 @@ from SCons.Script import Environment
 
 env = Environment(ENV=os.environ, CXX='clang++')
 
+# dynamically generate CFLAGS and LDFLAGS
+try:
+    env.ParseConfig('pkg-config --cflags --libs msgpack')
+except OSError:
+    print "Unable to execute pkg-config, you may have to set CFLAGS and LDFLAGS by hand."
+
 env.Append(
     CCFLAGS=['-std=c++11', '-stdlib=libc++', '-g', '-Wno-deprecated-register'],
     CPPPATH=['build'],
@@ -71,3 +77,5 @@ env.Command(
     'res/Neovim.png',
     'sh makeicons.sh $TARGET $SOURCE'
 )
+
+#  vim: set et fenc=utf-8 ff=unix ft=python sts=4 sw=4 ts=8 : 
