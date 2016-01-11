@@ -1,2 +1,23 @@
 #!/bin/sh
-open -n -a Neovim --args --cwd "$PWD" "$@"
+
+# process gnvim flags
+# hat tip to http://stackoverflow.com/a/14203146/17597
+
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
+# default values
+opt_blocking=''
+
+while getopts "f" opt; do
+    case "$opt" in
+    f)  opt_blocking='-W -n'
+        ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+[ "$1" = "--" ] && shift
+
+# launch Neovim.app via open
+open -n -a Neovim $opt_blocking --args --cwd "$PWD" "$@"
