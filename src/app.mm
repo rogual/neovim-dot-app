@@ -184,6 +184,7 @@ void ignore_sigpipe(void)
     ss << ".UTF-8";
     setenv("LC_ALL", ss.str().c_str(), 1);
     setenv("LANG", ss.str().c_str(), 1);
+    setenv("NVIM_TUI_ENABLE_TRUE_COLOR", "1", 1);
 
     /* Set working dir */
     const char *cwd = 0;
