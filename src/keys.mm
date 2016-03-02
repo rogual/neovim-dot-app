@@ -110,7 +110,7 @@ static NSString *stringFromModifiedKey(unsigned keyCode, unsigned modifiers)
 static void addModifiers(std::ostream &os, unsigned mods)
 {
     if (mods & NSControlKeyMask) os << "C-";
-    if (mods & NSCommandKeyMask) os << "T-";
+    if (mods & NSCommandKeyMask) os << "D-";
     if (mods & NSAlternateKeyMask) os << "M-";
     if (mods & NSShiftKeyMask) os << "S-";
 }

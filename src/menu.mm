@@ -31,7 +31,8 @@ MenuInfo parseKeyEquivalent(std::string str)
         if (ch == '-' && last != '-') {
             switch (last) {
                 case 'C': info.modifierMask |= NSControlKeyMask; break;
-                case 'T': info.modifierMask |= NSCommandKeyMask; break;
+                case 'T':
+                case 'D': info.modifierMask |= NSCommandKeyMask; break;
                 case 'M': info.modifierMask |= NSAlternateKeyMask; break;
                 case 'S': info.modifierMask |= NSShiftKeyMask; break;
                 default: throw "Bad modifier";
@@ -111,18 +112,23 @@ NSString *menuPath(NSMenuItem *item) {
 
 - (void) customizeMenu:(const msgpack::object &)update_o
 {
-    std::vector<msgpack::object> args = update_o.convert();
+    try {
+        std::vector<msgpack::object> args = update_o.convert();
 
-    if (args.size() != 2) {
-        throw "MacMenu expects 2 arguments (name, keyEquivalent)";
+        if (args.size() != 2) {
+            throw "MacMenu expects 2 arguments (name, keyEquivalent)";
+        }
+
+        std::string path = args[0].convert();
+        std::string keyEquivalentStr = args[1].convert();
+
+        MenuInfo menuInfo = parseKeyEquivalent(keyEquivalentStr);
+        infoMap[path] = menuInfo;
+        [self updateMenu];
     }
-
-    std::string path = args[0].convert();
-    std::string keyEquivalentStr = args[1].convert();
-
-    MenuInfo menuInfo = parseKeyEquivalent(keyEquivalentStr);
-    infoMap[path] = menuInfo;
-    [self updateMenu];
+    catch (const char *error) {
+        mVim->vim_report_error(error);
+    }
 }
 
 - (void) updateMenu

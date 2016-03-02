@@ -1,5 +1,7 @@
 import os
 import sys
+import re
+import subprocess
 
 from SCons.Script import Environment
 
@@ -27,6 +29,25 @@ if 0:
 nvim = env['ENV'].get('NVIM')
 if not nvim:
     print('Please set NVIM to the path to a Neovim executable.')
+    sys.exit(-1)
+
+# Check Neovim version
+ver_str = subprocess.check_output([nvim, '--version']).split('\n', 1)[0]
+ver = re.match(r'NVIM v(\d+)\.(\d+).(\d+)(?:-(\d+))?', ver_str).groups()
+ver = tuple(map(int, ver))
+required = (0, 1, 3, 202)
+if ver < required:
+    fmt_ver = lambda ver: ('%s.%s.%s' if len(ver) == 3 else '%s.%s.%s-%s') % ver
+    print(
+        "\n"
+        "Your Neovim is too old. Please update Neovim to the latest HEAD "
+        "and recompile it.\n\n"
+        "Your version: %s\n"
+        "Required: %s\n" % (
+            fmt_ver(ver),
+            fmt_ver(required)
+        )
+    )
     sys.exit(-1)
 
 # Path to runtime

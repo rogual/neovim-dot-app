@@ -137,29 +137,29 @@ anoremenu .900 &Window.-nvapp3- :
 anoremenu .900 &Window.Toggle\ Full\ Screen :call MacToggleFullScreen()<CR>
 
 " Assign Cmd-key shortcuts
-call MacMenu("File.New Window", "T-n")
-call MacMenu("File.Save", "T-s")
-call MacMenu("File.Save As…", "T-S-s")
-call MacMenu("File.Open…", "T-o")
-call MacMenu("File.Print", "T-p")
+call MacMenu("File.New Window", "D-n")
+call MacMenu("File.Save", "D-s")
+call MacMenu("File.Save As…", "D-S-s")
+call MacMenu("File.Open…", "D-o")
+call MacMenu("File.Print", "D-p")
 
-call MacMenu("Edit.Undo", "T-z")
-call MacMenu("Edit.Redo", "T-S-z")
-call MacMenu("Edit.Cut", "T-x")
-call MacMenu("Edit.Copy", "T-c")
-call MacMenu("Edit.Paste", "T-v")
-call MacMenu("Edit.Select All", "T-a")
+call MacMenu("Edit.Undo", "D-z")
+call MacMenu("Edit.Redo", "D-S-z")
+call MacMenu("Edit.Cut", "D-x")
+call MacMenu("Edit.Copy", "D-c")
+call MacMenu("Edit.Paste", "D-v")
+call MacMenu("Edit.Select All", "D-a")
 
-call MacMenu("Edit.Increase Font Size", "T-+")
-call MacMenu("Edit.Decrease Font Size", "T--")
+call MacMenu("Edit.Increase Font Size", "D-+")
+call MacMenu("Edit.Decrease Font Size", "D--")
 
-call MacMenu("Window.New Tab", "T-t")
-call MacMenu("Window.Next Tab", "T-}")
-call MacMenu("Window.Previous Tab", "T-{")
-call MacMenu("Window.Close Tab", "T-w")
-call MacMenu("Window.Close Other Tabs", "T-S-w")
+call MacMenu("Window.New Tab", "D-t")
+call MacMenu("Window.Next Tab", "D-}")
+call MacMenu("Window.Previous Tab", "D-{")
+call MacMenu("Window.Close Tab", "D-w")
+call MacMenu("Window.Close Other Tabs", "D-S-w")
 
-call MacMenu("Window.Toggle Full Screen", "T-f")
+call MacMenu("Window.Toggle Full Screen", "D-f")
 
 autocmd BufEnter,BufFilePost,BufWritePost * call MacUpdateTitle()
 

@@ -237,6 +237,16 @@ typedef NS_ENUM(NSInteger, CloseAction) {
        is done. */
     mVim->vim_command("so $MYVIMRC");
 
+    /* As a courtesy, warn if any T- mappings are set */
+    mVim->vim_command_output("silent map").then([self](std::string mappings) {
+        if (mappings.find("T-") != std::string::npos) {
+            mVim->vim_report_error(
+              "<T-...> is now <D-...>. Please update your mappings.\n"
+              "For details: https://github.com/rogual/neovim-dot-app/issues/214"
+            );
+        }
+    });
+
     mMainView = [[VimView alloc] initWithCellSize:CGSizeMake(width, height)
                                               vim:mVim];
 
