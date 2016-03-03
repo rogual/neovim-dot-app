@@ -33,7 +33,7 @@ if not nvim:
 
 # Check Neovim version
 ver_str = subprocess.check_output([nvim, '--version']).split('\n', 1)[0]
-ver = re.match(r'NVIM v(\d+)\.(\d+).(\d+)(?:-(\d+))?', ver_str).groups()
+ver = re.match(r'NVIM v?(\d+)\.(\d+).(\d+)(?:-(\d+))?', ver_str).groups('0')
 ver = tuple(map(int, ver))
 required = (0, 1, 3, 202)
 if ver < required:
