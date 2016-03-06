@@ -169,3 +169,6 @@ autocmd TextChanged,BufWritePost,InsertEnter,InsertLeave,BufEnter,BufLeave * cal
 if filereadable(expand("~/.config/nvim/init.vim"))
     source ~/.config/nvim/init.vim
 endif
+
+let s:path = fnamemodify(resolve(expand('<sfile>:p')), ':h')
+exec 'set rtp+=' . s:path . '/runtime/after'
