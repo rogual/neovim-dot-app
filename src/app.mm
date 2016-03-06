@@ -227,6 +227,7 @@ void ignore_sigpipe(void)
 
         args.push_back(g_argv[i]);
     }
+    [self prepareNvimArgs:args];
     [self newWindowWithArgs:args];
 
     didFinishLaunching = YES;
@@ -241,6 +242,7 @@ void ignore_sigpipe(void)
     if (didFinishLaunching) {
         std::vector<char *> args;
         args.push_back(const_cast<char *>([filename UTF8String]));
+        [self prepareNvimArgs:args];
         activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
     }
     else {
@@ -248,6 +250,23 @@ void ignore_sigpipe(void)
         [initOpenFile retain];
     }
     return YES;
+}
+
+- (void)prepareNvimArgs:(std::vector<char *> &) args
+{
+    bool didSupplyNvimrc = NO;
+    for(std::vector<char *>::iterator it = args.begin(); it != args.end(); ++it) {
+        if (!strcmp("-u", *it)) {
+            didSupplyNvimrc = YES;
+        }
+    }
+
+    if (!didSupplyNvimrc) {
+        NSString *nvimrcPath = [[NSBundle mainBundle] pathForResource:@"nvimrc"
+                                                      ofType:nil];
+        args.push_back(const_cast<char *>("-u"));
+        args.push_back(const_cast<char *>([nvimrcPath UTF8String]));
+    }
 }
 
 @end
