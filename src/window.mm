@@ -230,13 +230,6 @@ typedef NS_ENUM(NSInteger, CloseAction) {
     mVim = new Vim([vimPath UTF8String], args);
     mVim->ui_attach(width, height, true);
 
-    /* Reload .nvimrc after connecting to get any settings requiring
-       gui_running to be re-evaluated as true.
-       This should be removed after an implementation similar to
-       https://github.com/neovim/python-client/issues/106
-       is done. */
-    mVim->vim_command("so $MYVIMRC");
-
     /* As a courtesy, warn if any T- mappings are set */
     mVim->vim_command_output("silent map").then([self](std::string mappings) {
         if (mappings.find("T-") != std::string::npos) {
