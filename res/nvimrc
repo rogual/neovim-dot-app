@@ -166,9 +166,5 @@ autocmd BufEnter,BufFilePost,BufWritePost * call MacUpdateTitle()
 " Update modified status on all events that could cause a change
 autocmd TextChanged,BufWritePost,InsertEnter,InsertLeave,BufEnter,BufLeave * call MacBufChanged()
 
-if filereadable(expand("~/.config/nvim/init.vim"))
-    source ~/.config/nvim/init.vim
-endif
-
 let s:path = fnamemodify(resolve(expand('<sfile>:p')), ':h')
 exec 'set rtp+=' . s:path . '/runtime/after'
