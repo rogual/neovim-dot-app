@@ -41,7 +41,7 @@ See [here](https://github.com/rogual/neovim-dot-app/blob/master/CONTRIBUTING.md)
 ```bash
 $ brew tap neovim/neovim
 $ brew tap rogual/neovim-dot-app
-$ brew install --HEAD neovim-dot-app
+$ brew install neovim-dot-app
 $ brew linkapps neovim-dot-app
 ```
 
