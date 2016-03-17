@@ -33,22 +33,29 @@ if not nvim:
 
 # Check Neovim version
 ver_str = subprocess.check_output([nvim, '--version']).split('\n', 1)[0]
-ver = re.match(r'NVIM v?(\d+)\.(\d+).(\d+)(?:-(\d+))?', ver_str).groups('0')
-ver = tuple(map(int, ver))
-required = (0, 1, 3, 202)
-if ver < required:
-    fmt_ver = lambda ver: ('%s.%s.%s' if len(ver) == 3 else '%s.%s.%s-%s') % ver
+if '-dev' in ver_str:
     print(
-        "\n"
-        "Your Neovim is too old. Please update Neovim to the latest HEAD "
-        "and recompile it.\n\n"
-        "Your version: %s\n"
-        "Required: %s\n" % (
-            fmt_ver(ver),
-            fmt_ver(required)
-        )
+        "WARNING: Could not determine exact Neovim version. If your Neovim is "
+        "not up to date, there may be incompatibilities."
     )
-    sys.exit(-1)
+else:
+    ver = re.match(r'NVIM v?(\d+)\.(\d+).(\d+)(?:-(\d+))?', ver_str).groups('0')
+    ver = tuple(map(int, ver))
+    required = (0, 1, 3, 202)
+    if ver < required:
+        fmt_ver = \
+            lambda ver: ('%s.%s.%s' if len(ver) == 3 else '%s.%s.%s-%s') % ver
+        print(
+            "\n"
+            "Your Neovim is too old. Please update Neovim to the latest HEAD "
+            "and recompile it.\n\n"
+            "Your version: %s\n"
+            "Required: %s\n" % (
+                fmt_ver(ver),
+                fmt_ver(required)
+            )
+        )
+        sys.exit(-1)
 
 # Path to runtime
 vim = env['ENV'].get('VIM')
