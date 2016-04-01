@@ -16,7 +16,7 @@ except OSError:
 env.Append(
     CCFLAGS=['-std=c++11', '-stdlib=libc++', '-g', '-Wno-deprecated-register'],
     CPPPATH=['build'],
-    LIBS=['c++', 'msgpack'],
+    LIBS=['c++', 'msgpackc'],
     FRAMEWORKS=['Cocoa', 'Carbon']
 )
 
