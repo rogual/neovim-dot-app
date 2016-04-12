@@ -116,6 +116,14 @@ void ignore_sigpipe(void)
 }
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app
 {
+    /* Save window position on close */
+    NSRect frameRelativeToScreen = 
+        [activeWindow convertRectToScreen:[activeWindow frame]];
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setInteger: frameRelativeToScreen.origin.x/2 forKey:@"left"];
+    [defaults setInteger: frameRelativeToScreen.origin.y/2 forKey:@"bottom"];
+
     return YES;
 }
 
@@ -156,6 +164,8 @@ void ignore_sigpipe(void)
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults registerDefaults:@{@"width": @80,
                                  @"height": @25,
+                                 @"left": @0,
+                                 @"bottom": @0,
                                  @"fontName": @"Menlo",
                                  @"fontSize": @11.0}];
 

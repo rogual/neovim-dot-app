@@ -20,6 +20,7 @@ typedef NS_ENUM(NSInteger, CloseAction) {
     CloseActionCancel
 };
 
+
 /* Override this so we can resize by whole cells, just like Terminal.app */
 - (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize
 {
@@ -216,6 +217,8 @@ typedef NS_ENUM(NSInteger, CloseAction) {
 - (id)initWithArgs:(const std::vector<char *> &)args
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    int left = [defaults integerForKey:@"left"];
+    int bottom = [defaults integerForKey:@"bottom"];
     int width = [defaults integerForKey:@"width"];
     int height = [defaults integerForKey:@"height"];
 
@@ -255,7 +258,12 @@ typedef NS_ENUM(NSInteger, CloseAction) {
                 NSMiniaturizableWindowMask |
                 NSResizableWindowMask;
 
-    self = [super initWithContentRect:[mMainView frame]
+
+    NSRect frame = [mMainView frame];
+    frame.origin.x = left;
+    frame.origin.y = bottom;
+
+    self = [super initWithContentRect:frame
                                     styleMask:style
                                     backing:NSBackingStoreBuffered
                                     defer:YES];
