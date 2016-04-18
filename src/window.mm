@@ -408,6 +408,10 @@ typedef NS_ENUM(NSInteger, CloseAction) {
     else if (note ==  "neovim.app.closeTabOrWindow") {
         [self closeTabOrWindow];
     }
+    else if (note ==  "neovim.app.shouldAntialias") {
+        BOOL shouldAntialias = update_o.via.array.ptr[0].convert();
+        [mMainView setShouldAntialias:shouldAntialias];
+    }
     else {
         std::cout << "Unknown note " << note << "\n";
     }
