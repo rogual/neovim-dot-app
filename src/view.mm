@@ -80,6 +80,10 @@
     );
     assert (mCanvasContext);
 
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL shouldAntialias = [defaults boolForKey:@"shouldAntialias"]; 
+    CGContextSetShouldAntialias(mCanvasContext, shouldAntialias);
+
     CGContextSaveGState(mCanvasContext);
     [self updateScale];
 
@@ -98,6 +102,7 @@
     }
     return self;
 }
+
 
 - (void)updateScale
 {
@@ -200,6 +205,14 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:mFont.fontName forKey:@"fontName"];
     [defaults setFloat:mFont.pointSize forKey:@"fontSize"];
+}
+
+- (void)setShouldAntialias:(BOOL)shouldAntialias
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:shouldAntialias forKey:@"shouldAntialias"];
+    CGContextSetShouldAntialias(mCanvasContext, shouldAntialias);
+    mVim->vim_command("redraw!");
 }
 
 - (void)cutText

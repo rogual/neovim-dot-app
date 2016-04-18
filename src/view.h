@@ -43,6 +43,7 @@ class Vim;
 
 - (void)setFont:(NSFont *)font;
 - (void)setFontProgramatically:(NSFont *)font;
+- (void)setShouldAntialias:(BOOL)shouldAntialias;
 
 - (void)openFile:(NSString *)filename;
 
