@@ -222,8 +222,10 @@ void ignore_sigpipe(void)
        which Neovim would choke on, so strip it out. */
     std::vector<char *> args;
 
-    if (initOpenFile != NULL) {
-      args.push_back(const_cast<char *>([initOpenFile UTF8String]));
+    if (initOpenFiles.size()) {
+      args.push_back(const_cast<char *>("-p"));
+      for (auto filename : initOpenFiles)
+        args.push_back(filename);
     }
 
     for (int i = 1; i < g_argc ; i++) {
@@ -242,22 +244,29 @@ void ignore_sigpipe(void)
     didFinishLaunching = YES;
 }
 
-/* OSX calls this when the user opens a file with us through Finder. But, that
-   alone would be too easy, so it ALSO parses our command line arguments for
-   us, decides what it thinks is a filename, and calls this for those too.
+/* This is called when a user opens a file with us through Finder, but it's
+   also called when the application is launched with command-line arguments.
+   In the latter case, we need to store the arguments so we can eventually
+   pass them to our Vim instance when we create it.
    Hence the initOpenFile and didFinishLaunching dance. */
-- (BOOL)application:(NSApplication *)app openFile:(NSString *)filename
+- (void)application:(NSApplication *)app openFiles:(NSArray *)filenames
 {
     if (didFinishLaunching) {
-        std::vector<char *> args;
-        args.push_back(const_cast<char *>([filename UTF8String]));
-        activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
+        BOOL openInTabs = [[NSUserDefaults standardUserDefaults] boolForKey:@"openInTabs"];
+        if (!openInTabs) {
+            /* Default to opening a new window and opening all passed arguments
+               in tabs in that window. */
+            std::vector<char *> args;
+            [self newWindowWithArgs:args];
+        }
+        for (NSString *filename in filenames) {
+            [activeWindow openFilename:filename];
+        }
+    } else {
+        for (NSString *filename in filenames) {
+            initOpenFiles.push_back(const_cast<char *>([filename UTF8String]));
+        }
     }
-    else {
-        initOpenFile = filename;
-        [initOpenFile retain];
-    }
-    return YES;
 }
 
 @end

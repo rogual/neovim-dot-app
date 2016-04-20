@@ -2,7 +2,7 @@
 
 @interface AppDelegate : NSResponder <NSApplicationDelegate> {
     BOOL didFinishLaunching;
-    NSString *initOpenFile;
+    std::vector<char *> initOpenFiles;
 }
 
 - (void) newWindow;
