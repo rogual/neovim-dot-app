@@ -29,6 +29,21 @@
     }
 }
 
+- (BOOL)performKeyEquivalent:(NSEvent *)event
+{
+    NSEventType type = [event type];
+    unsigned flags = [event modifierFlags];
+
+    /* <C-Tab> & <C-S-Tab> do not trigger keyDown events.
+       Catch the key event here and pass iti to keyDown. */
+    if (NSKeyDown == type && NSControlKeyMask & flags && 48 == [event keyCode]) {
+        [self keyDown:event];
+        return YES;
+    }
+    
+    return NO;
+}
+
 - (void)mouseEvent:(NSEvent *)event drag:(BOOL)drag type:(const char *)type
 {
     NSPoint cellLoc = [self cellContainingEvent:event];
