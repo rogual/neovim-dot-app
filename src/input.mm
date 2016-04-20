@@ -15,16 +15,18 @@
     NSTextInputContext *con = [NSTextInputContext currentInputContext];
     [NSCursor setHiddenUntilMouseMoves:YES];
 
-    std::stringstream raw;
-    translateKeyEvent(raw, event);
-    std::string raws = raw.str();
+    /* When a deadkey is received on keydown the length is 0. Allow
+       NSTextInputContext to handle the key press */
+    if ([[event characters] length] == 0 || [self hasMarkedText])
+        [con handleEvent:event];
+    else {
+        std::stringstream raw;
+        translateKeyEvent(raw, event);
+        std::string raws = raw.str();
 
-    if ([self hasMarkedText])
-        [con handleEvent:event];
-    else if (raws.size())
-        [self vimInput:raws];
-    else if (mInsertMode || [self probablyCommandMode])
-        [con handleEvent:event];
+        if (raws.size())
+            [self vimInput:raws];
+    }
 }
 
 - (void)mouseEvent:(NSEvent *)event drag:(BOOL)drag type:(const char *)type
