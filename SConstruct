@@ -99,6 +99,16 @@ if not os.path.isdir(vim + '/runtime'):
     )
 else:
     env.Install(res, vim + '/runtime')
+    # Create runtime/after/plugin directory
+    env.Command(
+        res + '/runtime/after/plugin',
+        '',
+        'mkdir -p ' + res + '/runtime/after/plugin'
+    )
+    env.Install(
+        res + '/runtime/after/plugin',
+        'res/zz_source_ginit.vim'
+    )
 
 env.Command(
     'build/Neovim.app/Contents/Resources/Neovim.icns',
