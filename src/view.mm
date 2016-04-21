@@ -82,7 +82,6 @@
 
     CGContextSaveGState(mCanvasContext);
     [self updateScale];
-
 }
 
 - (id)initWithCellSize:(CGSize)cellSize vim:(Vim *)vim
@@ -98,6 +97,7 @@
     }
     return self;
 }
+
 
 - (void)updateScale
 {
@@ -200,6 +200,12 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:mFont.fontName forKey:@"fontName"];
     [defaults setFloat:mFont.pointSize forKey:@"fontSize"];
+}
+
+- (void)setShouldAntialias:(BOOL)shouldAntialias
+{
+    CGContextSetShouldAntialias(mCanvasContext, shouldAntialias);
+    mVim->vim_command("redraw!");
 }
 
 - (void)cutText

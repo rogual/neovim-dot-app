@@ -95,6 +95,10 @@ function! MacOpenFileInBufferOrNewTab(filename)
     endif
 endfunction
 
+function! MacFontShouldAntialias(value)
+    call rpcnotify(1, "neovim.app.shouldAntialias", a:value)
+endfunction
+
 
 " First, load the default menus
 runtime menu.vim
