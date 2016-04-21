@@ -167,8 +167,7 @@ void ignore_sigpipe(void)
                                  @"left": @0,
                                  @"bottom": @0,
                                  @"fontName": @"Menlo",
-                                 @"fontSize": @11.0,
-                                 @"shouldAntialias": @YES}];
+                                 @"fontSize": @11.0}];
 
     [self loadLoginShellEnvironmentVariables];
 

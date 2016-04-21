@@ -80,13 +80,8 @@
     );
     assert (mCanvasContext);
 
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    BOOL shouldAntialias = [defaults boolForKey:@"shouldAntialias"]; 
-    CGContextSetShouldAntialias(mCanvasContext, shouldAntialias);
-
     CGContextSaveGState(mCanvasContext);
     [self updateScale];
-
 }
 
 - (id)initWithCellSize:(CGSize)cellSize vim:(Vim *)vim
@@ -209,8 +204,6 @@
 
 - (void)setShouldAntialias:(BOOL)shouldAntialias
 {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setBool:shouldAntialias forKey:@"shouldAntialias"];
     CGContextSetShouldAntialias(mCanvasContext, shouldAntialias);
     mVim->vim_command("redraw!");
 }
