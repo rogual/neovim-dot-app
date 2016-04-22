@@ -35,6 +35,7 @@ class Vim;
     bool mMenuNeedsUpdate;
 
     NSString *mMarkedText;
+    BOOL mMacmetaEnabled;
 }
 
 - (void)cutText;
@@ -43,6 +44,8 @@ class Vim;
 
 - (void)setFont:(NSFont *)font;
 - (void)setFontProgramatically:(NSFont *)font;
+
+- (void)setMacmeta:(BOOL)isEnabled;
 
 - (void)openFile:(NSString *)filename;
 

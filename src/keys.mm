@@ -78,7 +78,7 @@ static NSString *stringFromModifiedKey(unsigned keyCode, unsigned modifiers)
     const UCKeyboardLayout *layout =
         (const UCKeyboardLayout *)CFDataGetBytePtr(layoutData);
 
-    unsigned deadKeyState;
+    unsigned deadKeyState = 0;
     unichar chars[5];
     UniCharCount numChars;
 
@@ -146,7 +146,7 @@ void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
     addModifiedName(os, [event modifierFlags], clickCount, name);
 }
 
-void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags)
+void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags, BOOL enableMacmeta)
 {
     const char *name = keyName(keyCode);
 
@@ -174,11 +174,11 @@ void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags)
         than sending the alternate character for that key; nobody wants to
         map <C-∆> */
     if (flags & NSAlternateKeyMask)
-    if (flags & (NSCommandKeyMask | NSControlKeyMask)) {
-        chars = stringFromModifiedKey(keyCode, flags & NSShiftKeyMask);
-        sendflags |= NSAlternateKeyMask;
-        flags &= ~NSAlternateKeyMask;
-    }
+        if (flags & (NSCommandKeyMask | NSControlKeyMask) || enableMacmeta) {
+            chars = stringFromModifiedKey(keyCode, flags & NSShiftKeyMask);
+            sendflags |= NSAlternateKeyMask;
+            flags &= ~NSAlternateKeyMask;
+        }
 
     /* Vim doesn't distinguish between <C-j> and <C-J>, so let's send the
         S- modifier if:
@@ -214,7 +214,7 @@ void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags)
     }
 }
 
-void translateKeyEvent(std::ostream &os, NSEvent *event)
+void translateKeyEvent(std::ostream &os, NSEvent *event, BOOL enableMacmeta)
 {
     unsigned short keyCode = [event keyCode];
 
@@ -227,5 +227,5 @@ void translateKeyEvent(std::ostream &os, NSEvent *event)
         NSCommandKeyMask
     );
 
-    translateKeyEvent(os, keyCode, flags);
+    translateKeyEvent(os, keyCode, flags, enableMacmeta);
 }

@@ -15,13 +15,16 @@
     NSTextInputContext *con = [NSTextInputContext currentInputContext];
     [NSCursor setHiddenUntilMouseMoves:YES];
 
-    /* When a deadkey is received on keydown the length is 0. Allow
-       NSTextInputContext to handle the key press */
-    if ([[event characters] length] == 0 || [self hasMarkedText])
+    /* When a deadkey is received the character length is 0. Allow
+       NSTextInputContext to handle the key press only if Macmeta is
+       not turned on */
+    if ([self hasMarkedText]) {
         [con handleEvent:event];
-    else {
+    } else if (!mMacmetaEnabled && ([[event characters] length] == 0)) {
+        [con handleEvent:event];
+    } else {
         std::stringstream raw;
-        translateKeyEvent(raw, event);
+        translateKeyEvent(raw, event, mMacmetaEnabled);
         std::string raws = raw.str();
 
         if (raws.size())
@@ -40,7 +43,7 @@
         [self keyDown:event];
         return YES;
     }
-    
+   
     return NO;
 }
 

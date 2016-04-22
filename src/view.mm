@@ -47,6 +47,8 @@
         mCursorPos = mCursorDisplayPos = CGPointZero;
         mCursorOn = true;
 
+        mMacmetaEnabled = NO;
+
         [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
     }
 
@@ -200,6 +202,11 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:mFont.fontName forKey:@"fontName"];
     [defaults setFloat:mFont.pointSize forKey:@"fontSize"];
+}
+
+- (void)setMacmeta:(BOOL)isEnabled
+{
+    mMacmetaEnabled = isEnabled;
 }
 
 - (void)cutText
