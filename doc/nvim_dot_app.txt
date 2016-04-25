@@ -1,0 +1,82 @@
+*nvim_dot_app.txt*    For Nvim.                                         {Nvim}
+
+
+                 NVIM REFERENCE MANUAL
+
+
+The Neovim.app Distribution                *neovim-dot-app* *nvim-dot-app*
+============================================================================
+
+You are using Neovim.app, a distribution of Neovim tailored for use on the
+Mac platform.
+
+Neovim.app provides the following features:
+
+* Runs as its own app, outside of a terminal
+* Vim's |menu| is integrated with the Mac menu bar
+* Standard Mac keyboard shortcuts such as Command+C are implemented
+* GUI options such as typeface and font size can be customized
+
+
+============================================================================
+ The Neovim.app Scripting API                               *nvim-dot-app-api*
+
+You can control many of Neovim.app's features from Vim scripts. There follows
+a list of functions and variables defined for this purpose.
+
+Any functions or variables defined by Neovim.app and not documented here are
+subject to change without warning.
+
+neovim_dot_app
+    Variable containing the string "HEAD". You can use exists(neovim_dot_app)
+    to check if you're running in Neovim.app or not.
+
+    This is planned to later contain a version number.
+
+MacSetFont(name, size)
+    Set the display font. Size is in points.
+
+MacIncreaseFontSize()
+MacDescreaseFontSize()
+    Invokes the corresponding menu items, which implement OS X's standard
+    font size adjustment algorithm.
+
+MacShowFontSelector()
+    Shows the GUI font selector, as if the user had chosen "Show Fonts"
+    from the Edit menu.
+
+    Fonts chosen from the GUI font selector are stored to User Defaults, and
+    take effect on startup until overridden by a MacSetFont call.
+
+MacSetFontShouldAntialias(value)
+    If value is 1, enable font antialiasing (the default). If value is 0,
+    disable it. Calling with any other value is undefined behaviour.
+
+MacToggleFullScreen()
+    Switches between normal windowed mode and full-screen mode, as if the
+    user had pressed the green fullscreen button in the window title bar.
+
+MacMenu(name, keyEquivalent)
+    Sets or removes the keyboard shortcut for a menu item.
+
+    The name should be the dot-separated path to the menu item. For example,
+    "File.New Window".
+
+    The keyEquivalent should be the desired keyboard shortcut, or the empty
+    string to remove any keyboard shortcut already present. Modifiers can be
+    specified in the normal way.
+
+    Examples:
+        call MacMenu("Edit.Select All", "D-a")
+        call MacMenu("Edit.Decrease Font Size", "D--")
+
+MacNewWindow()
+    Open a new Neovim.app window.
+
+MacOpenFile()
+MacSaveFile()
+MacSaveAsFile()
+    Trigger the standard behaviour of the File menu items.
+
+MacCloseTabOrWindow()
+    Close the current tab, or, if it's the last tab, close the window.
