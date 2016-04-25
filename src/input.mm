@@ -20,11 +20,11 @@
        not turned on */
     if ([self hasMarkedText]) {
         [con handleEvent:event];
-    } else if (!mMacmetaEnabled && ([[event characters] length] == 0)) {
+    } else if (!mOptAsMeta && ([[event characters] length] == 0)) {
         [con handleEvent:event];
     } else {
         std::stringstream raw;
-        translateKeyEvent(raw, event, mMacmetaEnabled);
+        translateKeyEvent(raw, event, mOptAsMeta);
         std::string raws = raw.str();
 
         if (raws.size())

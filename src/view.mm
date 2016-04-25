@@ -47,7 +47,7 @@
         mCursorPos = mCursorDisplayPos = CGPointZero;
         mCursorOn = true;
 
-        mMacmetaEnabled = NO;
+        mOptAsMeta = NO;
 
         [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
     }
@@ -84,7 +84,6 @@
 
     CGContextSaveGState(mCanvasContext);
     [self updateScale];
-
 }
 
 - (id)initWithCellSize:(CGSize)cellSize vim:(Vim *)vim
@@ -100,6 +99,7 @@
     }
     return self;
 }
+
 
 - (void)updateScale
 {
@@ -204,9 +204,15 @@
     [defaults setFloat:mFont.pointSize forKey:@"fontSize"];
 }
 
-- (void)setMacmeta:(BOOL)isEnabled
+- (void)setOptionAsMeta:(BOOL)isEnabled
 {
-    mMacmetaEnabled = isEnabled;
+    mOptAsMeta = isEnabled;
+}
+
+- (void)setShouldAntialias:(BOOL)shouldAntialias
+{
+    CGContextSetShouldAntialias(mCanvasContext, shouldAntialias);
+    mVim->vim_command("redraw!");
 }
 
 - (void)cutText

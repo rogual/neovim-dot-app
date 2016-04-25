@@ -146,7 +146,7 @@ void addModifiedName(std::ostream &os, NSEvent *event, const char *name)
     addModifiedName(os, [event modifierFlags], clickCount, name);
 }
 
-void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags, BOOL enableMacmeta)
+void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags, BOOL optAsMeta)
 {
     const char *name = keyName(keyCode);
 
@@ -174,7 +174,7 @@ void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags,
         than sending the alternate character for that key; nobody wants to
         map <C-∆> */
     if (flags & NSAlternateKeyMask)
-        if (flags & (NSCommandKeyMask | NSControlKeyMask) || enableMacmeta) {
+        if (flags & (NSCommandKeyMask | NSControlKeyMask) || optAsMeta) {
             chars = stringFromModifiedKey(keyCode, flags & NSShiftKeyMask);
             sendflags |= NSAlternateKeyMask;
             flags &= ~NSAlternateKeyMask;
@@ -214,7 +214,7 @@ void translateKeyEvent(std::ostream &os, unsigned short keyCode, unsigned flags,
     }
 }
 
-void translateKeyEvent(std::ostream &os, NSEvent *event, BOOL enableMacmeta)
+void translateKeyEvent(std::ostream &os, NSEvent *event, BOOL optAsMeta)
 {
     unsigned short keyCode = [event keyCode];
 
@@ -227,5 +227,5 @@ void translateKeyEvent(std::ostream &os, NSEvent *event, BOOL enableMacmeta)
         NSCommandKeyMask
     );
 
-    translateKeyEvent(os, keyCode, flags, enableMacmeta);
+    translateKeyEvent(os, keyCode, flags, optAsMeta);
 }
