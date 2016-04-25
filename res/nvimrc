@@ -95,7 +95,7 @@ function! MacOpenFileInBufferOrNewTab(filename)
     endif
 endfunction
 
-function! MacFontShouldAntialias(value)
+function! MacSetFontShouldAntialias(value)
     call rpcnotify(1, "neovim.app.shouldAntialias", a:value)
 endfunction
 
