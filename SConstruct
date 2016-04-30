@@ -98,8 +98,10 @@ if not os.path.isdir(vim + '/runtime'):
         "to fix this."
     )
 else:
-    env.Install(res, vim + '/runtime')
-    env.Install(os.path.join(res, 'runtime/doc'), env.Glob('doc/*'))
+
+    runtime = env.Dir(res + '/runtime')
+    env.Install(runtime, env.Glob(vim + '/runtime/*'))
+    env.Install(runtime.Dir('doc'), env.Glob('doc/*'))
 
 env.Command(
     'build/Neovim.app/Contents/Resources/Neovim.icns',
