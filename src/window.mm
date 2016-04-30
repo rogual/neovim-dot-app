@@ -401,14 +401,18 @@ typedef NS_ENUM(NSInteger, CloseAction) {
             mVim->vim_report_error(msg);
         }
     }
-    else if (note ==  "neovim.app.bufchanged") {
+    else if (note == "neovim.app.bufchanged") {
         int isModified = update_o.via.array.ptr[0].convert();
         [self setDocumentEdited:isModified?YES:NO];
     }
-    else if (note ==  "neovim.app.closeTabOrWindow") {
+    else if (note == "neovim.app.closeTabOrWindow") {
         [self closeTabOrWindow];
     }
-    else if (note ==  "neovim.app.shouldAntialias") {
+    else if (note == "neovim.app.setOptAsMeta") {
+        BOOL optAsMeta = update_o.via.array.ptr[0].convert();
+        [mMainView setOptionAsMeta:optAsMeta];
+    }
+    else if (note == "neovim.app.shouldAntialias") {
         BOOL shouldAntialias = update_o.via.array.ptr[0].convert();
         [mMainView setShouldAntialias:shouldAntialias];
     }

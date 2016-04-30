@@ -48,6 +48,11 @@ MacShowFontSelector()
     Fonts chosen from the GUI font selector are stored to User Defaults, and
     take effect on startup until overridden by a MacSetFont call.
 
+MacSetOptionAsMeta(value)
+    If value is 1, pressing the option (alt) key will be interpreted as a 
+    meta command. With this set any option hotkeys are bindable as <M-..>.
+    If the value is 0, all option keys are interpreted as normal (the default).
+
 MacSetFontShouldAntialias(value)
     If value is 1, enable font antialiasing (the default). If value is 0,
     disable it. Calling with any other value is undefined behaviour.

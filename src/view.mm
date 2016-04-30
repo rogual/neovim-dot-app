@@ -47,6 +47,8 @@
         mCursorPos = mCursorDisplayPos = CGPointZero;
         mCursorOn = true;
 
+        mOptAsMeta = NO;
+
         [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
     }
 
@@ -200,6 +202,11 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:mFont.fontName forKey:@"fontName"];
     [defaults setFloat:mFont.pointSize forKey:@"fontSize"];
+}
+
+- (void)setOptionAsMeta:(BOOL)isEnabled
+{
+    mOptAsMeta = isEnabled;
 }
 
 - (void)setShouldAntialias:(BOOL)shouldAntialias

@@ -12,7 +12,7 @@ extern TISInputSourceRef g_input_source;
 static void test(unsigned short keyCode, unsigned flags, std::string expected)
 {
     std::stringstream ss;
-    translateKeyEvent(ss, keyCode, flags);
+    translateKeyEvent(ss, keyCode, flags, NO);
     std::string got = ss.str();
     if (got != expected) {
         pass = false;

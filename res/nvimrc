@@ -95,6 +95,10 @@ function! MacOpenFileInBufferOrNewTab(filename)
     endif
 endfunction
 
+function! MacSetOptionAsMeta(value)
+    call rpcnotify(1, "neovim.app.setOptAsMeta", a:value)
+endfunction
+
 function! MacSetFontShouldAntialias(value)
     call rpcnotify(1, "neovim.app.shouldAntialias", a:value)
 endfunction
