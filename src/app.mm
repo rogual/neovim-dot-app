@@ -57,14 +57,15 @@ void ignore_sigpipe(void)
     NSMutableDictionary *env = [NSMutableDictionary new];
 
     for (NSString *s in envVars) {
-        NSArray *keyvalue = [s componentsSeparatedByString:@"="];
+        NSMutableArray *keyvalue = [[s componentsSeparatedByString:@"="] mutableCopy];
 
         if (keyvalue.count < 2) {
             continue;
         }
 
         NSString *key = keyvalue[0];
-        NSString *value = keyvalue[1];
+        [keyvalue removeObjectAtIndex:0];
+        NSString *value = [keyvalue componentsJoinedByString:@"="];
 
         env[key] = value;
     }
