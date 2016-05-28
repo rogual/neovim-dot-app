@@ -35,9 +35,9 @@ void ignore_sigpipe(void)
         return nil;
     }
 
-    NSArray *args = @[@"-i", shellPath, @"-l", @"-c", @"\"env\""];
+    NSArray *args = @[@"-l", @"-c", @"env", @"-i"];
     NSTask *task = [NSTask new];
-    task.launchPath = @"/usr/bin/env";
+    task.launchPath = shellPath;
     task.arguments = args;
     task.standardOutput = [NSPipe new];
     task.standardError = [NSPipe new];
