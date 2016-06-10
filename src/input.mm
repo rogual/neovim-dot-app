@@ -96,8 +96,8 @@
     const char *type;
          if (y > 0) type = "ScrollWheelUp";
     else if (y < 0) type = "ScrollWheelDown";
-    else if (x > 0) type = "ScrollWheelRight";
-    else if (x < 0) type = "ScrollWheelLeft";
+    else if (x < 0) type = "ScrollWheelRight";
+    else if (x > 0) type = "ScrollWheelLeft";
     else assert(0);
 
     addModifiedName(ss, event, type);
