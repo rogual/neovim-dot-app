@@ -14,6 +14,10 @@ do
     if [[ $opt = -* ]]; then
         mode='new'
     fi
+
+    if [[ $opt = \+* ]]; then
+        mode='new'
+    fi
 done
 
 while getopts "f" opt; do
