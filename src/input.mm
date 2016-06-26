@@ -159,7 +159,7 @@
     pk.pack(cursordata);
 
     msgpack::unpacked msg;
-    msgpack::unpack(&msg, sbuf.data(), sbuf.size());
+    msgpack::unpack(msg, sbuf.data(), sbuf.size());
     msgpack::object obj = msg.get();
 
     [self redraw:obj];
