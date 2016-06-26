@@ -20,4 +20,15 @@ shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
 
 # launch Neovim.app via open
-open -n -a Neovim $opt_blocking --args --cwd "$PWD" "$@"
+
+# touch files if they don't already exist
+for i in "$@"; do
+    if [ ! -f "$i" ]; then
+        # try your best but don't complain
+        touch "$i" 2>/dev/null
+    fi
+done
+
+# pass any CLI params to Neovim before passing option flags
+# see https://github.com/rogual/neovim-dot-app/issues/204
+open -n -a Neovim "$@" $opt_blocking --args --cwd "$PWD"
