@@ -20,4 +20,4 @@ shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
 
 # launch Neovim.app via open
-open -n -a Neovim $opt_blocking --args --cwd "$PWD" "$@"
+open -a Neovim $opt_blocking --args --cwd "$PWD" "$@"
