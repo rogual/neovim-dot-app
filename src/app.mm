@@ -222,11 +222,6 @@ void ignore_sigpipe(void)
     /* Pass args on to Neovim. OSX will helpfully add a -psn_XXX arg
        which Neovim would choke on, so strip it out. */
     std::vector<char *> args;
-
-    if (initOpenFile != NULL) {
-      args.push_back(const_cast<char *>([initOpenFile UTF8String]));
-    }
-
     for (int i = 1; i < g_argc ; i++) {
         if (!strncmp("-psn_", g_argv[i], 5))
           continue;
@@ -238,6 +233,13 @@ void ignore_sigpipe(void)
 
         args.push_back(g_argv[i]);
     }
+
+    if (initOpenFile != NULL) {
+      char *filename =  const_cast<char *>([initOpenFile UTF8String]);
+      if (std::find(args.begin(), args.end(), filename) != args.end())
+         args.push_back(filename);
+    }
+
     [self newWindowWithArgs:args];
 
     didFinishLaunching = YES;
