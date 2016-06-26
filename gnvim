@@ -6,18 +6,28 @@
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
 # default values
-opt_blocking=''
+options=''
+mode='old'
+
+for opt in "$@"
+do
+    if [[ $opt = -* ]]; then
+        mode='new'
+    fi
+done
 
 while getopts "f" opt; do
     case "$opt" in
-    f)  opt_blocking='-W -n'
+    f)  options='-W -n'
         ;;
     esac
 done
 
 shift $((OPTIND-1))
 
-[ "$1" = "--" ] && shift
-
-# launch Neovim.app via open
-open -a Neovim $opt_blocking --args --cwd "$PWD" "$@"
+if [ "$mode" == "old" ]; then
+    open -a Neovim $options "$@" --args --cwd "$PWD"
+else
+    [ "$1" = "--" ] && shift
+    open -n -a Neovim $options --args --cwd "$PWD" "$@"
+fi
