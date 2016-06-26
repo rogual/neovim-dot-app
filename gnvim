@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # process gnvim flags
 # hat tip to http://stackoverflow.com/a/14203146/17597
