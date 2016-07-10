@@ -15,6 +15,6 @@ int main(int argc, char **argv)
 
     AppDelegate *delegate = [[AppDelegate alloc] init];
 
-    [NSApp setDelegate: (id<NSFileManagerDelegate>)delegate];
+    [NSApp setDelegate: delegate];
     [NSApp run];
 }
