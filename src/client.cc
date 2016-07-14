@@ -45,7 +45,7 @@ again:
        we parsed last time from memory. */
     unpacked = msgpack::unpacked();
 
-    while(unpacker.next(&unpacked)) {
+    while(unpacker.next(unpacked)) {
 
         msgpack::object item = unpacked.get();
 
