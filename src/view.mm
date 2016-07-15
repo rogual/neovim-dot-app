@@ -63,9 +63,14 @@
 
     /* Allocate a canvas big enough to fill the entire screen at Retina
        resolution. TODO: Detect screen size changes */
-    CGSize screenSize = [[NSScreen mainScreen] frame].size;
+    NSDictionary *description = [[NSScreen mainScreen] deviceDescription];
+    NSSize displayPixelSize = [[description objectForKey:NSDeviceSize] sizeValue];
+    CGSize displayPhysicalSize = CGDisplayScreenSize(
+                [[description objectForKey:@"NSScreenNumber"] unsignedIntValue]);
+    float dpi = displayPixelSize.width / displayPhysicalSize.width;
+
     CGSize sizeInPixels = CGSizeMake(
-        screenSize.width * 2, screenSize.height * 2
+        displayPixelSize.width * dpi, displayPixelSize.height * dpi
     );
 
     /* A CGBitmapContext is basically a mutable buffer of bytes in a given
