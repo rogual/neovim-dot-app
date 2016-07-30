@@ -39,11 +39,7 @@
 
     /* <C-Tab> & <C-S-Tab> do not trigger keyDown events.
        Catch the key event here and pass it to keyDown. */
-#ifdef __MAC_10_12
-    if (NSEventTypeKeyDown == type && NSEventModifierFlagControl & flags && 48 == [event keyCode]) {
-#else
     if (NSKeyDown == type && NSControlKeyMask & flags && 48 == [event keyCode]) {
-#endif
         [self keyDown:event];
         return YES;
     }
