@@ -14,3 +14,10 @@ clean:
 
 install:
 	cp -fpRv "build/Neovim.app" "/Applications"
+
+dmg: all
+	rm -rf build/dist
+	mkdir build/dist
+	cp -r build/Neovim.app build/dist
+	hdiutil create -fs HFS+ -srcfolder build/dist -volname Neovim build/Neovim.dmg
+
