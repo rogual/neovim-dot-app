@@ -28,7 +28,7 @@ Any functions or variables defined by Neovim.app and not documented here are
 subject to change without warning.
 
 neovim_dot_app
-    Variable containing the string "HEAD". You can use exists(neovim_dot_app)
+    Variable containing the string "HEAD". You can use exists('neovim_dot_app')
     to check if you're running in Neovim.app or not.
 
     This is planned to later contain a version number.
