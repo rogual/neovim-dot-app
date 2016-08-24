@@ -173,3 +173,10 @@ autocmd BufEnter,BufFilePost,BufWritePost * call MacUpdateTitle()
 
 " Update modified status on all events that could cause a change
 autocmd TextChanged,BufWritePost,InsertEnter,InsertLeave,BufEnter,BufLeave * call MacBufChanged()
+
+" Send files to Preview to “print” them
+set printexpr=MacPrintFile(v:fname_in)
+function! MacPrintFile(fname)
+    call system("open -a Preview " . a:fname)
+    return v:shell_error
+endfunc
