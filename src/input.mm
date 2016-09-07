@@ -15,21 +15,34 @@
     NSTextInputContext *con = [NSTextInputContext currentInputContext];
     [NSCursor setHiddenUntilMouseMoves:YES];
 
+    BOOL useOptAsMeta = [self hasOptAsMetaForModifier:[event modifierFlags]];
+
     /* When a deadkey is received the character length is 0. Allow
        NSTextInputContext to handle the key press only if Macmeta is
        not turned on */
     if ([self hasMarkedText]) {
         [con handleEvent:event];
-    } else if (!mOptAsMeta && ([[event characters] length] == 0)) {
+    } else if (!useOptAsMeta && ([[event characters] length] == 0)) {
         [con handleEvent:event];
     } else {
         std::stringstream raw;
-        translateKeyEvent(raw, event, mOptAsMeta);
+        translateKeyEvent(raw, event, useOptAsMeta);
         std::string raws = raw.str();
 
         if (raws.size())
             [self vimInput:raws];
     }
+}
+
+- (BOOL)hasOptAsMetaForModifier:(int)modifiers
+{
+    if (!mOptAsMeta)
+        return NO;
+
+    if (mOptAsMeta == META_EITHER)
+        return (modifiers & mOptAsMeta) == mOptAsMeta;
+
+    return modifiers == mOptAsMeta;
 }
 
 - (BOOL)performKeyEquivalent:(NSEvent *)event
@@ -43,7 +56,7 @@
         [self keyDown:event];
         return YES;
     }
-   
+
     return NO;
 }
 

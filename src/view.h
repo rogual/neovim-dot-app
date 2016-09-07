@@ -35,7 +35,7 @@ class Vim;
     bool mMenuNeedsUpdate;
 
     NSString *mMarkedText;
-    BOOL mOptAsMeta;
+    int mOptAsMeta;
 }
 
 - (void)cutText;
@@ -46,7 +46,7 @@ class Vim;
 - (void)setFontProgramatically:(NSFont *)font;
 - (void)setShouldAntialias:(BOOL)shouldAntialias;
 
-- (void)setOptionAsMeta:(BOOL)isEnabled;
+- (void)setOptionAsMetaForKey:(NSString *)key;
 
 - (void)openFile:(NSString *)filename;
 

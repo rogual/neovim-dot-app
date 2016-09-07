@@ -49,9 +49,13 @@ MacShowFontSelector()
     take effect on startup until overridden by a MacSetFont call.
 
 MacSetOptionAsMeta(value)
-    If value is 1, pressing the option (alt) key will be interpreted as a 
-    meta command. With this set any option hotkeys are bindable as <M-..>.
-    If the value is 0, all option keys are interpreted as normal (the default).
+    Valid values: "None", "Left", "Right", "Either", "Both"
+
+    The provided option will set the "Left" or "Right" option (alt) key to be
+    interpreted as a meta command. With this set any option hotkeys are
+    bindable as <M-..>. The "Either" value allows for either Option key to be
+    interpreted.  "Both" requires that both Option keys be pressed. The default
+    option is "None".
 
 MacSetFontShouldAntialias(value)
     If value is 1, enable font antialiasing (the default). If value is 0,
