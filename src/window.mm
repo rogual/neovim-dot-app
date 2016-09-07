@@ -409,8 +409,9 @@ typedef NS_ENUM(NSInteger, CloseAction) {
         [self closeTabOrWindow];
     }
     else if (note == "neovim.app.setOptAsMeta") {
-        BOOL optAsMeta = update_o.via.array.ptr[0].convert();
-        [mMainView setOptionAsMeta:optAsMeta];
+        std::string optAsMeta = update_o.via.array.ptr[0].convert();
+        NSString *option = [[NSString stringWithUTF8String:optAsMeta.c_str()] lowercaseString];
+        [mMainView setOptionAsMetaForKey:option];
     }
     else if (note == "neovim.app.shouldAntialias") {
         BOOL shouldAntialias = update_o.via.array.ptr[0].convert();
