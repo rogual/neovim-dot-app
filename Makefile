@@ -1,9 +1,7 @@
 NVIM?=$(shell which nvim)
 
 ifneq "$(NVIM)" ""
-	# TODO the last `grep -v` might not be needed if you could get only the
-	# matching group from sed
-VIM?=$(shell $(NVIM) --version | grep '$VIM' | sed 's/.*$VIM:[ ]*"\(.*\)"/\1/' | grep -v '$VIM')
+VIM?=$(shell $(NVIM) --version | tr -d '\n' | egrep -o '$VIM.*:.*"' | sed 's/.*$VIM.*:[ ]*"\(.*\)"/\1/')
 endif
 
 all:
