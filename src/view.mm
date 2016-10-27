@@ -31,6 +31,7 @@
         mTextAttrs = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
             mForegroundColor, NSForegroundColorAttributeName,
             mBackgroundColor, NSBackgroundColorAttributeName,
+            @0,               NSLigatureAttributeName,
             nil
         ] retain];
 
