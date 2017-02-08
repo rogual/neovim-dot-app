@@ -42,7 +42,7 @@ See [here](https://github.com/rogual/neovim-dot-app/blob/master/CONTRIBUTING.md)
 $ brew tap neovim/neovim
 $ brew tap rogual/neovim-dot-app
 $ brew install neovim-dot-app
-$ brew linkapps neovim-dot-app
+$ ln -s /usr/local/opt/neovim-dot-app /Applications
 ```
 
 ### Install manually
