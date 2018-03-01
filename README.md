@@ -1,3 +1,6 @@
+# NOTE
+This project is no longer in active development. For a macOS Neovim GUI in active development check out [VimR](https://github.com/qvacua/vimr)
+
 # OS X GUI for Neovim
 
 ![](https://raw.githubusercontent.com/rogual/neovim-osx-gui/screenshots/1.png)
