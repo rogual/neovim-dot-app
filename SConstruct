@@ -11,7 +11,7 @@ env = Environment(ENV=os.environ, CXX='clang++')
 try:
     env.ParseConfig('pkg-config --cflags --libs msgpack')
 except OSError:
-    print "Unable to execute pkg-config, you may have to set CFLAGS and LDFLAGS by hand."
+    print("Unable to execute pkg-config, you may have to set CFLAGS and LDFLAGS by hand.")
 
 env.Append(
     CCFLAGS=['-std=c++11', '-stdlib=libc++', '-g', '-Wno-deprecated-register', '-mmacosx-version-min=10.9'],
