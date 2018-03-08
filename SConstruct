@@ -32,7 +32,7 @@ if not nvim:
     sys.exit(-1)
 
 # Check Neovim version
-ver_str = subprocess.check_output([nvim, '--version']).split('\n', 1)[0]
+ver_str = subprocess.check_output([nvim, '--version']).decode().split('\n', 1)[0]
 if '-dev' in ver_str:
     print(
         "WARNING: Could not determine exact Neovim version. If your Neovim is "
@@ -109,4 +109,4 @@ env.Command(
     'sh makeicons.sh $TARGET $SOURCE'
 )
 
-#  vim: set et fenc=utf-8 ff=unix ft=python sts=4 sw=4 ts=8 : 
+#  vim: set et fenc=utf-8 ff=unix ft=python sts=4 sw=4 ts=8 :
