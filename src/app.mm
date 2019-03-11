@@ -106,6 +106,11 @@ void ignore_sigpipe(void)
     activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
 }
 
+- (void)setOpenFilesInNewWindow:(BOOL)_openFilesInNewWindow
+{
+    openFilesInNewWindow = _openFilesInNewWindow;
+}
+
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
 {
     if ([activeWindow isVisible]) {
@@ -158,6 +163,7 @@ void ignore_sigpipe(void)
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
     didFinishLaunching = NO;
+    openFilesInNewWindow = YES;
 
     [NSFontManager setFontManagerFactory:[VimFontManager class]];
     [self ensureFixedWidthCollection];
@@ -256,14 +262,17 @@ void ignore_sigpipe(void)
 {
     if (didFinishLaunching) {
         BOOL openInTabs = [[NSUserDefaults standardUserDefaults] boolForKey:@"openInTabs"];
-        if (!openInTabs) {
-            /* Default to opening a new window and opening all passed arguments
-               in tabs in that window. */
-            std::vector<char *> args;
-            [self newWindowWithArgs:args];
+        if (openFilesInNewWindow) {
+            // Default to opening a new window for each file
+            for (NSString *filename in filenames) {
+                std::vector<char *> args = {const_cast<char *>([filename UTF8String])};
+                [self newWindowWithArgs:args];
+            }
         }
-        for (NSString *filename in filenames) {
-            [activeWindow openFilename:filename];
+        else {
+            for (NSString *filename in filenames) {
+                [activeWindow openFilename:filename];
+            }
         }
     } else {
         for (NSString *filename in filenames) {

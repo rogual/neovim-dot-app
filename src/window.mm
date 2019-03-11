@@ -417,7 +417,7 @@ typedef NS_ENUM(NSInteger, CloseAction) {
         BOOL shouldAntialias = update_o.via.array.ptr[0].convert();
         [mMainView setShouldAntialias:shouldAntialias];
     }
-    else if (note ==  "neovim.app.setOpenFilePreference") {
+    else if (note == "neovim.app.setOpenFilePreference") {
         std::vector<msgpack::object> args = update_o.convert();
 
         try {
@@ -428,9 +428,9 @@ typedef NS_ENUM(NSInteger, CloseAction) {
             std::string preference = args[0].convert();
 
             if (preference == "new-tab") {
-                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"openInTabs"];
+                [(AppDelegate*)[NSApp delegate] setOpenFilesInNewWindow:false];
             } else if (preference == "new-window") {
-                [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"openInTabs"];
+                [(AppDelegate*)[NSApp delegate] setOpenFilesInNewWindow:true];
             } else {
                 throw "setOpenFilePreference takes 1 argument: 'new-tab' or 'new-window'";
             }
