@@ -112,7 +112,7 @@ aunmenu File.Open\.\.\.
 aunmenu File.Split-Open\.\.\.
 aunmenu File.Open\ Tab\.\.\.
 aunmenu File.Save\ As\.\.\.
-aunmenu File.Split\ Diff\ with\.\.\.
+aunmenu File.Split\ Diff\ With\.\.\.
 aunmenu File.Split\ Patched\ By\.\.\.
 
 " Exit doesn't belong in the File menu
