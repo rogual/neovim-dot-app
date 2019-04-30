@@ -32,7 +32,13 @@ if not nvim:
     sys.exit(-1)
 
 # Check Neovim version
-ver_str = subprocess.check_output([nvim, '--version']).split('\n', 1)[0]
+ver_str = subprocess.check_output([nvim, '--version'])
+
+if sys.version_info[0] >= 3:
+    ver_str = ver_str.decode('utf-8')
+
+ver_str = ver_str.split('\n', 1)[0]
+
 if '-dev' in ver_str:
     print(
         "WARNING: Could not determine exact Neovim version. If your Neovim is "
