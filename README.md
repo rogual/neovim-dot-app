@@ -31,7 +31,7 @@ See [here](https://github.com/rogual/neovim-dot-app/blob/master/CONTRIBUTING.md)
 
 ### Prerequisites
 
-* Neovim.app compiles on OS X 10.9, 10.10 and 10.11.
+* Neovim.app compiles on OS X 10.9 to 10.14.
 * You'll need to install Xcode and its command-line tools.
 * Homebrew isn't required but it's an easy way to install the rest of the
   dependencies.
