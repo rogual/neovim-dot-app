@@ -36,16 +36,7 @@ See [here](https://github.com/rogual/neovim-dot-app/blob/master/CONTRIBUTING.md)
 * Homebrew isn't required but it's an easy way to install the rest of the
   dependencies.
 
-### Install via Homebrew
-
-```bash
-$ brew tap neovim/neovim
-$ brew tap rogual/neovim-dot-app
-$ brew install neovim-dot-app
-$ ln -s /usr/local/opt/neovim-dot-app /Applications
-```
-
-### Install manually
+### Dependencies
 
 #### SCons
     $ brew install scons
@@ -57,7 +48,7 @@ $ ln -s /usr/local/opt/neovim-dot-app /Applications
     $ brew tap neovim/homebrew-neovim
     $ brew install --HEAD neovim
 
-#### To compile:
+### To compile:
 
     $ make
 
