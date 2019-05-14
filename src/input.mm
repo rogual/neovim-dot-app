@@ -185,7 +185,7 @@
         string = [string string];
 
     [mMarkedText autorelease];
-    mMarkedText = [mMarkedText stringByAppendingString:string];
+    mMarkedText = [string copy];
     [mMarkedText retain];
 
     /* Draw the fake character on the screen as if
@@ -241,7 +241,6 @@
 {
     string = [string stringByReplacingOccurrencesOfString:@"<"
                                                withString:@"<lt>"];
-
     [self vimInput:[string UTF8String]];
 }
 
@@ -254,7 +253,9 @@
 - (NSRect)firstRectForCharacterRange:(NSRange)aRange
                          actualRange:(NSRangePointer)actualRange
 {
-    return {{0,0},{0,0}};
+  double x = mCursorDisplayPos.x * mCharSize.width;
+  double y = [self frame].size.height - mCursorDisplayPos.y * mCharSize.height - 10;
+  return {{x, y}, {x, y}};
 }
 
 - (void)doCommandBySelector:(SEL)selector
