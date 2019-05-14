@@ -44,10 +44,10 @@
     }
 
     // if non-insert mode, ignore IME and send all to vim.
-    if(!mInsertMode){
-      [self sendEventToVim:event];
-      return;
-    }
+    //if(!mInsertMode){
+    //  [self sendEventToVim:event];
+    //  return;
+    //}
 
     // if insert mode and input is an ordinal character, send event to input context to trigger IME
     if (c && [self keyIsNotControlChar:c]){
