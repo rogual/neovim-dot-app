@@ -82,6 +82,13 @@ MacMenu(name, keyEquivalent)
 MacNewWindow()
     Open a new Neovim.app window.
 
+MacSetOpenFilePreference(preference)
+    Valid values: "new-tab", "new-window"
+
+    The option controls if multiple files opened via Finder or the app icon will
+    be opened in new tabs in the active window or new windows. The default
+    option is "new-window"
+
 MacOpenFile()
 MacSaveFile()
 MacSaveAsFile()

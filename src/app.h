@@ -2,10 +2,12 @@
 
 @interface AppDelegate : NSResponder <NSApplicationDelegate> {
     BOOL didFinishLaunching;
-    NSString *initOpenFile;
+    std::vector<char *> initOpenFiles;
+    BOOL openFilesInNewWindow;
 }
 
 - (void) newWindow;
 - (void) newWindowWithArgs:(const std::vector<char *> &)args;
+- (void) setOpenFilesInNewWindow:(BOOL)openFilesInNewWindow;
 
 @end

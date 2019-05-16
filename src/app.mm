@@ -106,6 +106,11 @@ void ignore_sigpipe(void)
     activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
 }
 
+- (void)setOpenFilesInNewWindow:(BOOL)_openFilesInNewWindow
+{
+    openFilesInNewWindow = _openFilesInNewWindow;
+}
+
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
 {
     if ([activeWindow isVisible]) {
@@ -158,6 +163,7 @@ void ignore_sigpipe(void)
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
     didFinishLaunching = NO;
+    openFilesInNewWindow = YES;
 
     [NSFontManager setFontManagerFactory:[VimFontManager class]];
     [self ensureFixedWidthCollection];
@@ -222,6 +228,14 @@ void ignore_sigpipe(void)
     /* Pass args on to Neovim. OSX will helpfully add a -psn_XXX arg
        which Neovim would choke on, so strip it out. */
     std::vector<char *> args;
+
+    if (initOpenFiles.size()) {
+        args.push_back(const_cast<char *>("-p"));
+        for (auto filename : initOpenFiles)
+            if (std::find(args.begin(), args.end(), filename) != args.end())
+                args.push_back(filename);
+    }
+
     for (int i = 1; i < g_argc ; i++) {
         if (!strncmp("-psn_", g_argv[i], 5))
           continue;
@@ -234,33 +248,37 @@ void ignore_sigpipe(void)
         args.push_back(g_argv[i]);
     }
 
-    if (initOpenFile != NULL) {
-      char *filename =  const_cast<char *>([initOpenFile UTF8String]);
-      if (std::find(args.begin(), args.end(), filename) != args.end())
-         args.push_back(filename);
-    }
-
     [self newWindowWithArgs:args];
 
     didFinishLaunching = YES;
 }
 
-/* OSX calls this when the user opens a file with us through Finder. But, that
-   alone would be too easy, so it ALSO parses our command line arguments for
-   us, decides what it thinks is a filename, and calls this for those too.
+/* This is called when a user opens a file with us through Finder, but it's
+   also called when the application is launched with command-line arguments.
+   In the latter case, we need to store the arguments so we can eventually
+   pass them to our Vim instance when we create it.
    Hence the initOpenFile and didFinishLaunching dance. */
-- (BOOL)application:(NSApplication *)app openFile:(NSString *)filename
+- (void)application:(NSApplication *)app openFiles:(NSArray *)filenames
 {
     if (didFinishLaunching) {
-        std::vector<char *> args;
-        args.push_back(const_cast<char *>([filename UTF8String]));
-        activeWindow = [[[VimWindow alloc] initWithArgs:args] retain];
+        BOOL openInTabs = [[NSUserDefaults standardUserDefaults] boolForKey:@"openInTabs"];
+        if (openFilesInNewWindow) {
+            // Default to opening a new window for each file
+            for (NSString *filename in filenames) {
+                std::vector<char *> args = {const_cast<char *>([filename UTF8String])};
+                [self newWindowWithArgs:args];
+            }
+        }
+        else {
+            for (NSString *filename in filenames) {
+                [activeWindow openFilename:filename];
+            }
+        }
+    } else {
+        for (NSString *filename in filenames) {
+            initOpenFiles.push_back(const_cast<char *>([filename UTF8String]));
+        }
     }
-    else {
-        initOpenFile = filename;
-        [initOpenFile retain];
-    }
-    return YES;
 }
 
 @end
