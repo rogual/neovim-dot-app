@@ -105,9 +105,13 @@ using msgpack::object;
             bg = fg;
         }
 
-        // Draw background separately [width = item_sz]
+        // Draw background separately
+        int strwidth = [self getIMERedrawRange];
+        if(strwidth < item_sz - 1){
+            strwidth = item_sz - 1;
+        }
         NSRect bgrect = [self
-            viewRectFromCellRect:CGRectMake(mCursorPos.x, mCursorPos.y, item_sz - 1.01, 1)];
+            viewRectFromCellRect:CGRectMake(mCursorPos.x, mCursorPos.y, strwidth, 1)];
         [bg set];
         NSRectFill(bgrect);
 

@@ -59,7 +59,7 @@
     if ([self hasMarkedText]) {
         [self sendEventToIME:event];
         return;
-    }else {
+    } else {
         [self sendEventToVim:event];
         return;
     }
