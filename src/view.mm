@@ -521,4 +521,19 @@
     return cellPoint;
 }
 
+- (int) getIMERedrawRange
+{
+    // on enter key
+    if(mMarkedText.length==0){
+        int res = mCachedIMERedrawRange * 2;
+        mCachedIMERedrawRange = 0;
+        return res;
+    }else{
+        if(mCachedIMERedrawRange < mMarkedText.length){
+            mCachedIMERedrawRange = mMarkedText.length;
+        }
+        return mCachedIMERedrawRange * 2;
+    };
+}
+
 @end

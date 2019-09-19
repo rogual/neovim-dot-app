@@ -10,28 +10,61 @@
 
 @implementation VimView (Input)
 
+- (bool)keyIsNotControlChar:(char) c{
+    return 32 <= c && c <= 126; // see ascii table
+}
+
+- (void) sendEventToVim:(NSEvent *) event{
+      BOOL useOptAsMeta = [self hasOptAsMetaForModifier:[event modifierFlags]];
+      std::stringstream raw;
+      translateKeyEvent(raw, event, useOptAsMeta);
+      std::string raws = raw.str();
+
+      if (raws.size())
+          [self vimInput:raws];
+
+      return;
+}
+
+- (void) sendEventToIME:(NSEvent *) event{
+      NSTextInputContext *con = [NSTextInputContext currentInputContext];
+      [con handleEvent: event];
+      return;
+}
+
 - (void)keyDown:(NSEvent *)event
 {
+    NSLog(@"%@", mMarkedText);
     NSTextInputContext *con = [NSTextInputContext currentInputContext];
     [NSCursor setHiddenUntilMouseMoves:YES];
-
     BOOL useOptAsMeta = [self hasOptAsMetaForModifier:[event modifierFlags]];
 
-    /* When a deadkey is received the character length is 0. Allow
-       NSTextInputContext to handle the key press only if Macmeta is
-       not turned on */
-    if ([self hasMarkedText]) {
-        [con handleEvent:event];
-    } else if (!useOptAsMeta && ([[event characters] length] == 0)) {
-        [con handleEvent:event];
-    } else {
-        std::stringstream raw;
-        translateKeyEvent(raw, event, useOptAsMeta);
-        std::string raws = raw.str();
-
-        if (raws.size())
-            [self vimInput:raws];
+    char c=0;
+    if([[event characters] length]){
+      c = [[event characters] characterAtIndex:0];
     }
+
+    // if non-insert mode, ignore IME and send all to vim.
+    //if(!mInsertMode){
+    //  [self sendEventToVim:event];
+    //  return;
+    //}
+
+    // if insert mode and input is an ordinal character, send event to input context to trigger IME
+    if (c && [self keyIsNotControlChar:c]){
+      [self sendEventToIME:event];
+      return;
+    }
+
+    // if input is a control character,  send it to IME only if IME is working
+    if ([self hasMarkedText]) {
+        [self sendEventToIME:event];
+        return;
+    } else {
+        [self sendEventToVim:event];
+        return;
+    }
+
 }
 
 - (BOOL)hasOptAsMetaForModifier:(int)modifiers
@@ -153,7 +186,7 @@
         string = [string string];
 
     [mMarkedText autorelease];
-    mMarkedText = [mMarkedText stringByAppendingString:string];
+    mMarkedText = [string copy];
     [mMarkedText retain];
 
     /* Draw the fake character on the screen as if
@@ -174,12 +207,12 @@
     msgpack::unpacked msg;
     msgpack::unpack(msg, sbuf.data(), sbuf.size());
     msgpack::object obj = msg.get();
-
     [self redraw:obj];
 }
 
 - (void)unmarkText
 {
+    [self onUnmarkText:mMarkedText.length];
     [mMarkedText release];
     mMarkedText = nil;
 }
@@ -200,7 +233,6 @@
 {
     if ([string isKindOfClass:[NSAttributedString class]])
         string = [string string];
-
     [self unmarkText];
     [self insertText:string];
 }
@@ -209,7 +241,6 @@
 {
     string = [string stringByReplacingOccurrencesOfString:@"<"
                                                withString:@"<lt>"];
-
     [self vimInput:[string UTF8String]];
 }
 
@@ -222,7 +253,9 @@
 - (NSRect)firstRectForCharacterRange:(NSRange)aRange
                          actualRange:(NSRangePointer)actualRange
 {
-    return {{0,0},{0,0}};
+  double x = mCursorDisplayPos.x * mCharSize.width;
+  double y = [self frame].size.height - mCursorDisplayPos.y * mCharSize.height - 10;
+  return {{x, y}, {x, y}};
 }
 
 - (void)doCommandBySelector:(SEL)selector

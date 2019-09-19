@@ -36,6 +36,7 @@ class Vim;
 
     NSString *mMarkedText;
     int mOptAsMeta;
+    int mCachedIMERedrawRange;
 }
 
 - (void)cutText;
@@ -63,4 +64,5 @@ class Vim;
 
 - (BOOL)probablyCommandMode;
 
+- (int)getIMERedrawRange;
 @end
