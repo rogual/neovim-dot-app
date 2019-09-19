@@ -73,7 +73,12 @@ using msgpack::object;
         [self updateMenu];
     }
 }
-
+- (void) onUnmarkText:(int)len
+{
+    NSLog(@"onunmark %d", len);
+    msgpack::object tmp;
+    [self doAction:(RedrawCode::clear) withItem:tmp];
+}
 - (void) doAction:(RedrawCode::Enum)code withItem:(const object &)item_o
 {
     int item_sz = item_o.via.array.size;

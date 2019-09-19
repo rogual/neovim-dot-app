@@ -34,6 +34,7 @@
 
 - (void)keyDown:(NSEvent *)event
 {
+    NSLog(@"%@", mMarkedText);
     NSTextInputContext *con = [NSTextInputContext currentInputContext];
     [NSCursor setHiddenUntilMouseMoves:YES];
     BOOL useOptAsMeta = [self hasOptAsMetaForModifier:[event modifierFlags]];
@@ -206,12 +207,12 @@
     msgpack::unpacked msg;
     msgpack::unpack(msg, sbuf.data(), sbuf.size());
     msgpack::object obj = msg.get();
-
     [self redraw:obj];
 }
 
 - (void)unmarkText
 {
+    [self onUnmarkText:mMarkedText.length];
     [mMarkedText release];
     mMarkedText = nil;
 }
@@ -232,7 +233,6 @@
 {
     if ([string isKindOfClass:[NSAttributedString class]])
         string = [string string];
-
     [self unmarkText];
     [self insertText:string];
 }
